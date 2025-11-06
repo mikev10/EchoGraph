@@ -1,0 +1,19 @@
+{
+  "name": "context-engineering-scripts",
+  "version": "1.0.0",
+  "description": "Utility scripts for Context Engineering project task management",
+  "type": "module",
+  "scripts": {
+    "parse-tasks": "node parse-tasks.js",
+    "validate-tasks": "node parse-tasks.js --validate"
+  },
+  "keywords": [
+    "task-management",
+    "validation",
+    "parsing"
+  ],
+  "author": "EZFacility R&D",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
