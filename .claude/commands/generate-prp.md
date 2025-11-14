@@ -121,6 +121,6 @@ Rate confidence that AI can implement this with current context:
 ✓ Clear implementation path with pseudocode
 ✓ Error handling documented
 
-**Output**: Save PRP to `PRPs/{feature-name}.md`
+**Output**: Save PRP to `PRPs/active/{feature-name}.md`
 
 **Goal**: Enable one-pass implementation success through comprehensive context

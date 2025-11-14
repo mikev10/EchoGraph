@@ -4,7 +4,7 @@ description: Execute PRP step-by-step with validation gates and ULTRATHINK plann
 
 You are about to execute a Product Requirements Prompt (PRP).
 
-**Input**: Path to PRP file (e.g., `PRPs/01-reservation-calendar.md`)
+**Input**: Path to PRP file (e.g., `PRPs/active/01-reservation-calendar.md`)
 
 **Process**:
 
@@ -130,5 +130,5 @@ Build Status: ✅ Success
 Acceptance Criteria: 15/15 ✅
 
 Next Steps:
-Run /archive-prp PRPs/01-reservation-calendar.md
+Run /archive-prp PRPs/active/01-reservation-calendar.md
 ```

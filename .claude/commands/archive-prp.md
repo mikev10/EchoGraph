@@ -27,7 +27,7 @@ Process:
 
 3. **Move File**:
    ```bash
-   mv PRPs/[prp-name].md PRPs/completed/[prp-name].md
+   mv PRPs/active/[prp-name].md PRPs/completed/[prp-name].md
    ```
 
 4. **Extract New Patterns**:
@@ -54,7 +54,7 @@ Process:
 **Example**:
 ```bash
 # Before
-PRPs/01-reservation-calendar.md
+PRPs/active/01-reservation-calendar.md
 
 # After
 PRPs/completed/01-reservation-calendar.md
