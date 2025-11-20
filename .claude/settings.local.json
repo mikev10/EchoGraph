@@ -7,5 +7,12 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "filesystem",
+    "context7",
+    "local-rag",
+    "perplexity",
+    "zeplin"
+  ]
 }

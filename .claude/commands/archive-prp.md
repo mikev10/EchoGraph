@@ -15,8 +15,15 @@ Process:
    - All validation commands pass
    - Tests passing
    - No open issues
+   - **Completion Summary added to PRP** (should be done during `/execute-prp` Phase 4)
 
-2. **Add Metadata**:
+2. **Verify Completion Summary Exists**:
+   - Check PRP file has "## Completion Summary" section at the end
+   - If missing, add it now following the format in `/execute-prp` workflow
+   - Completion summary is REQUIRED before archiving
+   - This ensures the PRP is a complete historical record for local-rag
+
+3. **Add Metadata** (Optional - frontmatter):
    ```markdown
    ---
    status: completed
@@ -24,18 +31,19 @@ Process:
    implemented_by: Claude
    ---
    ```
+   Note: The completion summary at the end is more important than frontmatter metadata
 
-3. **Move File**:
+4. **Move File**:
    ```bash
    mv PRPs/active/[prp-name].md PRPs/completed/[prp-name].md
    ```
 
-4. **Extract New Patterns**:
+5. **Extract New Patterns**:
    - Review implementation for reusable code
    - Add new patterns to examples/
    - Update CLAUDE.md if new conventions emerged
 
-5. **Update Task Hierarchy**:
+6. **Update Task Hierarchy**:
    - Mark corresponding subtask as complete in feature task file (`.claude/tasks/TASK-XXX-*.md`)
    - Update subtask completion count in feature file
    - Run task parser to update parent task in master TASK.md:

@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-filesystem"],
+      "env": {
+        "ALLOWED_DIRECTORIES": "C:\\Users\\Mike\\Documents\\EZProjects\\EZMobile"
+      }
+    },
+    "context7": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "local-rag": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "mcp-local-rag"]
+    },
+    "perplexity": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "perplexity-mcp"],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}",
+        "PERPLEXITY_TIMEOUT_MS": "600000"
+      }
+    },
+    "zeplin": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@zeplin/mcp-server@latest"],
+      "env": {
+        "ZEPLIN_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicGVyc29uYWxfYWNjZXNzX3Rva2VuIiwiY2xpZW50X2lkIjoiNjkxYjQ0ZTQ1YTBlZDM4ZWQ2YTcwMThlIiwic2NvcGUiOiIiLCJpYXQiOjE3NjMzOTQ3ODgsImV4cCI6MjA3ODk2NDA0OCwiaXNzIjoiemVwbGluOmFwaS56ZXBsaW4uaW8iLCJzdWIiOiI2NWNlNzEzMWFiZDVjYTA2MzI0ZDAzNGMiLCJqdGkiOiIwYzE0Y2VmYS0zNjg3LTRmZmUtOTA2Yi0yMDVhM2Q1MzVjMDgifQ.ViWHF6sbVrBLwuFWOdLCmQ-5o_jLIOYmXHrKCceBhp4"
+      }
+    }
+  }
+}

@@ -192,6 +192,107 @@ Run `/validate-tasks` to:
 - Auto-complete parent tasks when all subtasks done
 - Detect orphaned task files
 
+## Product Owner Integration
+
+**User Story to Feature Request Workflow:**
+
+Product Owners write user stories in Azure DevOps. Developers convert these to feature requests (INITIAL.md) for PRP generation.
+
+**Key Principle:** 1 User Story (1-3 days) = 1 Feature Request = 1 PRP
+
+### For Developers: Converting User Stories
+
+**When you receive a user story from a Product Owner:**
+
+1. **Use the `/convert-story` command:**
+   - Command prompts you to paste ADO user story content
+   - AI researches codebase for similar patterns, API endpoints, libraries
+   - Asks clarifying questions about technical approach
+   - Generates INITIAL.md with technical enrichment
+
+2. **Review and adjust the generated INITIAL.md:**
+   - Verify API endpoints match specification
+   - Check libraries/versions are correct
+   - Add any project-specific gotchas
+   - Ensure security considerations are complete
+
+3. **Proceed with standard workflow:**
+   - `/generate-prp` → Creates comprehensive PRP
+   - `/execute-prp` → Implements step-by-step
+   - Update ADO story status when complete
+
+**Alternative: Manual conversion**
+- Reference template: `.claude/templates/story-to-initial.md`
+- See examples and guidelines for proper conversion
+- Ensure all acceptance criteria are captured
+
+### Granularity Guidelines
+
+**Three levels of work:**
+
+| Level | ADO Item | Context Engineering | Size | Example |
+|-------|----------|---------------------|------|---------|
+| **Story** | User Story | 1 INITIAL.md → 1 PRP | 1-3 days | "User login with email/password" |
+| **Feature** | Feature | Multiple PRPs (one per story) | 1-2 weeks | "User Authentication" (login, logout, reset, refresh) |
+| **Epic** | Epic | Multiple Features → Multiple PRPs | Multiple weeks | "User Management" (auth, profiles, permissions, audit) |
+
+**Story-level work (most common):**
+- Product Owner writes small user story (1-3 days)
+- Developer converts to INITIAL.md using `/convert-story`
+- Single PRP generated and executed
+- Can be deployed independently
+
+**Feature-level work:**
+- Product Owner writes multiple related user stories
+- Developer creates feature task file (TASK-XXX)
+- Each story becomes a subtask (TASK-XXX.Y) with its own PRP
+- All PRPs contribute to one feature
+- Feature ships when all stories complete
+
+**Epic-level work:**
+- Product Owner defines large initiative
+- Break into features, then into stories
+- Each story still follows 1:1 PRP mapping
+- Ships across multiple sprints
+
+### What Product Owners Need to Provide
+
+**Required in every user story:**
+- ✅ User story format: "As a [user], I want [capability], so that [benefit]"
+- ✅ Minimum 2-3 acceptance criteria (ideally Given/When/Then format)
+- ✅ Business value explanation
+- ✅ Story size: 1-3 days (3-8 story points)
+
+**Nice to have:**
+- Mockups or wireframes
+- Links to competitor examples
+- Business constraints (deadlines, compliance)
+- Platform requirements
+
+**Product Owners should NOT provide:**
+- ❌ Technical implementation details
+- ❌ Code examples or API endpoint specifications
+- ❌ Library/framework choices
+- ❌ Database schemas
+
+**Developers research technical context during conversion.**
+
+### Resources for Product Owners
+
+- **Complete guide:** `.claude/PRODUCT-OWNER-GUIDE.md`
+- **Conversion template:** `.claude/templates/story-to-initial.md`
+- **Conversion command:** `/convert-story`
+
+### When to Skip User Story Conversion
+
+**Write INITIAL.md directly (without user story) for:**
+- Technical work (refactoring, bug fixes, technical debt)
+- Developer-initiated improvements
+- Work with no Product Owner involvement
+- Very technical features requiring significant research upfront
+
+In these cases, use the standard INITIAL.md template and proceed directly to `/generate-prp`.
+
 ## Validation Commands (Must Pass Before Committing)
 
 ```bash

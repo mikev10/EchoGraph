@@ -16,24 +16,46 @@ Conducts systematic research by combining project context, library documentation
 
 **Search for existing patterns and context within the project:**
 
-**What to search for:**
-- Existing implementations and patterns (search `examples/` folder)
-- Style guide rules and design patterns (check `CLAUDE.md`)
-- API endpoints and schemas (check `docs/api/` if applicable)
-- Library usage patterns (review existing code)
-- Past decisions and gotchas (check documentation)
+**MCP Server Strategy (PREFERRED - Use First):**
 
-**Search strategies:**
+1. **Use local-rag to query project documentation** (FASTEST):
+   ```javascript
+   // Search for similar implementations
+   mcp__local-rag__query_documents({
+     query: "[feature/topic] implementation patterns examples",
+     limit: 5
+   })
+
+   // Query style guide and conventions
+   mcp__local-rag__query_documents({
+     query: "design patterns conventions for [topic]",
+     limit: 3
+   })
+
+   // Query API endpoints (if applicable)
+   mcp__local-rag__query_documents({
+     query: "[feature] API endpoints request response schema",
+     limit: 5
+   })
+
+   // Find library usage patterns
+   mcp__local-rag__query_documents({
+     query: "[library name] usage patterns configuration",
+     limit: 3
+   })
+   ```
+
+**Traditional Search (if local-rag doesn't have indexed docs):**
 - Use Grep tool to search for relevant code patterns
 - Use Glob tool to find similar files
 - Read example implementations in `examples/`
 - Check `PRPs/ai_docs/` for library-specific guidance
 - Review `.claude/PLANNING.md` for architecture context
 
-**Example searches:**
-- "How is offline persistence implemented?"
+**Example queries:**
+- "How is data persistence implemented?"
 - "What UI components are used for forms?"
-- "Calendar API endpoints and their request/response formats"
+- "API endpoints and their request/response formats"
 
 ---
 
@@ -41,32 +63,43 @@ Conducts systematic research by combining project context, library documentation
 
 **Get up-to-date documentation for relevant libraries:**
 
-**Sources:**
-- Official library documentation websites
-- `PRPs/ai_docs/` for curated library guides
-- GitHub repositories (README, docs folder)
-- npm package documentation
-- Library-specific tutorials and guides
+**MCP Server Strategy (PREFERRED - Most Accurate):**
 
-**Use WebFetch tool to access:**
-- Official documentation pages
-- API reference guides
-- Migration guides and changelogs
-- Best practices and patterns
-- Code examples and recipes
+1. **Use context7 for library documentation** (RECOMMENDED):
+   ```javascript
+   // Step 1: Resolve library name to Context7 ID
+   mcp__context7__resolve-library-id({
+     libraryName: "[library name]"  // e.g., "next.js", "react-query"
+   })
+   // Returns: Context7-compatible library ID (e.g., "/vercel/next.js")
 
-**When to use:**
-- Verifying current API signatures
+   // Step 2: Fetch focused documentation
+   mcp__context7__get-library-docs({
+     context7CompatibleLibraryID: "/org/project",
+     topic: "[specific topic]",  // e.g., "server actions", "middleware"
+     tokens: 5000-7000
+   })
+   // Returns: Accurate, up-to-date API signatures and examples
+   ```
+
+**Alternative Sources (if context7 unavailable):**
+- Use WebFetch for official documentation pages
+- Check `PRPs/ai_docs/` for curated library guides
+- Access GitHub repositories (README, docs folder)
+- Review npm package documentation
+
+**When to use context7:**
+- Verifying current API signatures (prevents hallucinations!)
 - Understanding best practices for a library
-- Checking for breaking changes
-- Getting official examples
-- Understanding advanced features
+- Checking for breaking changes or deprecations
+- Getting official, tested examples
+- Understanding advanced features and patterns
 
 **Example topics:**
-- "offline support and persistence"
-- "optimistic updates and mutations"
-- "file-based routing and navigation"
-- "state persistence and hydration"
+- "server actions and data mutations"
+- "app router and navigation patterns"
+- "state management and persistence"
+- "authentication and authorization"
 
 ---
 
@@ -74,25 +107,48 @@ Conducts systematic research by combining project context, library documentation
 
 **Research beyond project and library documentation:**
 
-**Use WebSearch and WebFetch for:**
+**MCP Server Strategy (PREFERRED - Most Comprehensive):**
+
+1. **Use perplexity for quick research** (RECOMMENDED):
+   ```javascript
+   // For straightforward questions
+   mcp__perplexity__search({
+     query: "How to implement [feature] in [tech stack]?
+            Include: [specific requirements]
+            Environment: [versions, dependencies]"
+   })
+   ```
+
+2. **Use perplexity reasoning for complex analysis**:
+   ```javascript
+   mcp__perplexity__reason({
+     query: "How to implement [feature] in [tech stack]?
+            Consider: [requirements, constraints]
+            Environment: [framework versions, dependencies]
+            Include: Architecture patterns, tradeoffs, code examples
+            Compare: [different approaches]"
+   })
+   ```
+
+3. **Use deep research for comprehensive investigation**:
+   ```javascript
+   mcp__perplexity__deep_research({
+     query: "[feature] implementation strategies",
+     focus_areas: ["performance", "security", "scalability", "best practices"]
+   })
+   ```
+
+**Alternative Sources (WebSearch/WebFetch):**
 - Community best practices and patterns
 - Real-world implementation examples
 - Performance benchmarks and comparisons
 - Security considerations
-- Architecture patterns
 - Troubleshooting and debugging guides
-
-**Research strategies:**
-1. Search for specific patterns or problems
-2. Look for recent articles (prefer last 1-2 years)
-3. Check official blogs and release notes
-4. Review Stack Overflow for common issues
-5. Look for production-tested approaches
 
 **CRITICAL: Include full context in searches!**
 
-❌ Bad: "How to implement offline support?"
-✅ Good: "How to implement offline-first calendar with React Query including optimistic updates, AsyncStorage persistence, and background sync for React Native Expo app? Stack: Expo SDK 50, React Query v5, TypeScript. Consider: cache invalidation, conflict resolution, UI feedback."
+❌ Bad: "How to implement authentication?"
+✅ Good: "How to implement JWT authentication with refresh tokens in Next.js 15 app router? Stack: Next.js 15, TypeScript, PostgreSQL. Consider: secure token storage, middleware protection, session management, CSRF protection. Need: Implementation examples, security best practices."
 
 ---
 
@@ -100,26 +156,30 @@ Conducts systematic research by combining project context, library documentation
 
 **Combine information from all sources:**
 
-1. **Project Patterns** (from local search)
+1. **Project Patterns** (from local-rag + traditional search)
    - How does the project currently handle similar features?
    - What conventions are established?
    - What gotchas have been documented?
+   - Are there existing implementations to reference?
 
-2. **Library Best Practices** (from official docs)
+2. **Library Best Practices** (from context7 + official docs)
    - What does the official documentation recommend?
    - Are there current API patterns we should follow?
    - Any breaking changes or deprecations?
+   - What are the recommended approaches?
 
-3. **Industry Standards** (from external research)
+3. **Industry Standards** (from perplexity + external research)
    - What are the best practices in the wider community?
    - What are the tradeoffs of different approaches?
    - Are there security or performance considerations?
+   - What are proven production patterns?
 
 4. **Actionable Recommendations**
-   - Specific approach to take
-   - Code examples combining all sources
+   - Specific approach to take (based on all sources)
+   - Code examples combining project patterns + library APIs + best practices
    - Step-by-step implementation guide
    - Potential issues to watch for
+   - Validation strategy
 
 ---
 
