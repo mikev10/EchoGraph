@@ -28,6 +28,204 @@ Context Engineering is a development workflow that uses AI to:
 
 ---
 
+## Optional: AI-Assisted Story Drafting
+
+**New tool available:** `/write-user-story` command
+
+### What Is It?
+
+An AI-powered tool that helps you draft well-structured user stories BEFORE creating Azure DevOps work items. Think of it as a smart assistant that asks clarifying questions and formats your requirements into proper user stories with comprehensive acceptance criteria.
+
+### When to Use It
+
+**This tool is OPTIONAL but recommended for:**
+
+- ✅ Complex features with many edge cases or business rules
+- ✅ Learning to write better user stories (great for new POs)
+- ✅ Features where you're unsure how to structure acceptance criteria
+- ✅ Offline/async planning sessions (no ADO access needed)
+- ✅ Collaborative story refinement with stakeholders
+- ✅ Getting AI help with Given/When/Then formatting
+
+**You can skip it if:**
+
+- ❌ You're experienced with user story writing
+- ❌ Story is very simple and straightforward
+- ❌ You prefer writing directly in ADO
+
+### How It Works
+
+1. **Run the command with your requirements:**
+   ```
+   /write-user-story Users need to be able to reset their password
+   if they forget it. They should receive an email with a reset link.
+   ```
+
+2. **AI asks clarifying questions:**
+   - Who specifically needs this? (mobile users? web users? both?)
+   - What happens after they click the link?
+   - How long should the link be valid?
+   - What error cases should we handle?
+   - Any specific security requirements?
+
+3. **Answer the questions** (the more details, the better the story)
+
+4. **AI generates a structured story** with:
+   - Proper user story format (As a... I want... So that...)
+   - 3-6 acceptance criteria in Given/When/Then format
+   - Coverage of happy path, variations, and error cases
+   - Appropriate story size (1-3 days)
+
+5. **Story is saved locally** to `user-stories/drafts/[date]-[title].md`
+
+6. **Review and refine** the generated story
+
+7. **Create ADO work item** manually by copying the content
+
+### Example Interaction
+
+**Your input:**
+```
+/write-user-story Users need to upload profile photos from their device
+```
+
+**AI asks:**
+```
+I need some clarification to create a complete user story:
+
+1. Should users be able to take a new photo, or only choose existing ones, or both?
+2. Are there any size or format restrictions for photos?
+3. Should users be able to crop or edit the photo before uploading?
+4. What should happen if the upload fails (network error, file too large, etc.)?
+5. Is this for mobile app, web, or both?
+```
+
+**You answer:**
+```
+1. Both - take new or choose from library
+2. Max 5MB, JPG/PNG only
+3. Yes, crop to square
+4. Show clear error messages for each case
+5. Mobile app only (iOS and Android)
+```
+
+**AI generates:**
+```markdown
+### Title
+Upload and Update Profile Photo
+
+### User Story
+As a registered mobile app user
+I want to upload a profile photo from my device
+So that other users can recognize me in the app
+
+### Acceptance Criteria
+
+- **Scenario 1: Take New Photo**
+  - Given I'm on my profile page
+  - When I tap my current photo
+  - Then I see options "Take Photo" and "Choose from Library"
+  - And when I select "Take Photo", I can take a photo with my device camera
+
+- **Scenario 2: Choose from Library**
+  - Given I tap "Choose from Library"
+  - When I select an existing photo
+  - Then I see a crop interface to adjust the photo to a square format
+  - And I can confirm or cancel
+
+- **Scenario 3: Upload Success**
+  - Given I've cropped and confirmed my photo
+  - When the upload completes
+  - Then my profile photo is updated
+  - And other users see my new photo immediately
+
+- **Scenario 4: File Too Large**
+  - Given I select a photo larger than 5MB
+  - When I try to upload
+  - Then I see error "Photo must be smaller than 5MB"
+  - And I can choose a different photo
+
+- **Scenario 5: Invalid Format**
+  - Given I select a photo that's not JPG or PNG
+  - When I try to upload
+  - Then I see error "Please upload a JPG or PNG image"
+  - And I can choose a different photo
+
+- **Scenario 6: Network Error**
+  - Given my upload is in progress
+  - When network connection is lost
+  - Then I see error "Upload failed - please check your connection and try again"
+  - And I can retry the upload
+
+### Additional Notes
+- Supported formats: JPG, PNG
+- Maximum file size: 5MB
+- Image must be cropped to square
+- Works on both iOS and Android
+```
+
+**You then:**
+- Review the story
+- Make any adjustments
+- Copy to Azure DevOps
+- Assign to developer
+
+### What You Still Need to Do
+
+**The `/write-user-story` command does NOT:**
+- ❌ Create Azure DevOps work items automatically
+- ❌ Replace your judgment and domain expertise
+- ❌ Understand your specific business context without your input
+- ❌ Assign story points or priorities
+
+**You still need to:**
+- ✅ Answer clarifying questions accurately
+- ✅ Review and refine the generated story
+- ✅ Create the ADO work item manually
+- ✅ Add links to designs, mockups, related stories
+- ✅ Set priority and story points
+- ✅ Assign to the right developer
+
+### Tips for Best Results
+
+**Provide good initial requirements:**
+- Include WHO needs the feature (which users)
+- Include WHAT they need to do
+- Include WHY it's valuable (business benefit)
+- Mention any constraints (size limits, time limits, etc.)
+- Note platform requirements (mobile, web, both)
+
+**Be responsive to AI questions:**
+- Answer all clarifying questions
+- Provide specific details when asked
+- Don't worry about perfect phrasing - AI will format it
+
+**Review critically:**
+- Ensure acceptance criteria match your vision
+- Add business rules the AI might not know
+- Check that all error cases are covered
+- Verify story size is appropriate
+
+### Benefits
+
+1. **Faster story writing**: AI handles formatting and structure
+2. **Better coverage**: AI prompts for error cases you might forget
+3. **Consistent format**: All stories follow the same structure
+4. **Learning tool**: See examples of well-written stories
+5. **Offline capable**: Draft stories without ADO access
+
+### Getting Started
+
+1. Identify a story you need to write
+2. Run: `/write-user-story [your requirements]`
+3. Answer AI's questions
+4. Review generated story
+5. Create ADO work item with the content
+
+**Need more help?** Continue reading this guide for best practices on writing effective user stories, even when not using the AI tool.
+
+---
+
 ## Writing Effective User Stories
 
 ### Standard Format

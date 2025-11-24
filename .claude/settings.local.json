@@ -3,7 +3,12 @@
     "allow": [
       "Bash(find:*)",
       "Bash(ls:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(test:*)",
+      "mcp__filesystem__create_directory",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__directory_tree",
+      "mcp__perplexity__deep_research"
     ],
     "deny": [],
     "ask": []

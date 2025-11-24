@@ -200,23 +200,60 @@ Product Owners write user stories in Azure DevOps. Developers convert these to f
 
 **Key Principle:** 1 User Story (1-3 days) = 1 Feature Request = 1 PRP
 
+### For Product Owners: Drafting User Stories (OPTIONAL)
+
+**Before creating ADO work items, you can draft and refine stories using AI assistance:**
+
+1. **Use the `/write-user-story` command:**
+   - Run: `/write-user-story "Users need to reset their password..."`
+   - AI asks clarifying questions about requirements
+   - AI generates well-structured user story with Given/When/Then acceptance criteria
+   - Story saved to `user-stories/drafts/` for review
+
+2. **Review and refine:**
+   - Check acceptance criteria are testable and comprehensive
+   - Verify story size is appropriate (1-3 days, 3-8 story points)
+   - Ensure all edge cases and error scenarios are covered
+   - Add any business context or constraints
+
+3. **Create ADO work item:**
+   - Copy content from generated markdown file
+   - Create new user story in Azure DevOps
+   - Link designs, mockups, dependencies
+   - Assign to developer
+
+**This step is OPTIONAL but recommended for:**
+- Complex features needing careful planning
+- POs new to writing user stories
+- Features with many edge cases or business rules
+- Offline/async planning sessions
+- Learning to write better user stories
+
+**See also:** `.claude/PRODUCT-OWNER-GUIDE.md` for complete guidance on writing effective user stories.
+
 ### For Developers: Converting User Stories
 
 **When you receive a user story from a Product Owner:**
 
-1. **Use the `/convert-story` command:**
+1. **If story quality is poor, optionally refine it first:**
+   - Run: `/refine-story [ADO-ID]`
+   - AI analyzes story against INVEST criteria
+   - Shows before/after comparison with identified issues
+   - Decide whether to use improved version or request PO updates
+
+2. **Use the `/convert-story` command:**
    - Command prompts you to paste ADO user story content
    - AI researches codebase for similar patterns, API endpoints, libraries
    - Asks clarifying questions about technical approach
    - Generates INITIAL.md with technical enrichment
 
-2. **Review and adjust the generated INITIAL.md:**
+3. **Review and adjust the generated INITIAL.md:**
    - Verify API endpoints match specification
    - Check libraries/versions are correct
    - Add any project-specific gotchas
    - Ensure security considerations are complete
 
-3. **Proceed with standard workflow:**
+4. **Proceed with standard workflow:**
    - `/generate-prp` → Creates comprehensive PRP
    - `/execute-prp` → Implements step-by-step
    - Update ADO story status when complete
