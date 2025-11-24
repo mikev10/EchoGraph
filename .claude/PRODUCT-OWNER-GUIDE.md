@@ -2,17 +2,20 @@
 
 ## Quick Start
 
-**Good news:** Your workflow doesn't change! Continue using Azure DevOps exactly as you do today.
+**Good news:** Your core workflow doesn't change! You still write user stories and manage the backlog.
 
-**What's different:** Developers use an AI-assisted system (Context Engineering) to implement your user stories faster and more consistently.
+**What's different:**
+- AI assists with story writing, technical enrichment, and implementation
+- A **Three Amigos** collaboration process ensures alignment before grooming
+- Dev Lead and QA Lead enrich your stories before team estimation
 
 **Your role:**
-1. Write user stories in Azure DevOps (same as always)
+1. Write user stories (using AI assistance with `/write-user-story` if desired)
 2. Provide clear acceptance criteria
-3. Assign to developers
+3. Participate in **Three Amigos** alignment sessions
 4. Review completed work
 
-That's it! The Context Engineering system works behind the scenes.
+The Three Amigos process happens BEFORE team grooming, ensuring stories are well-understood by Dev and QA leads.
 
 ---
 
@@ -223,6 +226,181 @@ So that other users can recognize me in the app
 5. Create ADO work item with the content
 
 **Need more help?** Continue reading this guide for best practices on writing effective user stories, even when not using the AI tool.
+
+---
+
+## Three Amigos: Collaborative Story Refinement
+
+### What is Three Amigos?
+
+**Three Amigos** is a brief alignment session (30-45 minutes) that happens BEFORE team grooming. Three perspectives collaborate to ensure the story is ready:
+
+| Role | Perspective | What They Add |
+|------|-------------|---------------|
+| **Product Owner (You)** | Business | Requirements, value, scope decisions |
+| **Dev Lead** | Technical | Feasibility, complexity, patterns |
+| **QA Lead** | Testing | Test scenarios, edge cases, coverage |
+
+### Why This Matters for You
+
+**Benefits for Product Owners:**
+- Fewer questions during team grooming
+- Better estimates (shared understanding = accurate sizing)
+- Issues caught early (before sprint commitment)
+- Higher quality implementations (clear requirements)
+
+**Without Three Amigos:**
+- Stories enter grooming with ambiguities
+- Team spends grooming time asking clarifying questions
+- Stories get blocked mid-sprint due to hidden complexity
+- AI-generated code fails due to implicit assumptions
+
+### Your Role in Three Amigos
+
+**Before the session:**
+1. Write the initial user story using `/write-user-story` (or manually)
+2. Ensure acceptance criteria cover happy path and key error cases
+3. Be prepared to discuss business context and priorities
+
+**During the session:**
+1. Present the story and explain the business value (5 min)
+2. Answer questions from Dev Lead and QA Lead
+3. Make scope decisions when trade-offs are identified
+4. Confirm acceptance criteria updates
+
+**After the session:**
+1. Review story updates made by Dev Lead and QA Lead
+2. Confirm the story still matches your intent
+3. Approve for team grooming
+
+### The Three Amigos Workflow
+
+```
+YOUR ROLE                           DEV LEAD & QA LEAD
+───────────────────────────────────────────────────────────────
+
+Step 1: You Create Draft Story
+├── /write-user-story
+└── Story saved to user-stories/drafts/
+
+                                    Step 2: Dev Lead Enriches
+                                    ├── /enrich-story-tech
+                                    └── Adds Technical Context
+
+                                    Step 3: QA Lead Enriches
+                                    ├── /enrich-story-qa
+                                    └── Adds Test Scenarios
+
+Step 4: Three Amigos Session (All)
+├── /three-amigos-prep (generates agenda)
+├── 30-45 minute alignment meeting
+└── Resolve questions, confirm scope
+
+Step 5: Validation
+├── /validate-story-ready
+├── Confirms story meets Definition of Ready
+└── Story is READY for team grooming
+
+Step 6: Team Grooming (All)
+├── Present to full team
+├── Team estimates story points
+└── Commit to sprint
+```
+
+### What Questions to Expect
+
+**From Dev Lead:**
+- "Is [specific behavior] more important than [other behavior]?"
+- "Can we simplify by removing [feature]?"
+- "This seems complex - can we split it into two stories?"
+- "What should happen in [edge case scenario]?"
+
+**From QA Lead:**
+- "How should we test [specific scenario]?"
+- "What error message should users see when [error case]?"
+- "Is [boundary condition] acceptable behavior?"
+- "What test data do we need?"
+
+### Preparing for Common Scenarios
+
+**Scenario: Story is too large**
+- Dev Lead identifies 2+ weeks of work
+- **Your decision:** Split into smaller stories or keep as-is with adjusted timeline
+- **Recommendation:** Split. Smaller stories = better estimates + faster delivery
+
+**Scenario: Missing error cases**
+- QA Lead identifies untested scenarios
+- **Your decision:** Add acceptance criteria or mark out of scope
+- **Recommendation:** Add criteria for likely user errors; defer edge cases
+
+**Scenario: Technical complexity**
+- Dev Lead identifies unexpected complexity
+- **Your decision:** Accept complexity, simplify requirements, or defer
+- **Recommendation:** Discuss trade-offs, make informed decision
+
+**Scenario: Conflicting requirements**
+- Acceptance criteria contradict each other
+- **Your decision:** Clarify which behavior is correct
+- **Recommendation:** Update story immediately during session
+
+### What You DON'T Need to Do
+
+You are **NOT** expected to:
+- ❌ Understand the technical implementation details
+- ❌ Review code or API specifications
+- ❌ Attend dev/QA enrichment sessions (those are async)
+- ❌ Know how to run the `/enrich-story-tech` or `/enrich-story-qa` commands
+
+**Dev Lead and QA Lead handle the technical enrichment.** You only need to:
+- ✅ Write clear initial requirements
+- ✅ Attend the 30-45 minute alignment session
+- ✅ Make business decisions when trade-offs arise
+- ✅ Confirm the final story matches your intent
+
+### Scheduling Three Amigos
+
+**When:** 2-3 days before the story might enter a sprint
+
+**Duration:** 30-45 minutes per story (shorter for simple stories)
+
+**Frequency:** As needed for new features. Can skip for:
+- Bug fixes with clear reproduction steps
+- Technical debt stories
+- Trivial changes
+
+**Meeting format:**
+- Can be standalone or batched (multiple stories in one session)
+- Can be in-person or remote
+- Follow agenda generated by `/three-amigos-prep`
+
+### Definition of Ready
+
+After Three Amigos, your story should meet these criteria:
+
+**Your Sections (PO):**
+- [x] User type is specific (not just "user")
+- [x] Capability is clear and focused
+- [x] Business value stated ("so that...")
+- [x] Story sized appropriately (1-3 days)
+- [x] Minimum 3 acceptance criteria
+- [x] Given/When/Then format used
+
+**Added by Dev Lead:**
+- [ ] Technical feasibility confirmed
+- [ ] Dependencies identified
+- [ ] Security considerations noted
+
+**Added by QA Lead:**
+- [ ] Test scenarios documented
+- [ ] Edge cases identified
+- [ ] Test data requirements known
+
+**Validated Together:**
+- [ ] All questions resolved
+- [ ] Scope agreed
+- [ ] Risks identified
+
+**Validation command:** `/validate-story-ready [story-path]`
 
 ---
 
@@ -599,27 +777,40 @@ Use this checklist to ensure your user story is ready for development:
 
 ## Summary
 
-**Your job hasn't changed:**
-1. Write clear, focused user stories in Azure DevOps
+**Your job has evolved:**
+1. Write clear, focused user stories (optionally using `/write-user-story`)
 2. Use Given/When/Then acceptance criteria
-3. Provide business context and constraints
+3. Participate in Three Amigos alignment sessions
 4. Prioritize and plan sprints
 
 **What's new:**
-- Developers implement faster with AI assistance
-- You might get fewer clarifying questions
-- Implementation is more consistent
+- **Three Amigos process** - You, Dev Lead, and QA Lead align BEFORE grooming
+- **AI-assisted story writing** - `/write-user-story` helps draft better stories
+- **Enriched stories** - Dev Lead and QA Lead add technical and test context
+- **Validation** - Stories checked against Definition of Ready before grooming
 
 **Keep doing:**
 - ✅ Writing small, focused stories (1-3 days)
 - ✅ Using Given/When/Then acceptance criteria
 - ✅ Providing clear business value
 - ✅ Linking to designs and context
+- ✅ Making scope decisions during Three Amigos
 
 **Stop doing:**
 - ❌ Writing technical implementation details
 - ❌ Creating large multi-week stories
 - ❌ Leaving acceptance criteria vague
+- ❌ Skipping pre-grooming alignment for complex features
+
+---
+
+## Related Documentation
+
+- **Three Amigos Guide:** `.claude/docs/three-amigos-guide.md`
+- **Definition of Ready:** `.claude/DEFINITION-OF-READY.md`
+- **Story Workflow Guide:** `.claude/docs/story-workflow-guide.md`
+- **Story Commands Quick Reference:** `.claude/docs/story-commands-quick-reference.md`
+- **Developer Documentation:** `.claude/CLAUDE.md`
 
 ---
 

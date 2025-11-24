@@ -7,17 +7,64 @@ This guide shows all possible workflows for user stories in Context Engineering,
 ## Table of Contents
 
 1. [Overview: All Workflow Paths](#overview-all-workflow-paths)
-2. [Workflow 1: PO Drafting (Pre-ADO)](#workflow-1-po-drafting-pre-ado)
-3. [Workflow 2: Direct ADO to Implementation](#workflow-2-direct-ado-to-implementation)
-4. [Workflow 3: Story Refinement](#workflow-3-story-refinement)
-5. [Workflow 4: Technical Story](#workflow-4-technical-story)
-6. [Decision Trees](#decision-trees)
-7. [Command Reference](#command-reference)
-8. [Troubleshooting](#troubleshooting)
+2. [Three Amigos Workflow (Recommended)](#three-amigos-workflow-recommended)
+3. [Workflow 1: PO Drafting (Pre-ADO)](#workflow-1-po-drafting-pre-ado)
+4. [Workflow 2: Direct ADO to Implementation](#workflow-2-direct-ado-to-implementation)
+5. [Workflow 3: Story Refinement](#workflow-3-story-refinement)
+6. [Workflow 4: Technical Story](#workflow-4-technical-story)
+7. [Decision Trees](#decision-trees)
+8. [Command Reference](#command-reference)
+9. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview: All Workflow Paths
+
+### Recommended: Three Amigos Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                   THREE AMIGOS WORKFLOW (RECOMMENDED)                    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STEP 1: PO Creates Draft Story
+├── /write-user-story
+└── Story saved to user-stories/drafts/
+        │
+        ▼
+STEP 2: Dev Lead Enriches (Technical Context)
+├── /enrich-story-tech
+└── Adds: API specs, data model, patterns, security
+        │
+        ▼
+STEP 3: QA Lead Enriches (Test Scenarios)
+├── /enrich-story-qa
+└── Adds: Test cases, edge cases, test data requirements
+        │
+        ▼
+STEP 4: Three Amigos Alignment Session
+├── /three-amigos-prep (generates agenda)
+├── 30-45 minute meeting: PO + Dev Lead + QA Lead
+└── Resolve questions, confirm scope
+        │
+        ▼
+STEP 5: Validate Readiness
+├── /validate-story-ready
+├── Confirms Definition of Ready criteria met
+└── Status: READY / NEARLY READY / NOT READY
+        │
+        ▼
+STEP 6: Team Grooming → Estimation → Sprint Commit
+        │
+        ▼
+STEP 7: Implementation
+├── /convert-story
+├── /generate-prp
+├── /execute-prp
+└── Code complete!
+```
+
+### Alternative: Simplified Paths
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -48,6 +95,24 @@ This guide shows all possible workflows for user stories in Context Engineering,
                         │       │               │
                         └───────┴───────────────┘
                                 │
+                    ┌───────────┴───────────┐
+                    │                       │
+              Use Three Amigos      Skip to Implementation
+              (recommended)          (simple stories only)
+                    │                       │
+        ┌───────────┴───────────┐           │
+        │                       │           │
+    /enrich-story-tech    /enrich-story-qa  │
+        │                       │           │
+        └───────────┬───────────┘           │
+                    ▼                       │
+            /three-amigos-prep              │
+                    │                       │
+                    ▼                       │
+            /validate-story-ready           │
+                    │                       │
+                    └───────────┬───────────┘
+                                │
                          /convert-story
                                 │
                           INITIAL.md
@@ -60,6 +125,178 @@ This guide shows all possible workflows for user stories in Context Engineering,
                                 │
                         IMPLEMENTATION
 ```
+
+---
+
+## Three Amigos Workflow (Recommended)
+
+**Use case:** Full collaborative workflow ensuring stories are fully ready before team grooming
+
+The Three Amigos workflow brings together PO (business), Dev Lead (technical), and QA Lead (testing) perspectives before a story enters team grooming. This is the **recommended workflow** for new features and complex stories.
+
+### Why Three Amigos?
+
+| Without Three Amigos | With Three Amigos |
+|---------------------|-------------------|
+| Stories enter grooming with ambiguities | Stories are fully understood before grooming |
+| Team asks clarifying questions during grooming | Questions already answered |
+| Developers blocked mid-sprint by surprises | Risks identified upfront |
+| AI generates code with missing error handling | Explicit edge cases documented |
+| QA discovers gaps during testing | Test scenarios defined before dev starts |
+
+### Step-by-Step Process
+
+#### Step 1: PO Creates Draft Story
+
+**Command:** `/write-user-story [requirements]`
+
+**Who:** Product Owner (or BA)
+
+**Output:** Story saved to `user-stories/drafts/[date]-[title].md`
+
+**What's created:**
+- User story with specific user type
+- 3-5 acceptance criteria in Given/When/Then format
+- Happy path, variations, and error scenarios
+
+#### Step 2: Dev Lead Adds Technical Context
+
+**Command:** `/enrich-story-tech [story-path]`
+
+**Who:** Dev Lead
+
+**Output:** Technical Context section added to story file
+
+**What's added:**
+- Architecture approach and component mapping
+- API specifications (endpoints, request/response formats)
+- Data model and migration requirements
+- Dependencies and prerequisites
+- Security considerations
+- Technical risks assessment
+- Implementation patterns from codebase
+
+**Example:**
+```
+/enrich-story-tech user-stories/drafts/20251124-password-reset.md
+```
+
+#### Step 3: QA Lead Adds Test Scenarios
+
+**Command:** `/enrich-story-qa [story-path]`
+
+**Who:** QA Lead
+
+**Output:** QA Context section added to story file
+
+**What's added:**
+- Comprehensive test scenarios (happy path, negative, boundary, edge cases)
+- Test data requirements
+- Integration test points
+- Accessibility checklist (if applicable)
+- Regression impact analysis
+- Automation strategy
+
+**Example:**
+```
+/enrich-story-qa user-stories/drafts/20251124-password-reset.md
+```
+
+#### Step 4: Three Amigos Alignment Session
+
+**Command:** `/three-amigos-prep [story-path]`
+
+**Who:** All three (PO, Dev Lead, QA Lead)
+
+**Output:** Meeting agenda and discussion points
+
+**Meeting structure (30-45 min):**
+| Time | Topic | Lead |
+|------|-------|------|
+| 5 min | Story Overview | PO |
+| 10 min | Acceptance Criteria Review | All |
+| 10 min | Technical Feasibility | Dev Lead |
+| 10 min | Test Strategy | QA Lead |
+| 5 min | Scope & Risks | All |
+| 5 min | Actions & Wrap-up | All |
+
+**Example:**
+```
+/three-amigos-prep user-stories/drafts/20251124-password-reset.md
+```
+
+#### Step 5: Validate Readiness
+
+**Command:** `/validate-story-ready [story-path]`
+
+**Who:** Any team member (usually facilitator)
+
+**Output:** Definition of Ready report
+
+**Checks:**
+- User Story Structure (5 criteria)
+- Acceptance Criteria (5 criteria)
+- Technical Context (7 criteria)
+- QA Context (5 criteria)
+- Three Amigos Alignment (4 criteria)
+
+**Status outcomes:**
+- **READY** (90%+): Proceed to team grooming
+- **NEARLY READY** (75-89%): Address minor gaps
+- **NOT READY** (<75%): Address critical gaps
+
+**Example:**
+```
+/validate-story-ready user-stories/drafts/20251124-password-reset.md
+```
+
+#### Step 6: Team Grooming & Estimation
+
+**Manual step:** Present story to full development team
+
+**With Three Amigos complete:**
+- Story already well-understood
+- Technical complexity known
+- Test approach defined
+- Estimates are more accurate
+
+#### Step 7: Implementation
+
+**Commands:**
+```
+/convert-story US-4523
+/generate-prp
+/execute-prp
+```
+
+**Flow:** Story → INITIAL.md → PRP → Implementation
+
+### When to Use Three Amigos
+
+**Always use for:**
+- ✅ New features with user-facing changes
+- ✅ Complex technical stories
+- ✅ Stories with multiple acceptance criteria
+- ✅ Stories touching security or payments
+- ✅ Stories with unknown complexity
+
+**Can skip for:**
+- ❌ Bug fixes with clear reproduction steps
+- ❌ Technical debt with dev-only impact
+- ❌ Trivial changes (typo fixes, config changes)
+- ❌ Spike/research tasks
+
+### Commands Summary
+
+| Step | Command | Owner |
+|------|---------|-------|
+| 1 | `/write-user-story` | PO |
+| 2 | `/enrich-story-tech` | Dev Lead |
+| 3 | `/enrich-story-qa` | QA Lead |
+| 4 | `/three-amigos-prep` | Facilitator |
+| 5 | `/validate-story-ready` | Any |
+| 6 | Manual grooming | Team |
+| 7 | `/convert-story` → `/generate-prp` → `/execute-prp` | Developer |
 
 ---
 
@@ -528,13 +765,28 @@ After running /refine-story:
 
 ## Command Reference
 
+### All Story Commands
+
 | Command | Purpose | Input | Output | Who Uses |
 |---------|---------|-------|--------|----------|
 | `/write-user-story` | Draft new story from requirements | Requirements text | Story markdown file | PO, Developer |
 | `/refine-story` | Improve existing story | ADO-ID or story text | Before/after comparison | Developer |
+| `/enrich-story-tech` | Add technical context | Story path | Technical Context section | Dev Lead |
+| `/enrich-story-qa` | Add test scenarios | Story path | QA Context section | QA Lead |
+| `/three-amigos-prep` | Prepare alignment meeting | Story path | Meeting agenda | Facilitator |
+| `/validate-story-ready` | Check Definition of Ready | Story path | Readiness report | Any |
 | `/convert-story` | Convert story to technical spec | ADO-ID | INITIAL.md | Developer |
 | `/generate-prp` | Create implementation plan | INITIAL.md path | PRP file | Developer |
 | `/execute-prp` | Implement step-by-step | PRP path | Code changes | Developer |
+
+### Three Amigos Commands
+
+| Command | Step | Owner | What It Does |
+|---------|------|-------|--------------|
+| `/enrich-story-tech` | 2 | Dev Lead | Researches codebase, adds API specs, data model, patterns, security |
+| `/enrich-story-qa` | 3 | QA Lead | Generates test scenarios, edge cases, test data requirements |
+| `/three-amigos-prep` | 4 | Facilitator | Creates meeting agenda with discussion points for 30-45 min session |
+| `/validate-story-ready` | 5 | Any | Validates story against all Definition of Ready criteria |
 
 ### Command Decision Matrix
 
@@ -542,7 +794,11 @@ After running /refine-story:
 |-----------|---------------|-------------|
 | PO drafting new story | `/write-user-story` | Write in ADO directly |
 | Developer received poor story | `/refine-story` | Ask PO to revise |
-| Developer received good story | `/convert-story` | N/A |
+| Developer received good story | `/convert-story` | Use Three Amigos first (recommended) |
+| Dev Lead adding technical context | `/enrich-story-tech` | N/A |
+| QA Lead adding test scenarios | `/enrich-story-qa` | N/A |
+| Preparing Three Amigos meeting | `/three-amigos-prep` | N/A |
+| Checking if story is ready | `/validate-story-ready` | Manual DoR checklist |
 | Developer has technical work | `/write-user-story` | Write INITIAL.md directly |
 | Ready to implement | `/generate-prp` + `/execute-prp` | N/A |
 
@@ -660,6 +916,8 @@ After running /refine-story:
 
 ## Related Documentation
 
+- **Three Amigos Guide:** `.claude/docs/three-amigos-guide.md` - Complete guide to the Three Amigos collaboration process
+- **Definition of Ready:** `.claude/DEFINITION-OF-READY.md` - Full DoR criteria checklist
 - **For POs:** `.claude/PRODUCT-OWNER-GUIDE.md` - Complete guide to writing effective user stories
 - **For Developers:** `.claude/CLAUDE.md` - Full Context Engineering workflow
 - **Quick Reference:** `.claude/docs/story-commands-quick-reference.md` - One-page command cheat sheet
@@ -669,4 +927,4 @@ After running /refine-story:
 ---
 
 **Last Updated:** 2025-11-24
-**Version:** 1.0
+**Version:** 2.0 (Added Three Amigos workflow)

@@ -231,6 +231,52 @@ Product Owners write user stories in Azure DevOps. Developers convert these to f
 
 **See also:** `.claude/PRODUCT-OWNER-GUIDE.md` for complete guidance on writing effective user stories.
 
+### Three Amigos Workflow (Recommended)
+
+**Before stories enter team grooming**, use the Three Amigos workflow to ensure alignment:
+
+**Participants:**
+- **Product Owner** - Business perspective
+- **Dev Lead** - Technical perspective
+- **QA Lead** - Testing perspective
+
+**Workflow Steps:**
+
+```
+Step 1: PO Creates Story → /write-user-story
+Step 2: Dev Lead Enriches → /enrich-story-tech [story-path]
+Step 3: QA Lead Enriches → /enrich-story-qa [story-path]
+Step 4: Alignment Meeting → /three-amigos-prep [story-path]
+Step 5: Validate Ready → /validate-story-ready [story-path]
+```
+
+**New Commands for Three Amigos:**
+
+| Command | Owner | Purpose |
+|---------|-------|---------|
+| `/enrich-story-tech` | Dev Lead | Add technical context: APIs, data model, patterns, security |
+| `/enrich-story-qa` | QA Lead | Add test scenarios, edge cases, test data requirements |
+| `/three-amigos-prep` | Facilitator | Generate meeting agenda for 30-45 min alignment session |
+| `/validate-story-ready` | Any | Check story against Definition of Ready criteria |
+
+**Definition of Ready:**
+Stories are READY when they pass all criteria in `.claude/DEFINITION-OF-READY.md`:
+- User story structure (specific user, clear value)
+- Acceptance criteria (3+ scenarios, Given/When/Then)
+- Technical context (feasibility, APIs, dependencies)
+- QA context (test scenarios, test data)
+- Three Amigos alignment (questions resolved, scope agreed)
+
+**When to Use Three Amigos:**
+- ✅ New features with user-facing changes
+- ✅ Complex stories with unknown complexity
+- ✅ Stories touching security or payments
+- ❌ Bug fixes with clear reproduction steps
+- ❌ Technical debt / developer-only work
+- ❌ Trivial changes
+
+**See also:** `.claude/docs/three-amigos-guide.md` for complete Three Amigos documentation.
+
 ### For Developers: Converting User Stories
 
 **When you receive a user story from a Product Owner:**
@@ -317,6 +363,9 @@ Product Owners write user stories in Azure DevOps. Developers convert these to f
 ### Resources for Product Owners
 
 - **Complete guide:** `.claude/PRODUCT-OWNER-GUIDE.md`
+- **Three Amigos guide:** `.claude/docs/three-amigos-guide.md`
+- **Definition of Ready:** `.claude/DEFINITION-OF-READY.md`
+- **Story workflow guide:** `.claude/docs/story-workflow-guide.md`
 - **Conversion template:** `.claude/templates/story-to-initial.md`
 - **Conversion command:** `/convert-story`
 

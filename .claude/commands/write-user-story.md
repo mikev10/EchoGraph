@@ -66,13 +66,17 @@ Use @story-expert agent to create a properly structured user story:
 - Remember: Technical implementation details will be added later during `/convert-story`
 
 **Important context for agent:**
-"This story is part of Context Engineering workflow. It will be:
+"This story is part of the Context Engineering Three Amigos workflow. It will be:
 1. Reviewed and refined by the requester
-2. Used to create an Azure DevOps work item (manual)
-3. Converted to technical specification (INITIAL.md) using /convert-story
-4. Used to generate a comprehensive implementation plan (PRP)
+2. Enriched by Dev Lead with technical context (/enrich-story-tech)
+3. Enriched by QA Lead with test scenarios (/enrich-story-qa)
+4. Aligned in Three Amigos session (/three-amigos-prep)
+5. Validated for readiness (/validate-story-ready)
+6. Used to create an Azure DevOps work item (manual)
+7. Converted to technical specification (INITIAL.md) using /convert-story
+8. Used to generate a comprehensive implementation plan (PRP)
 
-Focus on clear business requirements and testable acceptance criteria. Technical research happens later."
+Focus on clear business requirements and testable acceptance criteria. Be explicit about error scenarios since AI will implement this code. Technical research happens during the Three Amigos enrichment phase."
 
 ---
 
@@ -160,6 +164,9 @@ converted_to_ado: false
 ado_id: null
 sprint: null
 story_points: null
+three_amigos_complete: false
+tech_context_added: false
+qa_context_added: false
 ---
 
 {Generated user story content from @story-expert}
@@ -186,10 +193,35 @@ After creating the file, inform the user:
 ✓ Status: Draft (ready for review)
 ✓ Category: Business
 
-Next steps:
-1. Review the story and refine acceptance criteria if needed
-2. Create Azure DevOps work item and copy this content
-3. When ready for development, developer runs: /convert-story [ADO-ID]
+┌─────────────────────────────────────────────────────────────┐
+│              THREE AMIGOS WORKFLOW - NEXT STEPS              │
+└─────────────────────────────────────────────────────────────┘
+
+Step 1: Review & Refine (You - PO)
+       Review the story and refine acceptance criteria if needed
+
+Step 2: Technical Enrichment (Dev Lead)
+       /enrich-story-tech {full-path}
+       Adds: API specs, data models, patterns, security context
+
+Step 3: QA Enrichment (QA Lead)
+       /enrich-story-qa {full-path}
+       Adds: Test scenarios, edge cases, test data requirements
+
+Step 4: Three Amigos Alignment (All)
+       /three-amigos-prep {full-path}
+       Generates: Session agenda and discussion points
+       Hold 30-60 min alignment meeting
+
+Step 5: Validate Readiness
+       /validate-story-ready {full-path}
+       Checks: All Definition of Ready criteria
+
+Step 6: Create ADO & Groom
+       If READY → Create ADO work item, add to grooming
+
+Step 7: Convert & Implement
+       /convert-story [ADO-ID] → /generate-prp → /execute-prp
 
 This story is NOT automatically synced to Azure DevOps.
 ```
@@ -201,13 +233,28 @@ This story is NOT automatically synced to Azure DevOps.
 ✓ Status: Draft (ready for review)
 ✓ Category: Technical
 
-Next steps:
-1. Review the story and refine if needed
-2. (Optional) Create ADO work item for tracking
-3. Run: /convert-story with this story content to generate INITIAL.md
-4. Continue with standard PRP workflow (/generate-prp, /execute-prp)
+┌─────────────────────────────────────────────────────────────┐
+│              THREE AMIGOS WORKFLOW - NEXT STEPS              │
+└─────────────────────────────────────────────────────────────┘
 
-Technical stories can proceed without ADO if preferred.
+Step 1: Review & Refine (You)
+       Review the story and refine if needed
+
+Step 2: Technical Enrichment (Dev Lead or Self)
+       /enrich-story-tech {full-path}
+       Adds: API specs, data models, patterns, security context
+
+Step 3: QA Enrichment (QA Lead or Self)
+       /enrich-story-qa {full-path}
+       Adds: Test scenarios, edge cases, test data requirements
+
+Step 4: Validate Readiness (Optional for technical stories)
+       /validate-story-ready {full-path}
+
+Step 5: Convert & Implement
+       /convert-story → /generate-prp → /execute-prp
+
+Technical stories can proceed with lighter process if preferred.
 ```
 
 ---
@@ -329,14 +376,34 @@ Please provide additional details and run the command again.
 
 ## Integration with Context Engineering Workflow
 
-This command is the FIRST step in the Context Engineering workflow:
+This command is the FIRST step in the Context Engineering Three Amigos workflow:
 
 ```
-/write-user-story → Review → Create ADO → /convert-story → /generate-prp → /execute-prp
-     (Draft)                  (Manual)     (Tech Spec)      (Plan)        (Implement)
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    FULL THREE AMIGOS WORKFLOW                                    │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+/write-user-story → /enrich-story-tech → /enrich-story-qa → /three-amigos-prep
+     (PO Draft)        (Dev Lead)           (QA Lead)         (Alignment)
+         │                  │                   │                  │
+         ▼                  ▼                   ▼                  ▼
+    User Story      + Technical Context   + QA Context      Session Prep
+                                                                  │
+                                                                  ▼
+/validate-story-ready → Create ADO → /convert-story → /generate-prp → /execute-prp
+    (Validation)         (Manual)     (Tech Spec)       (Plan)        (Implement)
 ```
 
-**Remember:** This creates a DRAFT for review. The PO still needs to create the ADO work item manually.
+**Key Points:**
+- This creates a DRAFT for review - first step in a collaborative process
+- Dev Lead and QA Lead enrich the story before grooming
+- Three Amigos session ensures alignment before broader team sees it
+- Story is validated against Definition of Ready before grooming
+- PO still creates the ADO work item manually
+
+**See also:**
+- `.claude/DEFINITION-OF-READY.md` - Criteria for story readiness
+- `.claude/docs/three-amigos-guide.md` - Full collaboration guide
 
 ---
 

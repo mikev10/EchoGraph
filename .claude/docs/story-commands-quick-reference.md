@@ -6,11 +6,22 @@
 
 ## Commands Overview
 
+### Story Creation Commands
+
 | Command | Who | When | Input | Output |
 |---------|-----|------|-------|--------|
 | `/write-user-story` | PO, Dev | Draft new story | Requirements | Markdown file |
 | `/refine-story` | Dev | Improve poor story | ADO-ID or text | Before/after comparison |
 | `/convert-story` | Dev | Create tech spec | ADO-ID | INITIAL.md |
+
+### Three Amigos Commands (Recommended)
+
+| Command | Who | When | Input | Output |
+|---------|-----|------|-------|--------|
+| `/enrich-story-tech` | Dev Lead | After PO drafts story | Story path | Technical Context section |
+| `/enrich-story-qa` | QA Lead | After tech enrichment | Story path | QA Context section |
+| `/three-amigos-prep` | Facilitator | Before alignment meeting | Story path | Meeting agenda |
+| `/validate-story-ready` | Any | Before grooming | Story path | Readiness report |
 
 ---
 
@@ -123,6 +134,96 @@ Next steps:
 
 ---
 
+## Three Amigos Commands
+
+### `/enrich-story-tech` - Add Technical Context
+
+**Purpose:** Dev Lead adds technical specifications to story
+
+**Usage:**
+```
+/enrich-story-tech user-stories/drafts/20251124-password-reset.md
+```
+
+**What it adds:**
+- Architecture approach and component mapping
+- API specifications (endpoints, request/response)
+- Data model and migration requirements
+- Dependencies and prerequisites
+- Security considerations
+- Technical risks and patterns
+
+**When to use:** After PO creates story, before QA enrichment
+
+---
+
+### `/enrich-story-qa` - Add Test Scenarios
+
+**Purpose:** QA Lead adds comprehensive test coverage
+
+**Usage:**
+```
+/enrich-story-qa user-stories/drafts/20251124-password-reset.md
+```
+
+**What it adds:**
+- Happy path test scenarios
+- Negative/error test scenarios
+- Boundary test scenarios
+- Edge case scenarios
+- Test data requirements
+- Accessibility checklist
+- Regression impact analysis
+
+**When to use:** After tech enrichment, before Three Amigos meeting
+
+---
+
+### `/three-amigos-prep` - Prepare Alignment Meeting
+
+**Purpose:** Generate agenda for 30-45 min alignment session
+
+**Usage:**
+```
+/three-amigos-prep user-stories/drafts/20251124-password-reset.md
+```
+
+**What it generates:**
+- Meeting agenda with time allocations
+- Role-specific prep notes (PO, Dev Lead, QA Lead)
+- Critical discussion items to resolve
+- Questions that need answers
+- Risk assessment
+
+**When to use:** Before scheduling Three Amigos alignment meeting
+
+---
+
+### `/validate-story-ready` - Check Definition of Ready
+
+**Purpose:** Validate story meets all DoR criteria
+
+**Usage:**
+```
+/validate-story-ready user-stories/drafts/20251124-password-reset.md
+```
+
+**What it checks:**
+- User Story Structure (5 criteria)
+- Acceptance Criteria (5 criteria)
+- Technical Context (7 criteria)
+- QA Context (5 criteria)
+- Three Amigos Alignment (4 criteria)
+
+**Status outcomes:**
+- **READY** (90%+): Proceed to team grooming
+- **NEARLY READY** (75-89%): Address minor gaps
+- **NOT READY** (<75%): Address critical gaps
+
+**When to use:** After Three Amigos session, before team grooming
+
+---
+
 ## Decision Trees
 
 ### For Product Owners
@@ -166,7 +267,19 @@ Technical work (refactoring, bug, tech debt)?
 
 ## Complete Workflows
 
-### Workflow 1: PO Drafting
+### Recommended: Three Amigos Workflow
+```
+/write-user-story → /enrich-story-tech → /enrich-story-qa → /three-amigos-prep
+     │                    │                    │                    │
+     ▼                    ▼                    ▼                    ▼
+  PO drafts          Dev Lead adds        QA Lead adds       30-45 min
+   story              tech context        test scenarios      meeting
+                                                                 │
+                                                                 ▼
+                            /validate-story-ready → Team Grooming → /convert-story → PRP
+```
+
+### Workflow 1: PO Drafting (Simple)
 ```
 Requirements → /write-user-story → Review → Create ADO → Dev runs /convert-story → PRP
 ```
@@ -273,6 +386,8 @@ So that **I can access my account**.
 
 | Resource | Location | Use For |
 |----------|----------|---------|
+| **Three Amigos guide** | `.claude/docs/three-amigos-guide.md` | Complete Three Amigos process |
+| **Definition of Ready** | `.claude/DEFINITION-OF-READY.md` | DoR criteria checklist |
 | **Full workflow guide** | `.claude/docs/story-workflow-guide.md` | Complete documentation |
 | **PO guide** | `.claude/PRODUCT-OWNER-GUIDE.md` | Writing effective stories |
 | **Training examples** | `user-stories/training/` | Learning from examples |
@@ -307,4 +422,4 @@ So that **I can access my account**.
 ---
 
 **Last Updated:** 2025-11-24
-**Version:** 1.0
+**Version:** 2.0 (Added Three Amigos commands)
