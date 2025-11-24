@@ -410,7 +410,7 @@ So that [benefit]
 
 **Files to Create/Modify**:
 
-1. **`.claude/PRODUCT-OWNER-GUIDE.md`** (NEW)
+1. **`docs/PRODUCT-OWNER-GUIDE.md`** (NEW)
    - Complete guide for Product Owners
    - How to write effective user stories
    - Acceptance criteria best practices
@@ -1267,7 +1267,7 @@ So that [benefit]
 
 ### Product Owner Guide Template
 
-**File**: `.claude/PRODUCT-OWNER-GUIDE.md`
+**File**: `docs/PRODUCT-OWNER-GUIDE.md`
 
 ```markdown
 # Product Owner Guide: Writing Effective Requirements

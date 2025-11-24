@@ -149,7 +149,7 @@ Document any exceptions and ensure the team understands the added risk.
 
 - **Story Commands:** `.claude/docs/story-commands-quick-reference.md`
 - **Story Workflow:** `.claude/docs/story-workflow-guide.md`
-- **Product Owner Guide:** `.claude/PRODUCT-OWNER-GUIDE.md`
+- **Product Owner Guide:** `docs/PRODUCT-OWNER-GUIDE.md`
 - **Three Amigos Guide:** `.claude/docs/three-amigos-guide.md`
 
 ---

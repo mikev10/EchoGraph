@@ -229,7 +229,7 @@ Product Owners write user stories in Azure DevOps. Developers convert these to f
 - Offline/async planning sessions
 - Learning to write better user stories
 
-**See also:** `.claude/PRODUCT-OWNER-GUIDE.md` for complete guidance on writing effective user stories.
+**See also:** `docs/PRODUCT-OWNER-GUIDE.md` for complete guidance on writing effective user stories.
 
 ### Three Amigos Workflow (Recommended)
 
@@ -260,7 +260,7 @@ Step 5: Validate Ready → /validate-story-ready [story-path]
 | `/validate-story-ready` | Any | Check story against Definition of Ready criteria |
 
 **Definition of Ready:**
-Stories are READY when they pass all criteria in `.claude/DEFINITION-OF-READY.md`:
+Stories are READY when they pass all criteria in `docs/DEFINITION-OF-READY.md`:
 - User story structure (specific user, clear value)
 - Acceptance criteria (3+ scenarios, Given/When/Then)
 - Technical context (feasibility, APIs, dependencies)
@@ -362,9 +362,9 @@ Stories are READY when they pass all criteria in `.claude/DEFINITION-OF-READY.md
 
 ### Resources for Product Owners
 
-- **Complete guide:** `.claude/PRODUCT-OWNER-GUIDE.md`
+- **Complete guide:** `docs/PRODUCT-OWNER-GUIDE.md`
 - **Three Amigos guide:** `.claude/docs/three-amigos-guide.md`
-- **Definition of Ready:** `.claude/DEFINITION-OF-READY.md`
+- **Definition of Ready:** `docs/DEFINITION-OF-READY.md`
 - **Story workflow guide:** `.claude/docs/story-workflow-guide.md`
 - **Conversion template:** `.claude/templates/story-to-initial.md`
 - **Conversion command:** `/convert-story`

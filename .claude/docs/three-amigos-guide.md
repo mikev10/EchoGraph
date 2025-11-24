@@ -377,10 +377,10 @@ A: Before grooming. Ideally 2-3 days before the story might enter a sprint.
 
 ## Related Documentation
 
-- **Definition of Ready:** `.claude/DEFINITION-OF-READY.md`
+- **Definition of Ready:** `docs/DEFINITION-OF-READY.md`
 - **Story Commands:** `.claude/docs/story-commands-quick-reference.md`
 - **Story Workflow:** `.claude/docs/story-workflow-guide.md`
-- **Product Owner Guide:** `.claude/PRODUCT-OWNER-GUIDE.md`
+- **Product Owner Guide:** `docs/PRODUCT-OWNER-GUIDE.md`
 
 ---
 

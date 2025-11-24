@@ -917,8 +917,8 @@ After running /refine-story:
 ## Related Documentation
 
 - **Three Amigos Guide:** `.claude/docs/three-amigos-guide.md` - Complete guide to the Three Amigos collaboration process
-- **Definition of Ready:** `.claude/DEFINITION-OF-READY.md` - Full DoR criteria checklist
-- **For POs:** `.claude/PRODUCT-OWNER-GUIDE.md` - Complete guide to writing effective user stories
+- **Definition of Ready:** `docs/DEFINITION-OF-READY.md` - Full DoR criteria checklist
+- **For POs:** `docs/PRODUCT-OWNER-GUIDE.md` - Complete guide to writing effective user stories
 - **For Developers:** `.claude/CLAUDE.md` - Full Context Engineering workflow
 - **Quick Reference:** `.claude/docs/story-commands-quick-reference.md` - One-page command cheat sheet
 - **Examples:** `user-stories/training/` - Real examples of good and poor stories

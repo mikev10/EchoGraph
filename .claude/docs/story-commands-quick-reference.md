@@ -387,9 +387,9 @@ So that **I can access my account**.
 | Resource | Location | Use For |
 |----------|----------|---------|
 | **Three Amigos guide** | `.claude/docs/three-amigos-guide.md` | Complete Three Amigos process |
-| **Definition of Ready** | `.claude/DEFINITION-OF-READY.md` | DoR criteria checklist |
+| **Definition of Ready** | `docs/DEFINITION-OF-READY.md` | DoR criteria checklist |
 | **Full workflow guide** | `.claude/docs/story-workflow-guide.md` | Complete documentation |
-| **PO guide** | `.claude/PRODUCT-OWNER-GUIDE.md` | Writing effective stories |
+| **PO guide** | `docs/PRODUCT-OWNER-GUIDE.md` | Writing effective stories |
 | **Training examples** | `user-stories/training/` | Learning from examples |
 | **Templates** | `.claude/templates/` | Blank story templates |
 | **CLAUDE.md** | `.claude/CLAUDE.md` | Full CE workflow |

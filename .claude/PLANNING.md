@@ -150,7 +150,7 @@ graph TD
    - Each criterion is testable
    - Cover happy path and key error cases
 
-**See `.claude/PRODUCT-OWNER-GUIDE.md` for complete Product Owner documentation.**
+**See `docs/PRODUCT-OWNER-GUIDE.md` for complete Product Owner documentation.**
 
 ### Developer Best Practices
 

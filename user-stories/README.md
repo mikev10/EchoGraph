@@ -173,7 +173,7 @@ All stories in this directory should meet these criteria:
 
 **Questions about story format:**
 - Review examples in `/training/` directory
-- Consult `.claude/PRODUCT-OWNER-GUIDE.md`
+- Consult `docs/PRODUCT-OWNER-GUIDE.md`
 - Run `/write-user-story` and learn from AI output
 
 **Questions about commands:**

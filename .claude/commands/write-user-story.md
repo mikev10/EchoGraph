@@ -402,7 +402,7 @@ This command is the FIRST step in the Context Engineering Three Amigos workflow:
 - PO still creates the ADO work item manually
 
 **See also:**
-- `.claude/DEFINITION-OF-READY.md` - Criteria for story readiness
+- `docs/DEFINITION-OF-READY.md` - Criteria for story readiness
 - `.claude/docs/three-amigos-guide.md` - Full collaboration guide
 
 ---
