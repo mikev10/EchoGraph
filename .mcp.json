@@ -2,10 +2,13 @@
   "mcpServers": {
     "filesystem": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-filesystem"],
-      "env": {
-        "ALLOWED_DIRECTORIES": "C:\\Users\\Mike\\Documents\\EZProjects\\EZMobile"
-      }
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${MCP_PROJECTS_DIR}"
+      ]
     },
     "context7": {
       "command": "cmd",
@@ -31,7 +34,7 @@
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@zeplin/mcp-server@latest"],
       "env": {
-        "ZEPLIN_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicGVyc29uYWxfYWNjZXNzX3Rva2VuIiwiY2xpZW50X2lkIjoiNjkxYjQ0ZTQ1YTBlZDM4ZWQ2YTcwMThlIiwic2NvcGUiOiIiLCJpYXQiOjE3NjMzOTQ3ODgsImV4cCI6MjA3ODk2NDA0OCwiaXNzIjoiemVwbGluOmFwaS56ZXBsaW4uaW8iLCJzdWIiOiI2NWNlNzEzMWFiZDVjYTA2MzI0ZDAzNGMiLCJqdGkiOiIwYzE0Y2VmYS0zNjg3LTRmZmUtOTA2Yi0yMDVhM2Q1MzVjMDgifQ.ViWHF6sbVrBLwuFWOdLCmQ-5o_jLIOYmXHrKCceBhp4"
+        "ZEPLIN_ACCESS_TOKEN": "${ZEPLIN_ACCESS_TOKEN}"
       }
     }
   }
