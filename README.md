@@ -1,6 +1,6 @@
-# Context Engineering Template
+# Context Engineering Framework
 
-A universal, reusable template for implementing **Context Engineering** in your software projects. This system enables AI coding assistants (like Claude) to achieve **one-pass implementation success** through comprehensive upfront context, established patterns, and validated workflows.
+A universal, reusable framework for implementing **Context Engineering** in your software projects. This system enables AI coding assistants (like Claude) to achieve **one-pass implementation success** through comprehensive upfront context, established patterns, and validated workflows.
 
 ## What is Context Engineering?
 
@@ -14,7 +14,7 @@ Context Engineering = Providing AI with everything it needs upfront:
 
 ## Key Results
 
-Based on the EZMobile implementation (this template's origin):
+Teams using this framework have achieved:
 - **10x better context** than prompt engineering alone
 - **70%+ first-pass success rate** on complex features
 - **Minimal clarification questions** (1-2 average)
@@ -40,10 +40,12 @@ See `docs/SETUP_GUIDE.md` for step-by-step instructions.
 ### 3. Add Your Examples
 Create working code examples in `examples/`:
 - **integrations/** - API client, data fetching patterns
+- **components/** - UI component patterns
 - **hooks/** - Data hooks/functions
 - **state/** - State management
 - **security/** - Auth, audit logging
 - **testing/** - Test patterns
+- **offline/** - Offline-first patterns
 
 ### 4. Start Using
 ```bash
@@ -54,7 +56,7 @@ Create working code examples in `examples/`:
 /generate-prp .claude/INITIAL.md
 
 # Execute the PRP
-/execute-prp PRPs/your-feature.md
+/execute-prp PRPs/active/your-feature.md
 ```
 
 ## Directory Structure
@@ -66,38 +68,81 @@ Create working code examples in `examples/`:
 │   ├── PLANNING.md           # Architecture & goals (CUSTOMIZE THIS)
 │   ├── TASK.md               # Project tasks (CUSTOMIZE THIS)
 │   ├── INITIAL.md            # Feature request template
-│   └── commands/             # 12 slash commands (workflows)
+│   ├── commands/             # 25 slash commands (workflows)
+│   ├── docs/                 # Workflow guides
+│   ├── agents/               # AI agent definitions
+│   └── tasks/                # Feature-level task files (persistent)
 │
 ├── PRPs/                      # Product Requirement Prompts
+│   ├── active/               # Currently executing PRPs
+│   ├── completed/            # Archived PRPs
+│   ├── feature-requests/     # INITIAL.md files from users
 │   ├── ai_docs/              # Library documentation (AI-optimized)
 │   ├── templates/            # PRP templates
-│   ├── scripts/              # Automation scripts
-│   └── completed/            # Archived PRPs
+│   ├── examples/             # Example completed PRPs
+│   └── scripts/              # Automation scripts
 │
 ├── examples/                  # Working code patterns (CRITICAL)
+│   ├── integrations/         # API client patterns
+│   ├── components/           # UI component patterns
+│   ├── hooks/                # Custom hook patterns
+│   ├── state/                # State management patterns
 │   ├── security/             # Auth, audit logging patterns
-│   ├── offline/              # Offline mutation queue
-│   └── testing/              # Test patterns
+│   ├── testing/              # Test patterns
+│   └── offline/              # Offline-first patterns
 │
-└── docs/                      # Project documentation
-    ├── SETUP_GUIDE.md        # Setup instructions
-    ├── CUSTOMIZATION_GUIDE.md # How to adapt to your domain
-    └── CONTEXT_ENGINEERING_REUSABILITY_GUIDE.md # Master guide
+├── user-stories/              # User story drafts & examples
+│   ├── drafts/               # PO-created story drafts
+│   ├── technical/            # Technical stories
+│   └── training/             # Example stories (good & poor)
+│
+├── docs/                      # Project documentation
+│   ├── SETUP_GUIDE.md        # Setup instructions
+│   ├── CUSTOMIZATION_GUIDE.md # How to adapt to your domain
+│   ├── USER_GUIDE.md         # Feature dev workflow
+│   ├── PRODUCT-OWNER-GUIDE.md # PO integration guide
+│   ├── DEFINITION-OF-READY.md # DoR checklist
+│   └── CONTEXT_ENGINEERING_REUSABILITY_GUIDE.md # Master guide
+│
+└── lancedb/                   # Local RAG vector database
 ```
 
 ## Core Components
 
-### Slash Commands (12 workflows)
+### Slash Commands (25 workflows)
+
 Located in `.claude/commands/`:
+
+**Core Workflows:**
 - `/prime-core` - Load all context into Claude's memory
 - `/generate-prp` - Generate PRP from feature request
 - `/execute-prp` - Execute PRP step-by-step with validation
 - `/validate-context` - Check completeness of context files
-- `/review-general` - Comprehensive code review
-- `/review-staged` - Review git staged changes
-- `/create-pr` - Generate PR description
-- `/debug` - Systematic debugging workflow
-- And more...
+
+**Story Management:**
+- `/write-user-story` - AI-assisted user story drafting
+- `/convert-story` - Convert user story to INITIAL.md (with codebase research)
+- `/refine-story` - Analyze & improve story against INVEST criteria
+- `/enrich-story-tech` - Dev Lead adds technical context
+- `/enrich-story-qa` - QA Lead adds test scenarios
+- `/three-amigos-prep` - Generate alignment meeting agenda
+- `/validate-story-ready` - Check against Definition of Ready
+
+**Code Review & Quality:**
+- `/review-general` - Comprehensive code review (security, performance, style)
+- `/review-staged` - Review git staged changes before commit
+- `/refactor-simple` - Refactor code while maintaining functionality & tests
+
+**Debugging & Maintenance:**
+- `/debug` - Systematic debugging workflow with logs & root cause analysis
+- `/planning-create` - Create planning docs with architecture diagrams
+- `/onboarding` - Guided developer onboarding tour
+- `/research` - Multi-source research workflow
+
+**PRP Management:**
+- `/create-pr` - Generate PR description with test plan
+- `/archive-prp` - Move completed PRP to archives
+- `/create-feature-request` - Create feature request (INITIAL.md)
 
 ### Key Innovations
 
@@ -123,14 +168,50 @@ Located in `.claude/commands/`:
 - Always check examples/ before implementing
 - Ensures consistency and pattern reuse
 
+**6. Three Amigos Workflow**
+- PO, Dev Lead, and QA Lead align before development
+- Reduces rework and scope creep
+- Definition of Ready enforcement
+
+## Product Owner Integration
+
+The framework includes comprehensive support for Product Owner collaboration:
+
+### Three Amigos Workflow
+
+**Participants:** Product Owner (business), Dev Lead (technical), QA Lead (testing)
+
+```
+Step 1: PO Creates Story     → /write-user-story
+Step 2: Dev Lead Enriches    → /enrich-story-tech [story-path]
+Step 3: QA Lead Enriches     → /enrich-story-qa [story-path]
+Step 4: Alignment Meeting    → /three-amigos-prep [story-path]
+Step 5: Validate Ready       → /validate-story-ready [story-path]
+```
+
+### Story to Feature Request Conversion
+
+```
+1. PO writes user story in Azure DevOps (or similar)
+2. Developer runs /convert-story
+3. AI researches codebase patterns, asks clarifying questions
+4. Generates INITIAL.md with technical enrichment
+5. /generate-prp creates comprehensive PRP
+6. /execute-prp implements step-by-step
+```
+
+See `docs/PRODUCT-OWNER-GUIDE.md` for complete guidance.
+
 ## Time Investment & ROI
 
 ### Initial Setup
-- Phase 1 (Structure): 2-4 hours
-- Phase 2 (Documentation): 4-6 hours
-- Phase 3 (Examples): 8-12 hours
-- Phase 4 (Library Docs): 4-6 hours
-- **Total: 16-26 hours** (average 20 hours)
+| Phase | Time | Description |
+|-------|------|-------------|
+| Structure | 2-4 hours | Core files and directories |
+| Documentation | 4-6 hours | CLAUDE.md, PLANNING.md |
+| Examples | 8-12 hours | Working code patterns |
+| Library Docs | 4-6 hours | AI-optimized docs |
+| **Total** | **16-26 hours** | Average ~20 hours |
 
 ### Returns
 - **50-70% reduction** in feature development time
@@ -139,30 +220,37 @@ Located in `.claude/commands/`:
 
 ## Documentation
 
+- **[Quick Start Guide](docs/CONTEXT_ENGINEERING_QUICKSTART.md)** - Get started in 30 minutes
 - **[Setup Guide](docs/SETUP_GUIDE.md)** - Step-by-step setup instructions
 - **[Customization Guide](docs/CUSTOMIZATION_GUIDE.md)** - How to adapt to your project
-- **[Reusability Guide](docs/CONTEXT_ENGINEERING_REUSABILITY_GUIDE.md)** - Comprehensive 47KB guide
+- **[User Guide](docs/USER_GUIDE.md)** - Feature development workflow
+- **[Product Owner Guide](docs/PRODUCT-OWNER-GUIDE.md)** - PO integration
+- **[Reusability Guide](docs/CONTEXT_ENGINEERING_REUSABILITY_GUIDE.md)** - Comprehensive master guide
+- **[Definition of Ready](docs/DEFINITION-OF-READY.md)** - Story readiness checklist
 
 ## Examples & Templates
 
 ### PRP Templates
 - `PRPs/templates/prp-template.md` - Blank PRP structure
-- `PRPs/templates/prp-example.md` - Example filled PRP
+- `PRPs/examples/` - Example completed PRPs
 
-### Code Examples (Universal Patterns Only)
+### Code Examples (Universal Patterns)
 - `examples/security/token-manager.ts` - Token management pattern
 - `examples/security/audit-logger.ts` - Audit logging pattern
 - `examples/offline/mutation-queue.ts` - Offline mutation queue
 - `examples/testing/component.test.tsx` - Component test structure
 - `examples/testing/hook.test.ts` - Hook/function test structure
 
-All examples use `[[PLACEHOLDER]]` syntax - replace with your values.
+### User Story Examples
+- `user-stories/training/good-examples/` - Well-written stories
+- `user-stories/training/poor-examples/` - Stories needing improvement
+- `PRPs/examples/user-story-conversion-example.md` - Conversion workflow
 
-**Note:** Framework-specific patterns (API clients, data fetching, state management, UI components) should be created based on YOUR tech stack. See `docs/CUSTOMIZATION_GUIDE.md` for guidance.
+All examples use `[[PLACEHOLDER]]` syntax - replace with your values.
 
 ## Usage with Claude Code
 
-This template is optimized for **Claude Code** (Anthropic's official CLI). The slash commands in `.claude/commands/` are automatically discovered and can be invoked with `/command-name`.
+This framework is optimized for **Claude Code** (Anthropic's official CLI). The slash commands in `.claude/commands/` are automatically discovered and can be invoked with `/command-name`.
 
 Example workflow:
 ```bash
@@ -178,7 +266,7 @@ Example workflow:
 # 4. Review generated PRP (check confidence score)
 
 # 5. Execute PRP
-/execute-prp PRPs/your-feature.md
+/execute-prp PRPs/active/your-feature.md
 
 # 6. Create PR when done
 /create-pr
@@ -193,13 +281,11 @@ See `docs/CUSTOMIZATION_GUIDE.md` for detailed instructions on:
 - Adding API specifications
 - Defining validation commands
 
-## Support & Resources
+## External Resources
 
-- **Original Implementation**: EZMobile project (reference implementation)
-- **External Resources**:
-  - [Cole Medin's Context Engineering](https://github.com/coleam00/context-engineering-intro)
-  - [Wirasm PRPs](https://github.com/Wirasm/PRPs-agentic-eng)
-  - [Anthropic Engineering](https://www.anthropic.com/engineering)
+- [Cole Medin's Context Engineering](https://github.com/coleam00/context-engineering-intro)
+- [Wirasm PRPs](https://github.com/Wirasm/PRPs-agentic-eng)
+- [Anthropic Engineering](https://www.anthropic.com/engineering)
 
 ## License
 
