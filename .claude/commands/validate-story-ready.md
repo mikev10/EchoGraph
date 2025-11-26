@@ -12,7 +12,7 @@ You are validating whether a user story meets all **Definition of Ready (DoR)** 
 
 **Input:** Path to user story markdown file: `$ARGUMENTS`
 
-**Reference:** See `docs/DEFINITION-OF-READY.md` for full criteria documentation.
+**Reference:** See `docs/optional/DEFINITION_OF_READY.md` for full criteria documentation.
 
 ---
 

@@ -146,7 +146,6 @@ Use this checklist to ensure your technical story is complete:
 ## Related Resources
 
 - **Training examples:** `user-stories/training/example-technical-story.md`
-- **Workflow guide:** `.claude/docs/story-workflow-guide.md`
 - **AI assistance:** Use `/write-user-story` command for help
 
 ---

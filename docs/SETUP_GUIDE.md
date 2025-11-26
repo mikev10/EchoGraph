@@ -1,6 +1,20 @@
 # Context Engineering - Setup Guide
 
-This guide will walk you through setting up the Context Engineering system for your project in **~2-4 hours**.
+Complete guide to setting up and customizing Context Engineering for your project.
+
+**Time Required:** 2-4 hours for full setup
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Quick Setup (30 minutes)](#quick-setup)
+3. [Customize CLAUDE.md](#customize-claudemd)
+4. [Customize PLANNING.md](#customize-planningmd)
+5. [Create Examples](#create-examples)
+6. [Test Your Setup](#test-your-setup)
+7. [Troubleshooting](#troubleshooting)
+
+---
 
 ## Prerequisites
 
@@ -8,11 +22,11 @@ This guide will walk you through setting up the Context Engineering system for y
 - Git repository initialized
 - Basic understanding of your project's tech stack
 
-## Phase 1: Initial Setup (30 minutes)
+---
 
-### Step 1.1: Copy Template Files
+## Quick Setup
 
-If you haven't already, copy all files from this template to your project:
+### Step 1: Copy Template Files
 
 ```bash
 # Option A: Clone this template
@@ -23,409 +37,301 @@ cd my-project-context
 cp -r ContextEngineering/.claude /path/to/your-project/
 cp -r ContextEngineering/PRPs /path/to/your-project/
 cp -r ContextEngineering/examples /path/to/your-project/
-cp -r ContextEngineering/docs /path/to/your-project/
 ```
 
-### Step 1.2: Verify Directory Structure
+### Step 2: Verify Directory Structure
 
-Ensure you have:
 ```
 your-project/
 ├── .claude/
-│   ├── CLAUDE.md
-│   ├── PLANNING.md
-│   ├── TASK.md
-│   ├── INITIAL.md
-│   ├── settings.local.json
-│   └── commands/ (12 files)
+│   ├── CLAUDE.md          # Global conventions (customize this)
+│   ├── PLANNING.md        # Architecture (customize this)
+│   ├── TASK.md            # Task tracking
+│   ├── INITIAL.md         # Feature request template
+│   └── commands/          # Slash commands (25 files)
 ├── PRPs/
-│   ├── ai_docs/
-│   ├── templates/
-│   ├── scripts/
-│   └── completed/
-├── examples/
-│   ├── integrations/
-│   ├── hooks/
-│   ├── state/
-│   ├── security/
-│   ├── offline/
-│   └── testing/
-└── docs/
-    ├── SETUP_GUIDE.md
-    ├── CUSTOMIZATION_GUIDE.md
-    └── CONTEXT_ENGINEERING_REUSABILITY_GUIDE.md
+│   ├── templates/         # PRP templates
+│   ├── ai_docs/           # Library documentation
+│   └── feature-requests/  # Your feature requests
+└── examples/              # Code patterns
 ```
 
 ---
 
-## Phase 2: Customize CLAUDE.md (1-2 hours)
+## Customize CLAUDE.md
 
-`.claude/CLAUDE.md` is the **most critical file**. This defines your project's conventions.
+`.claude/CLAUDE.md` is the **most critical file**. It defines your project's conventions for AI.
 
-### Step 2.1: Project Information
+### Replace Placeholders
 
-Replace placeholders at the top:
+The template uses `[[PLACEHOLDER]]` syntax. Replace ALL placeholders with your values:
+
 ```markdown
 # [[PROJECT_NAME]] - Global Conventions
 ```
-→
+becomes:
 ```markdown
 # MyApp - Global Conventions
 ```
 
-### Step 2.2: Tech Stack Patterns
+### Key Sections to Customize
 
-Fill in your technology stack. For each library/framework:
+#### 1. Tech Stack Patterns
 
-**Example - React with TypeScript:**
+Be **specific**, not vague:
+
+**Bad (Vague):**
 ```markdown
-## Tech Stack Patterns
+**React:**
+- Use best practices
+```
 
+**Good (Specific):**
+```markdown
 **React + TypeScript:**
 - Use functional components with hooks (no class components)
-- Props interfaces must be exported: `export interface ButtonProps {}`
-- Use `React.FC` sparingly (prefer explicit types)
+- Props must be typed: `interface ButtonProps { onClick: () => void }`
+- See `examples/components/` for structure
 
-**TanStack Query (React Query):**
-- Query keys: `['resource', id, ...filters]` format
-- Stale time: 5 minutes for user data, 1 minute for real-time data
-- See `examples/hooks/use-fetch-list.ts` for pattern
+**Example:**
+```typescript
+interface CardProps {
+  title: string
+  children: React.ReactNode
+}
 
-**Tailwind CSS:**
-- Use utility classes, avoid inline styles
-- Custom colors defined in `tailwind.config.js`
-- Responsive: mobile-first (sm:, md:, lg:)
+export function Card({ title, children }: CardProps) {
+  return <div className="card"><h2>{title}</h2>{children}</div>
+}
+```
 ```
 
-### Step 2.3: Code Structure
+#### 2. Validation Commands
 
-Define your file organization:
-```markdown
-## Code Structure
-
-**File Organization:**
-- Keep files under 300 lines; split when exceeded
-- Feature-based structure: `src/features/{feature-name}/`
-- Each feature contains: `components/`, `hooks/`, `utils/`, `types.ts`
-```
-
-### Step 2.4: Validation Commands
-
-**CRITICAL**: Define commands that must pass before committing:
+Match your actual package.json scripts:
 
 ```markdown
 ## Validation Commands (Must Pass Before Committing)
 
 ```bash
-# Type check (must exit 0)
-npm run type-check
-
-# Lint check (must exit 0)
-npm run lint
-
-# Unit tests (must pass)
-npm test
-
-# Build check (must succeed)
-npm run build
+npm run type-check  # Type checking
+npm run lint        # Linting
+npm test            # Unit tests
+npm run build       # Build verification
 ```
 ```
 
-These will be run by `/execute-prp` at each step.
-
-### Step 2.5: Security Rules
+#### 3. Security Rules
 
 Define your security requirements:
 
 ```markdown
 ## Security Rules (CRITICAL)
 
+**Authentication:**
+- ALWAYS use secure token storage (not localStorage)
+- ALWAYS validate tokens server-side
+- NEVER trust client-side auth alone
+
 **API Calls:**
-- ✅ ALWAYS use centralized API client (`lib/api/client.ts`)
-- ✅ ALWAYS include CSRF token for mutations
-- ✅ ALWAYS validate inputs with Zod schemas
-- ❌ NEVER trust client-side validation alone
+- ALWAYS use centralized API client
+- ALWAYS handle 401 errors (redirect to login)
+- ALWAYS validate inputs
 ```
 
-### Step 2.6: Critical Gotchas
+#### 4. Critical Gotchas
 
 Document things that trip people up:
 
 ```markdown
 ## Critical Gotchas
 
-**Next.js:**
-- Server Components are default in App Router
-- Client hooks (useState, useEffect) require 'use client' directive
+**Next.js 14:**
+- Server Components are default (no useState/useEffect)
+- Client hooks require 'use client' directive
 - Image component requires width/height or fill prop
 
 **TypeScript:**
 - Strict mode enabled - no implicit any
-- Avoid type assertions (as) - use type guards instead
+- Avoid type assertions (as) - use type guards
 ```
 
 ---
 
-## Phase 3: Customize PLANNING.md (30-60 minutes)
+## Customize PLANNING.md
 
 `.claude/PLANNING.md` describes your project's architecture and goals.
 
-### Step 3.1: Project Goal
+### Project Goal
 
 One clear sentence:
+
 ```markdown
 ## Project Goal
 
-Build a task management web app with real-time collaboration, offline support, and AI-powered task suggestions.
+Build a task management web app with real-time collaboration and offline support.
 ```
 
-### Step 3.2: Feature Hierarchy
+### Feature Hierarchy
 
-Prioritize your features:
+Prioritize with percentages:
+
 ```markdown
 ## Feature Hierarchy (Priority Order)
 
 1. **PRIMARY**: Task Management (60% of effort)
    - Create, edit, delete tasks
    - Task lists and filtering
-   - Due dates and priorities
 
 2. **SECONDARY**: Collaboration (30% of effort)
-   - Share lists with team members
+   - Share lists with team
    - Real-time updates
-   - Comments and mentions
 
-3. **TERTIARY**: AI Suggestions (10% of effort - OPTIONAL)
+3. **TERTIARY**: AI Suggestions (10% - OPTIONAL)
    - Task time estimates
-   - Priority recommendations
 ```
 
-### Step 3.3: System Architecture
+### System Architecture
 
-Add a Mermaid diagram:
+Use Mermaid diagrams:
+
 ```markdown
 ## System Architecture
 
 ```mermaid
 graph TD
-    A[Next.js App] --> B[TanStack Query Cache]
-    A --> C[Zustand Store]
-    B --> D[REST API /api/*]
-    D --> E[PostgreSQL]
-    C --> F[LocalStorage]
+    A[Next.js App] --> B[API Routes]
+    B --> C[PostgreSQL]
 ```
 ```
 
-### Step 3.4: Tech Stack Rationale
+### Tech Stack Rationale
 
 Justify every technology choice:
-```markdown
-## Tech Stack Rationale
 
+```markdown
 | Technology | Why |
 |------------|-----|
-| Next.js 14 | App Router for RSC, API routes, TypeScript support |
-| TanStack Query | Best caching, optimistic updates, devtools |
-| PostgreSQL | Relational data, ACID compliance, robust |
-| Tailwind CSS | Utility-first, fast iteration, small bundle |
+| Next.js 14 | App Router for RSC, built-in API routes |
+| PostgreSQL | Relational data, ACID compliance |
+| Tailwind | Utility-first, fast iteration |
 ```
 
 ---
 
-## Phase 4: Create Examples (2-4 hours)
+## Create Examples
 
 Examples are **CRITICAL**. AI learns from working code, not descriptions.
 
-### Universal Examples (Already Included)
+### Create Your Own Examples
 
-The template includes truly universal patterns:
-- `examples/security/token-manager.ts` - Auth token management
-- `examples/security/audit-logger.ts` - Security event logging
-- `examples/offline/mutation-queue.ts` - Offline mutation queue
-- `examples/testing/component.test.tsx` - Component test structure
-- `examples/testing/hook.test.ts` - Hook/function test structure
+Add examples for YOUR tech stack in the `examples/` directory:
 
-You can customize these by replacing `[[PLACEHOLDERS]]` with your specific values.
-
-### Framework-Specific Examples (You Need to Create)
-
-Create examples for YOUR tech stack. Recommended categories:
-
-#### 1. API Integration (`examples/integrations/`)
-Create your own based on your HTTP client:
-- API client setup (axios, fetch, etc.)
-- Request/response interceptors
-- Error handling patterns
-
-#### 2. Data Fetching (`examples/data/` or `examples/hooks/`)
-Based on your data fetching approach:
-- Query patterns (React Query, SWR, Apollo, etc.)
-- Mutation patterns
-- Cache management
-
-#### 3. State Management (`examples/state/`)
-Based on your state solution:
-- Global state setup (Redux, Zustand, Context, etc.)
-- State update patterns
-- Persistence strategy
-
-#### 4. UI Components (`examples/components/`) - Optional
-If you have established component patterns:
-- Common component structures
-- Props patterns
-- Composition examples
-
-**Important:** Use REAL code from your project, not generic tutorials
-
-### Customization Tips
-
-- **Use real code from your project** (not made-up examples)
-- **Add generous comments** explaining WHY and gotchas
-- **Keep one pattern per file** (focused examples)
-- **Ensure all examples work** (no broken code)
-
----
-
-## Phase 5: Update TASK.md (5 minutes)
-
-The Context Engineering framework uses a **three-level hierarchical task system**:
-
-1. **Master TASK.md** - High-level features with task IDs
-2. **Feature Task Files** (`.claude/tasks/`) - Detailed subtasks
-3. **TodoWrite** - Session-level granular tasks (managed by Claude)
-
-### Update Master TASK.md
-
-Replace example tasks with your actual project tasks:
-
-```markdown
-# Current Tasks
-
-## In Progress
-- [ ] [TASK-001] Set up authentication flow (2/5) → @.claude/tasks/TASK-001-auth-flow.md
-
-## Pending
-- [ ] [TASK-002] Build task list UI → @.claude/tasks/TASK-002-task-ui.md
-- [ ] [TASK-003] Implement real-time sync → @.claude/tasks/TASK-003-realtime.md
-
-## Completed
-_Tasks move here automatically when all subtasks done_
-
----
-
-**Last Updated**: 2025-01-15
+```
+examples/
+├── integrations/    # Your API client patterns
+├── data/            # Your data fetching patterns
+├── state/           # Your state management patterns
+├── components/      # Your UI patterns (optional)
+├── security/        # Auth patterns
+├── offline/         # Offline-first patterns
+└── testing/         # Test patterns
 ```
 
-### Create Feature Task Files
-
-For each high-level task, create a feature task file in `.claude/tasks/`:
-
-**Example**: `.claude/tasks/TASK-001-auth-flow.md`
-```markdown
-# [TASK-001] Set up Authentication Flow
-
-**Status**: In Progress
-**Started**: 2025-01-15
-
-## Context
-Implement OAuth 2.0 authentication with token refresh.
-
-## Subtasks
-- [x] [TASK-001.1] Create auth service structure
-- [x] [TASK-001.2] Implement login endpoint
-- [ ] [TASK-001.3] Add token refresh logic
-- [ ] [TASK-001.4] Add logout functionality
-- [ ] [TASK-001.5] Write auth tests
-
-**Completion**: 2/5 subtasks complete (40%)
-
-**Last Updated**: 2025-01-15
-```
-
-**See**: `.claude/tasks/README.md` for full documentation
+**Tips:**
+- Use REAL code from your project
+- Add comments explaining WHY and gotchas
+- Keep one pattern per file
+- Ensure examples actually work
 
 ---
 
-## Phase 6: Test the System (30 minutes)
+## Test Your Setup
 
-### Step 6.1: Load Context
+### Step 1: Load Context
 
 ```bash
 /prime-core
 ```
 
-Verify Claude loads all context without errors.
+Verify Claude loads without errors.
 
-### Step 6.2: Create Test Feature Request
+### Step 2: Create Test Feature Request
 
-Fill out `.claude/INITIAL.md`:
+Create `PRPs/feature-requests/test-feature-INITIAL.md`:
 
 ```markdown
 ## FEATURE
 Add a simple login form with email and password fields.
 
 ## EXAMPLES
-Standard login form with email input, password input, submit button.
-Show validation errors inline.
+Standard login form with validation errors shown inline.
 
 ## DOCUMENTATION
-- Auth library: docs for your auth solution
-- Form handling: React Hook Form docs
-- Related patterns: examples/integrations/axios-client.ts
+- Related patterns: examples/components/
 
 ## OTHER CONSIDERATIONS
 - Must validate email format
-- Must hash password before sending
-- Must store JWT token securely
-- See CLAUDE.md Security Rules section
+- See CLAUDE.md Security Rules
 ```
 
-### Step 6.3: Generate PRP
+### Step 3: Generate PRP
 
 ```bash
-/generate-prp .claude/INITIAL.md
+/generate-prp PRPs/feature-requests/test-feature-INITIAL.md
 ```
 
 **Check:**
-- Confidence score ≥ 7
+- Confidence score >= 7
 - References to `examples/`
 - Correct validation commands
-- No clarification questions (or only 1-2)
 
-**If confidence < 7:**
+### Step 4: Iterate
+
+If confidence < 7:
 - Add more examples
 - Clarify gotchas in CLAUDE.md
-- Add missing library documentation
-
-### Step 6.4: Execute PRP (Optional)
-
-```bash
-/execute-prp PRPs/login-form.md
-```
-
-Watch AI execute step-by-step. Verify:
-- Validation gates work
-- AI follows your patterns
-- Code quality is good
+- Add library documentation to `PRPs/ai_docs/`
 
 ---
 
-## Phase 7: Iterate (Ongoing)
+## Troubleshooting
 
-As you use the system:
+### Low Confidence Scores
 
-**Update CLAUDE.md when:**
-- You discover a new gotcha
-- Pattern changes
-- New library added
+**Problem:** Generated PRPs have confidence < 7
 
-**Update examples/ when:**
-- Better pattern emerges
-- New feature type introduced
+**Solutions:**
+- Add more examples to `examples/`
+- Document patterns in CLAUDE.md
+- Add library docs to `PRPs/ai_docs/`
 
-**Update PLANNING.md when:**
-- Architecture evolves
-- Priorities change
+### Many Clarifying Questions
+
+**Problem:** AI asks 5+ questions per PRP
+
+**Solutions:**
+- Make CLAUDE.md more specific
+- Add real code examples
+- Document edge cases and gotchas
+
+### Validation Failures
+
+**Problem:** Generated code doesn't pass tests
+
+**Solutions:**
+- Verify validation commands match your project
+- Check examples/ code is valid
+- Update CLAUDE.md patterns
+
+### AI Doesn't Follow Patterns
+
+**Problem:** Generated code doesn't match your style
+
+**Solutions:**
+- Add more examples to `examples/`
+- Reference examples explicitly in CLAUDE.md
+- Add "Before starting ANY work" checklist
 
 ---
 
@@ -434,61 +340,18 @@ As you use the system:
 You've successfully set up Context Engineering when:
 
 - [ ] `/prime-core` loads without errors
-- [ ] Generated PRPs have confidence ≥ 7
+- [ ] Generated PRPs have confidence >= 7
 - [ ] AI asks < 2 clarifying questions
 - [ ] Validation commands pass on generated code
 - [ ] AI follows your established patterns
-- [ ] First-pass success rate > 70%
-
----
-
-## Troubleshooting
-
-### Low Confidence Scores
-
-**Problem**: Generated PRPs have confidence < 7
-
-**Solutions:**
-- Add more examples in `examples/`
-- Clarify requirements in CLAUDE.md
-- Document library patterns in `PRPs/ai_docs/`
-- Add API spec to `docs/api/`
-
-### Many Clarifying Questions
-
-**Problem**: AI asks 5+ questions per PRP
-
-**Solutions:**
-- Make CLAUDE.md more specific (replace vague with concrete)
-- Add real code examples (not descriptions)
-- Document edge cases and gotchas
-
-### Validation Failures
-
-**Problem**: Generated code doesn't pass validation
-
-**Solutions:**
-- Verify validation commands in CLAUDE.md are correct
-- Check examples/ code is valid
-- Update patterns in CLAUDE.md to match current best practices
-
-### AI Doesn't Follow Patterns
-
-**Problem**: Generated code doesn't match examples/
-
-**Solutions:**
-- Make examples more prominent in CLAUDE.md
-- Add "Before starting ANY work" section with explicit pattern checking
-- Reference examples/ in PRP templates
 
 ---
 
 ## Next Steps
 
-1. **Complete customization** of CLAUDE.md, PLANNING.md, examples/
-2. **Execute 2-3 small PRPs** to build confidence
-3. **Refine based on results** (update gotchas, add examples)
-4. **Scale up** to medium and large features
-5. **Onboard teammates** using `/onboarding` command
+1. Run `/prime-core` to load context
+2. Create a simple feature request
+3. Generate and execute your first PRP
+4. Iterate based on results
 
-See [CUSTOMIZATION_GUIDE.md](CUSTOMIZATION_GUIDE.md) for detailed customization instructions.
+See [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md) for the feature development workflow.

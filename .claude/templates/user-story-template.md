@@ -112,8 +112,7 @@ Use this checklist to ensure your story is complete:
 ## Related Resources
 
 - **Training examples:** `user-stories/training/example-good-*.md`
-- **Product Owner guide:** `docs/PRODUCT-OWNER-GUIDE.md`
-- **Workflow guide:** `.claude/docs/story-workflow-guide.md`
+- **Product Owner guide:** `docs/optional/PRODUCT_OWNER_GUIDE.md`
 - **AI assistance:** Use `/write-user-story` command for help
 
 ---

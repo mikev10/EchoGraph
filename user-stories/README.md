@@ -173,7 +173,7 @@ All stories in this directory should meet these criteria:
 
 **Questions about story format:**
 - Review examples in `/training/` directory
-- Consult `docs/PRODUCT-OWNER-GUIDE.md`
+- Consult `docs/optional/PRODUCT_OWNER_GUIDE.md`
 - Run `/write-user-story` and learn from AI output
 
 **Questions about commands:**
@@ -181,7 +181,6 @@ All stories in this directory should meet these criteria:
 - Review `.claude/CLAUDE.md` Product Owner Integration section
 
 **Questions about workflow:**
-- See `.claude/docs/story-workflow-guide.md` (comprehensive guide)
 - Ask your development lead
 - Review existing examples in this directory
 

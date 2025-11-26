@@ -111,7 +111,6 @@ describe('[[ComponentName]]', () => {
 **Audit Logging:**
 - ✅ ALWAYS log [[SECURITY_EVENT_TYPES]]
 - ✅ ALWAYS include user ID, timestamp, action type
-- See `examples/security/audit-logger.ts` for implementation
 
 ## [[OPTIONAL_ARCHITECTURE_SECTION]] Architecture
 
@@ -229,7 +228,7 @@ Product Owners write user stories in Azure DevOps. Developers convert these to f
 - Offline/async planning sessions
 - Learning to write better user stories
 
-**See also:** `docs/PRODUCT-OWNER-GUIDE.md` for complete guidance on writing effective user stories.
+**See also:** `docs/optional/PRODUCT_OWNER_GUIDE.md` for complete guidance on writing effective user stories.
 
 ### Three Amigos Workflow (Recommended)
 
@@ -260,7 +259,7 @@ Step 5: Validate Ready → /validate-story-ready [story-path]
 | `/validate-story-ready` | Any | Check story against Definition of Ready criteria |
 
 **Definition of Ready:**
-Stories are READY when they pass all criteria in `docs/DEFINITION-OF-READY.md`:
+Stories are READY when they pass all criteria in `docs/optional/DEFINITION_OF_READY.md`:
 - User story structure (specific user, clear value)
 - Acceptance criteria (3+ scenarios, Given/When/Then)
 - Technical context (feasibility, APIs, dependencies)
@@ -275,7 +274,7 @@ Stories are READY when they pass all criteria in `docs/DEFINITION-OF-READY.md`:
 - ❌ Technical debt / developer-only work
 - ❌ Trivial changes
 
-**See also:** `.claude/docs/three-amigos-guide.md` for complete Three Amigos documentation.
+**See also:** `docs/optional/THREE_AMIGOS_GUIDE.md` for complete Three Amigos documentation.
 
 ### For Developers: Converting User Stories
 
@@ -362,10 +361,9 @@ Stories are READY when they pass all criteria in `docs/DEFINITION-OF-READY.md`:
 
 ### Resources for Product Owners
 
-- **Complete guide:** `docs/PRODUCT-OWNER-GUIDE.md`
-- **Three Amigos guide:** `.claude/docs/three-amigos-guide.md`
-- **Definition of Ready:** `docs/DEFINITION-OF-READY.md`
-- **Story workflow guide:** `.claude/docs/story-workflow-guide.md`
+- **Complete guide:** `docs/optional/PRODUCT_OWNER_GUIDE.md`
+- **Three Amigos guide:** `docs/optional/THREE_AMIGOS_GUIDE.md`
+- **Definition of Ready:** `docs/optional/DEFINITION_OF_READY.md`
 - **Conversion template:** `.claude/templates/story-to-initial.md`
 - **Conversion command:** `/convert-story`
 

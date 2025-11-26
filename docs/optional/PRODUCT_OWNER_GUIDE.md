@@ -806,9 +806,8 @@ Use this checklist to ensure your user story is ready for development:
 
 ## Related Documentation
 
-- **Three Amigos Guide:** `.claude/docs/three-amigos-guide.md`
-- **Definition of Ready:** `docs/DEFINITION-OF-READY.md`
-- **Story Workflow Guide:** `.claude/docs/story-workflow-guide.md`
+- **Three Amigos Guide:** `docs/optional/THREE_AMIGOS_GUIDE.md`
+- **Definition of Ready:** `docs/optional/DEFINITION_OF_READY.md`
 - **Story Commands Quick Reference:** `.claude/docs/story-commands-quick-reference.md`
 - **Developer Documentation:** `.claude/CLAUDE.md`
 
