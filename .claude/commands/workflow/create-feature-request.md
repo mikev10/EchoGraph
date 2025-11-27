@@ -105,20 +105,20 @@ mcp__local-rag__query_documents({
 
 ### 4. Save the File
 
-**Location**: `feature-requests/[feature-name].md`
+**Location**: `PRPs/feature-requests/[feature-name].md`
 - Use kebab-case for filename (e.g., `user-authentication.md`, `dashboard-analytics.md`)
 
 ### 5. Provide Next Steps
 
 Tell the user:
 ```
-Feature request created: feature-requests/[feature-name].md
+Feature request created: PRPs/feature-requests/[feature-name].md
 
 Next steps:
 1. Review the feature request and make any adjustments
-2. Run: /generate-prp feature-requests/[feature-name].md
+2. Run: /workflow:generate-prp PRPs/feature-requests/[feature-name].md
 3. Review the generated PRP
-4. Run: /execute-prp PRPs/active/[feature-name].md
+4. Run: /workflow:execute-prp PRPs/active/[feature-name].md
 ```
 
 ## Important Guidelines
@@ -135,7 +135,7 @@ Next steps:
 
 Before generating, ensure the directory exists:
 ```bash
-mkdir -p feature-requests
+mkdir -p PRPs/feature-requests
 ```
 
 ---
