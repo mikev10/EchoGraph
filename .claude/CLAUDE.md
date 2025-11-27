@@ -1,431 +1,288 @@
-# [[PROJECT_NAME]] - Global Conventions
+# EchoGraph - Global Conventions
 
 ## Project Context (Auto-Loaded)
 
 @.claude/PLANNING.md
 @.claude/TASK.md
 
+## Response Optimization (MANDATORY)
+
+**Context is precious. Every token matters.**
+
+- **Never repeat content back** - Don't paste code/content after editing. Say what changed, not the full result.
+- **No code unless asked** - Reference `file:line` instead. User can read files if needed.
+- **Concise by default** - "Done. Fixed X." not "I have successfully completed the task..."
+- **Don't narrate** - Don't explain what you're about to do. Just do it.
+- **No preamble** - Skip "Great question!" or restating the question.
+- **Verbose only when**: User asks for explanation, complex tradeoffs exist, or debugging needs evidence.
+- **Edit responses**: "Fixed `file.py:23` - added null check" (1 line, no code paste)
+- **Multi-step tasks**: Use TodoWrite for tracking. Final summary: bullet points only.
+
+## Mandatory MCP Server Rules
+
+**When working with libraries or documentation:**
+
+1. **context7 MCP server** - ALWAYS use for library documentation lookups
+   - First call `mcp__context7__resolve-library-id` to get the library ID
+   - Then call `mcp__context7__get-library-docs` with topic for specific docs
+   - Never guess library APIs - always verify with context7
+
+2. **local-rag MCP server** - Use for project-specific documentation
+   - Query `mcp__local-rag__query_documents` for project patterns
+   - Ingest important docs with `mcp__local-rag__ingest_file`
+
+3. **perplexity MCP server** - Use for current/recent information
+   - `mcp__perplexity__search` for quick lookups
+   - `mcp__perplexity__reason` for complex technical questions
+
+**Planning Rule**: When planning features involving libraries:
+- Use context7 to verify current API patterns
+- Check local-rag for existing project patterns
+- Never assume library behavior - verify first
+
+**Implementation Rule**: When implementing with external libraries:
+- First call context7 to see correct usage patterns
+- Reference verified patterns, not memory
+- Update PRPs/ai_docs/ with key findings for future reference
+
 ## Project Awareness
 
 **Before starting ANY work:**
-- Review `examples/` folder for established patterns
+- Review `examples/` folder for established patterns (when available)
 - Consult `PRPs/ai_docs/` for library-specific documentation
-- **Verify API endpoints in `docs/api/[[YOUR_API_SPEC]].json`** (if applicable)
-- [[ADD_PROJECT_SPECIFIC_REQUIREMENTS]]
+- Reference `D:\Obsidian\Knowledge Base\echograph\TECHNOLOGY-INVENTORY.md` for validated tool choices
+- Reference `D:\Obsidian\Knowledge Base\echograph\ECHOGRAPH-IMPLEMENTATION-PLAN.md` for feature details
 
 **Note:** Architecture (PLANNING.md) and current priorities (TASK.md) are auto-loaded via imports above.
 
 ## Code Structure
 
 **File Organization:**
-- Keep files under [[MAX_LINES_PER_FILE]] lines; split when exceeded
-- [[ORGANIZATIONAL_PATTERN]] structure: `src/[[FEATURE_PATTERN]]/`
-- Each feature contains: [[FEATURE_SUBDIRECTORIES]]
-- Separate concerns: UI, logic, state, types
+- Keep files under 300 lines; split when exceeded
+- Monorepo structure: `packages/{cli,core,api,vscode-extension}/`
+- Each package contains: `src/`, `tests/`, `pyproject.toml`
+- Separate concerns: CLI commands, core logic, storage, retrieval
 
 **Naming Conventions:**
-- Files: [[FILE_NAMING_CONVENTION]] (e.g., `user-profile.tsx`)
-- Components/Classes: [[COMPONENT_NAMING]] (e.g., `UserProfile`)
-- Functions/variables: [[FUNCTION_NAMING]] (e.g., `getUserData`, `selectedUser`)
-- Constants: [[CONSTANT_NAMING]] (e.g., `API_BASE_URL`)
-- Types/Interfaces: [[TYPE_NAMING]] (e.g., `User`, `ApiResponse`)
+- Files: `snake_case.py` (e.g., `vector_search.py`, `github_ingestion.py`)
+- Classes: `PascalCase` (e.g., `EmbeddingService`, `VectorStore`)
+- Functions/variables: `snake_case` (e.g., `generate_embeddings`, `search_results`)
+- Constants: `SCREAMING_SNAKE_CASE` (e.g., `DEFAULT_CHUNK_SIZE`, `API_BASE_URL`)
+- Types: `PascalCase` (e.g., `SearchResult`, `DecisionRecord`)
 
 **Import Order:**
-1. External dependencies (react, etc.)
-2. Internal absolute imports (@/lib/, @/components/)
-3. Relative imports (./types, ../utils)
-4. Type imports (import type { ... })
+1. Standard library (os, pathlib, typing)
+2. Third-party dependencies (fastapi, pydantic, lancedb)
+3. Internal absolute imports (echograph_core, echograph_cli)
+4. Relative imports (./models, ../utils)
+5. Type imports (from typing import TYPE_CHECKING)
 
 ## Tech Stack Patterns
 
-**[[PRIMARY_FRAMEWORK]]:**
-- [[PATTERN_1_WITH_EXAMPLE]]
-- [[PATTERN_2_WITH_EXAMPLE]]
-- See `PRPs/ai_docs/[[framework]].md` for detailed patterns
+**uv (Package Manager):**
+- Use `uv sync` to install dependencies
+- Use `uv run pytest` to run tests
+- Use `uv add <package>` to add dependencies
+- Lock file: `uv.lock` (committed to git)
 
-**[[DATA_FETCHING_LIBRARY]]:**
-- Cache strategy: [[CACHE_STRATEGY]]
-- Error handling: [[ERROR_HANDLING_PATTERN]]
-- See `examples/integrations/` for implementation patterns
+**Typer (CLI Framework):**
+- Use type hints for all arguments/options
+- Use Rich for formatted output
+- Use `typer.Typer()` with `add_completion=False`
+- Commands in separate files under `commands/`
 
-**[[STATE_MANAGEMENT]]:**
-- Use for [[WHAT_STATE_GOES_HERE]]
-- Store structure: [[STORE_PATTERN]]
-- Selectors: [[SELECTOR_PATTERN]]
-- See `examples/state/` for implementation patterns
+**FastAPI (API Service):**
+- Async endpoints throughout
+- Pydantic v2 models for request/response
+- Use lifespan context manager for startup/shutdown
+- OpenAPI docs at `/docs`
 
-**[[OTHER_KEY_LIBRARIES]]:**
-- [[LIBRARY_NAME]]: [[USAGE_PATTERN]]
+**LanceDB (Vector Store):**
+- Connect with `lancedb.connect(path)`
+- Create tables with schema from dataclass or dict
+- Use `.search(vector).limit(k).to_pandas()` for queries
+- Store metadata columns for filtering
+
+**SQLAlchemy 2.0 (Metadata Store):**
+- Use async sessions with aiosqlite
+- Define models with `DeclarativeBase`
+- Use Alembic for migrations
 
 ## Testing Requirements
 
 **Test Coverage:**
-- Minimum [[COVERAGE_PERCENTAGE]]% coverage for [[COVERAGE_SCOPE]]
-- Test files: `{filename}.test.[[EXTENSION]]`
-- Test location: [[TEST_LOCATION_PATTERN]]
+- Minimum 80% coverage for core library
+- Test files: `test_{filename}.py`
+- Test location: `packages/{package}/tests/`
 
 **Test Structure:**
-```[[LANGUAGE]]
-describe('[[ComponentName]]', () => {
-  describe('when [[condition]]', () => {
-    it('should [[expected_behavior]]', () => {
-      // Arrange
-      // Act
-      // Assert
-    })
-  })
-})
+
+```python
+class TestEmbeddingService:
+    """Tests for EmbeddingService class."""
+
+    def test_encode_single_text(self):
+        """Should generate embedding for single text."""
+        # Arrange
+        service = EmbeddingService()
+        text = "test input"
+
+        # Act
+        result = service.encode_single(text)
+
+        # Assert
+        assert result.shape == (768,)
+
+    def test_encode_empty_list(self):
+        """Should return empty array for empty input."""
+        # Arrange / Act / Assert pattern
 ```
 
 **Test Patterns:**
-- [[TEST_TYPE_1]]: [[TESTING_TOOL_1]]
-- [[TEST_TYPE_2]]: [[TESTING_TOOL_2]]
-- See `examples/testing/` for implementation patterns
+- Unit tests: pytest with pytest-asyncio for async
+- Integration tests: pytest with fixtures for database/vector store
+- Use `pytest-cov` for coverage reporting
 
 ## Security Rules (CRITICAL)
 
-**Authentication & Token Storage:**
-- ✅ ALWAYS [[SECURE_STORAGE_METHOD]]
-- ❌ NEVER [[INSECURE_STORAGE_METHOD]]
-- ✅ ALWAYS check token expiry before API calls
-- ✅ ALWAYS implement automatic token refresh
+**Token Storage:**
+- Store PATs in system keyring or environment variables
+- NEVER commit tokens to git
+- NEVER log token values
+- Use `ECHOGRAPH_GITHUB_TOKEN` env var pattern
 
 **API Calls:**
-- ✅ ALWAYS use centralized API client (`lib/api/client.[[EXT]]`)
-- ✅ ALWAYS include auth interceptor
-- ✅ ALWAYS handle 401 (redirect to login)
-- ✅ ALWAYS use HTTPS (no HTTP)
-
-**API Implementation:**
-- ✅ ALWAYS verify endpoints against API specification
-- ✅ ALWAYS match request/response types from spec
-- ✅ ALWAYS use correct HTTP methods (GET/POST/PUT/DELETE)
-- 📄 Full spec: `docs/api/[[YOUR_API_SPEC]].json` (if applicable)
-- 📄 AI summary: `PRPs/ai_docs/[[your_api]]-spec-summary.md` (if applicable)
+- Use httpx for async HTTP client
+- Always set timeouts on requests
+- Handle rate limits gracefully (GitHub: 5000 req/hour)
+- Validate URLs before making requests
 
 **Input Validation:**
-- ✅ ALWAYS validate [[VALIDATION_APPROACH]]
-- ✅ ALWAYS sanitize user inputs
-- ✅ ALWAYS validate on both client and server
-
-**Audit Logging:**
-- ✅ ALWAYS log [[SECURITY_EVENT_TYPES]]
-- ✅ ALWAYS include user ID, timestamp, action type
-
-## [[OPTIONAL_ARCHITECTURE_SECTION]] Architecture
-
-**[[ARCHITECTURE_ASPECT_1]]:**
-- [[IMPLEMENTATION_DETAIL_1]]
-- [[IMPLEMENTATION_DETAIL_2]]
-
-**[[ARCHITECTURE_ASPECT_2]]:**
-- [[IMPLEMENTATION_DETAIL_1]]
-- [[IMPLEMENTATION_DETAIL_2]]
+- Validate all user input with Pydantic
+- Sanitize file paths (no path traversal)
+- Validate on CLI entry and API boundary
 
 ## Style & Formatting
 
 **Code Style:**
-- Formatter: [[FORMATTER_NAME]] - [[FORMATTER_CONFIG]]
-- Linter: [[LINTER_NAME]] - [[LINTER_CONFIG]]
-- Max line length: [[MAX_LINE_LENGTH]] characters
+- Formatter: Ruff format (line-length 88)
+- Linter: Ruff (select = ["E", "F", "I", "N", "W", "UP"])
+- Type checker: mypy (strict mode)
+- Max line length: 88 characters
 
 **Comments:**
 - Comment WHY, not WHAT
-- Use [[DOC_COMMENT_STYLE]] for exported functions
+- Use docstrings for public functions (Google style)
 - Use inline comments for non-obvious logic
-- [[OTHER_COMMENT_GUIDELINES]]
+
+**Docstring Format:**
+```python
+def search(query: str, top_k: int = 10) -> list[SearchResult]:
+    """Search for documents matching the query.
+
+    Args:
+        query: Natural language search query
+        top_k: Maximum number of results to return
+
+    Returns:
+        List of search results ranked by relevance
+
+    Raises:
+        ValueError: If query is empty
+    """
+```
 
 ## Documentation Requirements
 
 **When to Update Docs:**
-- New API endpoint used → [[UPDATE_ACTION_1]]
-- New pattern established → add to `examples/`
-- New component created → [[UPDATE_ACTION_2]]
-- Architecture change → update `.claude/PLANNING.md`
+- New command added: Update README and CLI help
+- New pattern established: Add to `examples/`
+- Architecture change: Update `.claude/PLANNING.md`
+- New dependency: Document in `PRPs/ai_docs/`
 
 ## Task Management
 
 **Three-Level Task System:**
 
-**Level 1: Master TASK.md (Epic/Feature Level - Persistent):**
-- High-level features and milestones tracked in `.claude/TASK.md`
-- Each task has unique ID (TASK-001, TASK-002, etc.)
-- References detailed feature task files in `.claude/tasks/`
-- Progress auto-calculated from subtasks (e.g., "3/5 complete")
-- Claude updates during work: marks complete, updates progress
-- Updates happen: after PRP completion, at session end, after major milestones
-- Human can manually edit/override anytime
-- Tracked in git, survives sessions
-- Format: `- [ ] [TASK-001] Feature name (3/5) → @.claude/tasks/TASK-001-feature.md`
+**Level 1: Master TASK.md** - Epic/feature tracking
+**Level 2: Feature Task Files** - `.claude/tasks/TASK-XXX-*.md`
+**Level 3: TodoWrite** - Session-level granular tasks
 
-**Level 2: Feature Task Files (Subtask Level - Persistent):**
-- Concrete implementation steps (3-10 subtasks per feature)
-- Located in `.claude/tasks/TASK-XXX-feature-name.md`
-- Contains: context, subtasks, notes, testing requirements, acceptance criteria
-- Each subtask has ID: TASK-001.1, TASK-001.2, etc.
-- Persists across sessions, tracked in git
-- Human and Claude can both update
-- When all subtasks complete, parent task auto-completes
-- See `.claude/tasks/README.md` for full documentation
-
-**Level 3: TodoWrite (Session-Level - Temporary):**
-- Granular step-by-step tasks for current work
-- Claude manages automatically during PRP execution
-- One task `in_progress` at a time
-- Mark `completed` immediately when done
-- Does not persist between sessions
-
-**Task Workflow:**
-1. Add high-level task to master TASK.md with unique ID
-2. Create feature task file (`.claude/tasks/TASK-XXX-feature.md`)
-3. Break down into 3-10 concrete subtasks
-4. During work, use TodoWrite for granular execution steps
-5. Mark subtasks complete as you finish them
-6. Run `/validate-tasks` to update progress and auto-complete parent
-
-**Validation:**
-Run `/validate-tasks` to:
-- Validate task ID format and uniqueness
-- Check file references exist
-- Update progress counts automatically
-- Auto-complete parent tasks when all subtasks done
-- Detect orphaned task files
-
-## Product Owner Integration
-
-**User Story to Feature Request Workflow:**
-
-Product Owners write user stories in Azure DevOps. Developers convert these to feature requests (INITIAL.md) for PRP generation.
-
-**Key Principle:** 1 User Story (1-3 days) = 1 Feature Request = 1 PRP
-
-### For Product Owners: Drafting User Stories (OPTIONAL)
-
-**Before creating ADO work items, you can draft and refine stories using AI assistance:**
-
-1. **Use the `/write-user-story` command:**
-   - Run: `/write-user-story "Users need to reset their password..."`
-   - AI asks clarifying questions about requirements
-   - AI generates well-structured user story with Given/When/Then acceptance criteria
-   - Story saved to `user-stories/drafts/` for review
-
-2. **Review and refine:**
-   - Check acceptance criteria are testable and comprehensive
-   - Verify story size is appropriate (1-3 days, 3-8 story points)
-   - Ensure all edge cases and error scenarios are covered
-   - Add any business context or constraints
-
-3. **Create ADO work item:**
-   - Copy content from generated markdown file
-   - Create new user story in Azure DevOps
-   - Link designs, mockups, dependencies
-   - Assign to developer
-
-**This step is OPTIONAL but recommended for:**
-- Complex features needing careful planning
-- POs new to writing user stories
-- Features with many edge cases or business rules
-- Offline/async planning sessions
-- Learning to write better user stories
-
-**See also:** `docs/optional/PRODUCT_OWNER_GUIDE.md` for complete guidance on writing effective user stories.
-
-### Three Amigos Workflow (Recommended)
-
-**Before stories enter team grooming**, use the Three Amigos workflow to ensure alignment:
-
-**Participants:**
-- **Product Owner** - Business perspective
-- **Dev Lead** - Technical perspective
-- **QA Lead** - Testing perspective
-
-**Workflow Steps:**
-
-```
-Step 1: PO Creates Story → /write-user-story
-Step 2: Dev Lead Enriches → /enrich-story-tech [story-path]
-Step 3: QA Lead Enriches → /enrich-story-qa [story-path]
-Step 4: Alignment Meeting → /three-amigos-prep [story-path]
-Step 5: Validate Ready → /validate-story-ready [story-path]
-```
-
-**New Commands for Three Amigos:**
-
-| Command | Owner | Purpose |
-|---------|-------|---------|
-| `/enrich-story-tech` | Dev Lead | Add technical context: APIs, data model, patterns, security |
-| `/enrich-story-qa` | QA Lead | Add test scenarios, edge cases, test data requirements |
-| `/three-amigos-prep` | Facilitator | Generate meeting agenda for 30-45 min alignment session |
-| `/validate-story-ready` | Any | Check story against Definition of Ready criteria |
-
-**Definition of Ready:**
-Stories are READY when they pass all criteria in `docs/optional/DEFINITION_OF_READY.md`:
-- User story structure (specific user, clear value)
-- Acceptance criteria (3+ scenarios, Given/When/Then)
-- Technical context (feasibility, APIs, dependencies)
-- QA context (test scenarios, test data)
-- Three Amigos alignment (questions resolved, scope agreed)
-
-**When to Use Three Amigos:**
-- ✅ New features with user-facing changes
-- ✅ Complex stories with unknown complexity
-- ✅ Stories touching security or payments
-- ❌ Bug fixes with clear reproduction steps
-- ❌ Technical debt / developer-only work
-- ❌ Trivial changes
-
-**See also:** `docs/optional/THREE_AMIGOS_GUIDE.md` for complete Three Amigos documentation.
-
-### For Developers: Converting User Stories
-
-**When you receive a user story from a Product Owner:**
-
-1. **If story quality is poor, optionally refine it first:**
-   - Run: `/refine-story [ADO-ID]`
-   - AI analyzes story against INVEST criteria
-   - Shows before/after comparison with identified issues
-   - Decide whether to use improved version or request PO updates
-
-2. **Use the `/convert-story` command:**
-   - Command prompts you to paste ADO user story content
-   - AI researches codebase for similar patterns, API endpoints, libraries
-   - Asks clarifying questions about technical approach
-   - Generates INITIAL.md with technical enrichment
-
-3. **Review and adjust the generated INITIAL.md:**
-   - Verify API endpoints match specification
-   - Check libraries/versions are correct
-   - Add any project-specific gotchas
-   - Ensure security considerations are complete
-
-4. **Proceed with standard workflow:**
-   - `/generate-prp` → Creates comprehensive PRP
-   - `/execute-prp` → Implements step-by-step
-   - Update ADO story status when complete
-
-**Alternative: Manual conversion**
-- Reference template: `.claude/templates/story-to-initial.md`
-- See examples and guidelines for proper conversion
-- Ensure all acceptance criteria are captured
-
-### Granularity Guidelines
-
-**Three levels of work:**
-
-| Level | ADO Item | Context Engineering | Size | Example |
-|-------|----------|---------------------|------|---------|
-| **Story** | User Story | 1 INITIAL.md → 1 PRP | 1-3 days | "User login with email/password" |
-| **Feature** | Feature | Multiple PRPs (one per story) | 1-2 weeks | "User Authentication" (login, logout, reset, refresh) |
-| **Epic** | Epic | Multiple Features → Multiple PRPs | Multiple weeks | "User Management" (auth, profiles, permissions, audit) |
-
-**Story-level work (most common):**
-- Product Owner writes small user story (1-3 days)
-- Developer converts to INITIAL.md using `/convert-story`
-- Single PRP generated and executed
-- Can be deployed independently
-
-**Feature-level work:**
-- Product Owner writes multiple related user stories
-- Developer creates feature task file (TASK-XXX)
-- Each story becomes a subtask (TASK-XXX.Y) with its own PRP
-- All PRPs contribute to one feature
-- Feature ships when all stories complete
-
-**Epic-level work:**
-- Product Owner defines large initiative
-- Break into features, then into stories
-- Each story still follows 1:1 PRP mapping
-- Ships across multiple sprints
-
-### What Product Owners Need to Provide
-
-**Required in every user story:**
-- ✅ User story format: "As a [user], I want [capability], so that [benefit]"
-- ✅ Minimum 2-3 acceptance criteria (ideally Given/When/Then format)
-- ✅ Business value explanation
-- ✅ Story size: 1-3 days (3-8 story points)
-
-**Nice to have:**
-- Mockups or wireframes
-- Links to competitor examples
-- Business constraints (deadlines, compliance)
-- Platform requirements
-
-**Product Owners should NOT provide:**
-- ❌ Technical implementation details
-- ❌ Code examples or API endpoint specifications
-- ❌ Library/framework choices
-- ❌ Database schemas
-
-**Developers research technical context during conversion.**
-
-### Resources for Product Owners
-
-- **Complete guide:** `docs/optional/PRODUCT_OWNER_GUIDE.md`
-- **Three Amigos guide:** `docs/optional/THREE_AMIGOS_GUIDE.md`
-- **Definition of Ready:** `docs/optional/DEFINITION_OF_READY.md`
-- **Conversion template:** `.claude/templates/story-to-initial.md`
-- **Conversion command:** `/convert-story`
-
-### When to Skip User Story Conversion
-
-**Write INITIAL.md directly (without user story) for:**
-- Technical work (refactoring, bug fixes, technical debt)
-- Developer-initiated improvements
-- Work with no Product Owner involvement
-- Very technical features requiring significant research upfront
-
-In these cases, use the standard INITIAL.md template and proceed directly to `/generate-prp`.
+See `.claude/tasks/README.md` for full documentation.
 
 ## Validation Commands (Must Pass Before Committing)
 
 ```bash
-# [[VALIDATION_COMMAND_1]] (must [[EXPECTED_RESULT]])
-[[COMMAND_1]]
+# Lint all Python code (must pass with no errors)
+uv run ruff check .
 
-# [[VALIDATION_COMMAND_2]] (must [[EXPECTED_RESULT]])
-[[COMMAND_2]]
+# Format check (must have no changes needed)
+uv run ruff format --check .
 
-# [[VALIDATION_COMMAND_3]] (must [[EXPECTED_RESULT]])
-[[COMMAND_3]]
+# Type check (must pass)
+uv run mypy packages/
+
+# Run tests (must pass)
+uv run pytest
 ```
 
 ## Critical Gotchas
 
-**[[TECHNOLOGY_1]]:**
-- [[GOTCHA_1]]
-- [[GOTCHA_2]]
-- [[GOTCHA_3]]
+**uv:**
+- Always use `uv run` to execute commands in the virtual environment
+- `uv.lock` must be committed - it's the lockfile
+- Use `uv sync --frozen` in CI to ensure reproducible builds
 
-**[[TECHNOLOGY_2]]:**
-- [[GOTCHA_1]]
-- [[GOTCHA_2]]
+**LanceDB:**
+- Tables are created lazily - first insert creates the table
+- Vector column must be named `vector` by convention
+- Use `.where()` for SQL-like metadata filtering
 
-**[[TECHNOLOGY_3]]:**
-- [[GOTCHA_1]]
+**tree-sitter:**
+- Parser objects are not thread-safe
+- Create parser per-thread or use locks
+- Language bindings must match tree-sitter version
 
-## Never Do This
+**Embeddings:**
+- First call loads model (~500MB download)
+- Batch processing (32 items) is much faster than single
+- Nomic requires `trust_remote_code=True`
 
-❌ [[ANTI_PATTERN_1]]
-❌ [[ANTI_PATTERN_2]]
-❌ [[ANTI_PATTERN_3]]
-❌ Use `any` type without strong justification
-❌ Store auth tokens in insecure storage
-❌ Make API calls without auth interceptor
-❌ Commit without running validation commands
-❌ Delete code without explicit instruction
-❌ Assume library availability without checking
-❌ Skip tests for "simple" features
+## Skills
 
-## Always Do This
+**context-optimizer** (Auto-triggered for complex tasks):
+- Enforces Response Optimization rules above
+- Uses subagents for parallelizable work (context isolation)
+- Summary-first reporting - bullet points, not prose
+- Progressive file reading: Grep → Read relevant sections → Delegate if large
+- See `.claude/skills/context-optimizer/SKILL.md` for full details
 
-✅ [[BEST_PRACTICE_1]]
-✅ [[BEST_PRACTICE_2]]
-✅ [[BEST_PRACTICE_3]]
-✅ Run validation commands before committing
-✅ Write tests for new features
-✅ Validate inputs
-✅ Handle loading and error states
-✅ Update TASK.md with progress
-✅ Reference examples/ for patterns
-✅ Ask for clarification if requirements unclear
+## What NOT to Do
+
+- Use `any` type without strong justification
+- Store tokens in config files
+- Skip tests for "simple" features
+- Use `print()` instead of logging/Rich console
+- Commit without running validation commands
+- Delete code without explicit instruction
+- Assume library availability without checking
+- Use `os.system()` or `subprocess.call()` without shell=False
+- Ignore rate limits on external APIs
+- Paste code back after editing (use file:line references)
+- Narrate what you're about to do (just do it)
+- Write verbose success messages ("I have successfully...")
+
+## What to ALWAYS Do
+
+- Run validation commands before committing
+- Write tests for new features
+- Validate inputs at boundaries
+- Handle errors gracefully with user-friendly messages
+- Update TASK.md with progress
+- Reference PLANNING.md for architectural decisions
+- Ask for clarification if requirements unclear
+- Use Rich console for CLI output
+- Use async/await for I/O operations
+- Log at appropriate levels (DEBUG, INFO, WARNING, ERROR)
+- Use MCP servers (context7, local-rag) before implementing with libraries
+- Keep responses concise - context is precious
