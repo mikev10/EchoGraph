@@ -4,9 +4,9 @@ This file tracks **high-level features and milestones** (epics). Each task can r
 
 ## In Progress
 
-## Pending
+- [ ] [TASK-002] Context Engineering CLI (8/9) → @.claude/tasks/TASK-002-context-engineering-cli.md
 
-- [ ] [TASK-002] Context Engineering CLI (0/9) → @.claude/tasks/TASK-002-context-engineering-cli.md
+## Pending
 
 ## Completed
 
