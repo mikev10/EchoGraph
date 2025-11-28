@@ -50,7 +50,7 @@
 **Before starting ANY work:**
 - Review `examples/` folder for established patterns (when available)
 - Consult `PRPs/ai_docs/` for library-specific documentation
-- Reference `D:\Obsidian\Knowledge Base\echograph\TECHNOLOGY-INVENTORY.md` for validated tool choices
+- Reference `docs/ECHOGRAPH-IMPLEMENTATION-PLAN.md` or  `D:\Obsidian\Knowledge Base\echograph\TECHNOLOGY-INVENTORY.md` for validated tool choices
 - Reference `D:\Obsidian\Knowledge Base\echograph\ECHOGRAPH-IMPLEMENTATION-PLAN.md` for feature details
 
 **Note:** Architecture (PLANNING.md) and current priorities (TASK.md) are auto-loaded via imports above.
