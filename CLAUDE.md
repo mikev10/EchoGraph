@@ -176,6 +176,7 @@ class TestEmbeddingService:
 - Use inline comments for non-obvious logic
 
 **Docstring Format:**
+
 ```python
 def search(query: str, top_k: int = 10) -> list[SearchResult]:
     """Search for documents matching the query.

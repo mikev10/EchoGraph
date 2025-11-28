@@ -22,6 +22,68 @@ Before executing PRP, verify:
 
 **Process**:
 
+## Phase 0: Skills & Feature Branch (MANDATORY)
+
+This phase MUST be executed before any code changes. It ensures proper context management and git hygiene.
+
+### Step 0.1: Invoke Context-Optimizer Skill
+
+**Invoke the context-optimizer skill IMMEDIATELY:**
+
+```typescript
+// Use Skill tool to invoke context-optimizer
+Skill({ skill: "context-optimizer" })
+```
+
+**This skill:**
+
+- Optimizes token usage for large cleanup operations
+- Manages context efficiently across multi-step workflows
+- Enforces efficient context usage while maintaining quality
+- Essential for cleanup operations that involve 10+ files
+
+**CRITICAL**: Do not proceed until context-optimizer skill is active.
+
+### Step 0.5.2: Create Feature Branch
+
+**ALWAYS create a feature branch before making any code changes:**
+
+```bash
+# Get current branch name
+git branch --show-current
+
+# Create and checkout feature branch
+# Branch naming convention: cleanup/<scope>-<date>
+git checkout -b cleanup/[scope]-YYYY-MM-DD
+
+# Example:
+# git checkout -b cleanup/likes-page-2025-01-15
+# git checkout -b cleanup/dashboard-components-2025-01-15
+# git checkout -b cleanup/design-system-violations-2025-01-15
+```
+
+**Branch naming rules:**
+
+- Prefix: `cleanup/`
+- Scope: Extract from execution plan (e.g., `likes-page`, `dashboard`, `admin-panel`)
+- Date: Current date in YYYY-MM-DD format
+- Example: `cleanup/likes-page-2025-01-15`
+
+**Verification:**
+
+```bash
+# Verify you're on the feature branch (not main/dev)
+git branch --show-current
+# Should NOT be 'main' or 'dev'
+```
+
+**If already on a cleanup branch:**
+
+- Verify branch name follows convention
+- If not, create new branch with correct naming
+
+**CRITICAL**: Do NOT proceed with any code changes until feature branch is confirmed.
+
 ### Phase 1: Load PRP & MCP Validation
 - Read the specified PRP file completely
 - Understand all context and requirements
@@ -29,6 +91,7 @@ Before executing PRP, verify:
 **MCP Validation (MANDATORY)**:
 
 1. **Verify Style Guide** (local-rag):
+
    ```javascript
    // Query design system and conventions
    mcp__local-rag__query_documents({
@@ -44,6 +107,7 @@ Before executing PRP, verify:
    ```
 
 2. **Verify API Endpoints** (local-rag - if applicable):
+
    ```javascript
    // Query for specific endpoints used in PRP
    mcp__local-rag__query_documents({
@@ -54,6 +118,7 @@ Before executing PRP, verify:
    ```
 
 3. **Find Similar Implementations** (local-rag):
+
    ```javascript
    // Search for existing patterns
    mcp__local-rag__query_documents({
@@ -64,6 +129,7 @@ Before executing PRP, verify:
    ```
 
 4. **Fetch Library APIs** (context7 - if needed):
+
    ```javascript
    // Only if PRP uses specific library features
    mcp__context7__resolve-library-id({
@@ -89,6 +155,7 @@ Before executing PRP, verify:
    - Extract Parent Task ID (e.g., `[TASK-005]`)
    - Extract Child Task ID (e.g., `[TASK-005.4]`)
    - If either missing, STOP execution and report:
+
      ```
      ⚠️ BLOCKED: PRP is missing task linkage in header.
 
@@ -132,7 +199,8 @@ Before executing PRP, verify:
 - Provide remediation steps
 
 ### Phase 2: ULTRATHINK (Mandatory Planning Phase)
-**CRITICAL: You must plan before coding**
+
+### **CRITICAL: You must plan before coding**
 
 1. **Break Down Tasks**:
    - Read the feature task file (`.claude/tasks/TASK-XXX-*.md`) loaded in Phase 1.5
@@ -171,6 +239,7 @@ For EACH major milestone step in the PRP (not every tiny step):
    - Add comments for complex logic
 
 3. **Validate Step**:
+
    ```bash
    [[VALIDATION_COMMAND_1]]  # Must exit 0
    [[VALIDATION_COMMAND_2]]  # Must exit 0
@@ -189,9 +258,11 @@ For EACH major milestone step in the PRP (not every tiny step):
 6. **Update Feature Task File** (persistent - after major milestones):
    - Read feature task file (`.claude/tasks/TASK-XXX-*.md`)
    - Add notes to **Notes** section about what was completed:
+
      ```markdown
      - [YYYY-MM-DD] Completed [step description]: [brief summary of implementation]
      ```
+
    - Document any important decisions or gotchas discovered
    - Update **Blockers** section if encountered any issues
    - Update **Last Updated** timestamp
@@ -204,6 +275,7 @@ For EACH major milestone step in the PRP (not every tiny step):
 After all steps:
 
 1. **Run Full Validation Suite**:
+
    ```bash
    [[VALIDATION_COMMAND_1]]
    [[VALIDATION_COMMAND_2]]
@@ -227,6 +299,7 @@ After all steps:
    - The completion summary will be ingested into local-rag via `/update-rag`
 
    **Required Format:**
+
    ```markdown
    ---
 
@@ -295,15 +368,19 @@ After all steps:
 
    **If status is ✅ COMPLETED:**
    - Mark subtask complete:
+
      ```markdown
      - [x] [TASK-XXX.Y] Subtask description
      ```
+
    - Update **Notes** section with completion reference:
+
      ```markdown
      - [YYYY-MM-DD] COMPLETED - See completion summary in PRP: PRPs/completed/[prp-name].md
      - Key achievements: [brief 1-2 line summary]
      - Any important notes: [gotchas, decisions, future work]
      ```
+
    - Mark **Testing Requirements** checkboxes if tests were written
    - Mark **Documentation Updates** checkboxes if docs updated
    - Update **Last Updated** timestamp
@@ -311,26 +388,31 @@ After all steps:
 
    **If status is 🔄 IN_PROGRESS:**
    - Add notes to **Notes** section:
+
      ```markdown
      - [YYYY-MM-DD] IN_PROGRESS: Completed steps X-Y, stopped at step Z
      - Next steps: [what needs to be done to continue]
      ```
+
    - Document current progress and where execution stopped
    - Update **Last Updated** timestamp
    - Leave subtask unchecked: `- [ ] [TASK-XXX.Y] Subtask description`
 
    **If status is ⚠️ BLOCKED:**
    - Add blocker to **Blockers** section:
+
      ```markdown
      - [YYYY-MM-DD] [TASK-XXX.Y] BLOCKED: [description of blocker]
        - What's needed: [specific requirements to unblock]
        - Impact: [what this blocks]
      ```
+
    - Add notes about progress made before blocking
    - Update **Last Updated** timestamp
    - Leave subtask unchecked: `- [ ] [TASK-XXX.Y] Subtask description`
 
 4. **Run Task Parser to Update Parent:**
+
    ```bash
    node PRPs/scripts/parse-tasks.js --update TASK-XXX
    ```
@@ -344,6 +426,7 @@ After all steps:
 5. **Commit Task Updates to Git:**
    - Feature task files are tracked in git for persistence
    - Commit changes so progress survives across sessions:
+
      ```bash
      git add .claude/tasks/TASK-XXX-*.md .claude/TASK.md
      git commit -m "chore(tasks): update TASK-XXX progress (status: COMPLETED|IN_PROGRESS|BLOCKED)"
@@ -352,6 +435,7 @@ After all steps:
 **Output**: Implementation summary + PRP status + Task hierarchy update confirmation
 
 **Example Output**:
+
 ```
 PRP Execution Summary
 ─────────────────────────────────
