@@ -5,6 +5,7 @@ from typing import Annotated
 
 import typer
 
+from echograph_cli import __version__
 from echograph_cli.core.merge import three_way_merge
 from echograph_cli.core.templates import (
     get_bundled_template,
@@ -64,7 +65,7 @@ def update_command(
 
     metadata = get_template_metadata(metadata_file)
     base_version = metadata.get("template_version", "unknown")
-    current_version = "0.1.0"  # TODO: Get from package
+    current_version = __version__
 
     if base_version == current_version:
         print_info("Templates are already up to date.")
@@ -90,14 +91,14 @@ def update_command(
                 if not dry_run:
                     user_file.parent.mkdir(parents=True, exist_ok=True)
                     content = get_bundled_template(template_rel_path)
-                    user_file.write_text(content)
+                    user_file.write_text(content, encoding="utf-8")
                 print_success(f"Added {template_rel_path}")
                 updated_count += 1
                 continue
 
             # Get base, user, and new content
             base_content = metadata.get("files", {}).get(template_rel_path, "")
-            user_content = user_file.read_text()
+            user_content = user_file.read_text(encoding="utf-8")
             new_content = get_bundled_template(template_rel_path)
 
             # Skip if no changes in template
@@ -107,7 +108,7 @@ def update_command(
             # Skip if user hasn't modified
             if user_content == base_content:
                 if not dry_run:
-                    user_file.write_text(new_content)
+                    user_file.write_text(new_content, encoding="utf-8")
                 print_success(f"Updated {template_rel_path}")
                 updated_count += 1
                 continue
@@ -117,14 +118,14 @@ def update_command(
 
             if conflicts:
                 if not dry_run:
-                    user_file.write_text(merged)
+                    user_file.write_text(merged, encoding="utf-8")
                 print_warning(
                     f"Updated {template_rel_path} with {len(conflicts)} conflict(s)"
                 )
                 conflict_count += len(conflicts)
             else:
                 if not dry_run:
-                    user_file.write_text(merged)
+                    user_file.write_text(merged, encoding="utf-8")
                 print_success(f"Merged {template_rel_path}")
             updated_count += 1
 

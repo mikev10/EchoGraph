@@ -1,11 +1,21 @@
 """Rich output helpers for CLI."""
 
+import sys
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-console = Console()
+from echograph_cli.core.models import DoctorCheck, ValidationResult
+
+# Use UTF-8 encoding for console output on Windows
+# This prevents UnicodeEncodeError with emoji characters
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+
+console = Console(force_terminal=False)
 
 
 def print_success(message: str) -> None:
@@ -28,7 +38,7 @@ def print_info(message: str) -> None:
     console.print(f"[blue][bold]i[/bold][/blue] {message}")
 
 
-def print_doctor_results(checks: list) -> None:  # type: ignore[type-arg]
+def print_doctor_results(checks: list[DoctorCheck]) -> None:
     """Print doctor check results in a table."""
     table = Table(title="EchoGraph Doctor", show_header=True)
     table.add_column("Check", style="cyan")
@@ -45,7 +55,7 @@ def print_doctor_results(checks: list) -> None:  # type: ignore[type-arg]
     console.print(table)
 
 
-def print_validation_results(results: list) -> None:  # type: ignore[type-arg]
+def print_validation_results(results: list[ValidationResult]) -> None:
     """Print validation results."""
     if not results:
         print_success("All validation checks passed!")

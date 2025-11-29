@@ -20,9 +20,9 @@ class ProjectConfig:
     project_name: str
     tech_stack: list[str] = field(default_factory=list)
     has_tests: bool = True
-    test_framework: str = "pytest"
-    formatter: str = "ruff"
-    linter: str = "ruff"
+    test_framework: str | None = None
+    formatter: str | None = None
+    linter: str | None = None
 
 
 @dataclass

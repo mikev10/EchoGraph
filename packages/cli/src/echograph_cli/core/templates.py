@@ -111,13 +111,20 @@ def get_project_config(path: Path) -> ProjectConfig:
     project_name = _detect_project_name(path)
     tech_stack = _detect_tech_stack(path)
 
+    # Detect test framework
+    test_framework = None
+    if (path / "pytest.ini").exists() or (path / "pyproject.toml").exists():
+        test_framework = "pytest"
+    elif (path / "package.json").exists():
+        test_framework = "jest"  # Common default for JS projects
+
     return ProjectConfig(
         project_name=project_name,
         tech_stack=tech_stack,
         has_tests=(path / "tests").exists() or (path / "test").exists(),
-        test_framework="pytest" if (path / "pytest.ini").exists() else "pytest",
-        formatter="ruff" if (path / "ruff.toml").exists() else "ruff",
-        linter="ruff",
+        test_framework=test_framework,
+        formatter="ruff" if (path / "ruff.toml").exists() else None,
+        linter="ruff" if "python" in tech_stack else None,
     )
 
 
@@ -131,6 +138,7 @@ def _detect_project_name(path: Path) -> str:
             capture_output=True,
             text=True,
             timeout=5,
+            shell=False,  # Explicit per CLAUDE.md security rules
         )
         if result.returncode == 0:
             url = result.stdout.strip()

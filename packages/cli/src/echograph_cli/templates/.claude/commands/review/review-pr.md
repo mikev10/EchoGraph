@@ -7,7 +7,7 @@ You are about to review a **GitHub Pull Request** using the `pattern-enforcer` a
 **Input Format**:
 
 ```
-/review-pr [pr-number|branch] [--strict] [--security] [--quick]
+/review-pr [pr-number|branch] [--strict] [--security] [--quick] [--no-post]
 ```
 
 **Arguments**:
@@ -17,6 +17,7 @@ You are about to review a **GitHub Pull Request** using the `pattern-enforcer` a
 - `--strict` (optional): Fail on any pattern deviation (for CI)
 - `--security` (optional): Include security-focused review
 - `--quick` (optional): Fast review, skip deep analysis
+- `--no-post` (optional): Skip posting review to GitHub (default: always posts)
 
 **Examples**:
 
@@ -38,6 +39,9 @@ You are about to review a **GitHub Pull Request** using the `pattern-enforcer` a
 
 # Combine options
 /review-pr 42 --strict --security
+
+# Review without posting to GitHub
+/review-pr --no-post
 ```
 
 ---
@@ -289,19 +293,166 @@ Recommended Actions
 ═══════════════════════════════════════════════════════
 ```
 
-### Step 2.3: Optional - Post Review to GitHub
+### Step 2.3: Submit GitHub Review with Approval (if applicable)
 
-**If user wants to post review to GitHub:**
+**IMPORTANT**: When the verdict is APPROVE, submit an official GitHub review approval.
+This satisfies branch protection rules requiring reviews. For solo developers who cannot
+self-approve their own PRs, this step will be skipped with a note.
+
+{{IF verdict == APPROVE}}
 
 ```bash
-# Post as PR comment
-gh pr comment [number] --body "[formatted review]"
+# Submit official approval review
+gh pr review [number] --approve --body "$(cat <<'EOF'
+## PR Review: APPROVED ✅
 
-# Or submit as formal review
-gh pr review [number] --comment --body "[review content]"
-# gh pr review [number] --approve --body "[review content]"
-# gh pr review [number] --request-changes --body "[review content]"
+**Reviewed by**: Claude Code (pattern-enforcer agent)
+
+### Summary
+[agent summary]
+
+### Review Checklist
+- ✅ Pattern compliance verified
+- ✅ Code quality standards met
+- ✅ Tests present and passing
+- ✅ No security issues found
+
+This PR is ready to merge.
+
+---
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
 ```
+
+**If approval fails** (e.g., reviewing own PR):
+```
+ℹ️  Cannot submit approval: GitHub does not allow self-approval.
+   For solo projects, proceed with merge directly.
+```
+
+{{ELSE IF verdict == REQUEST_CHANGES}}
+
+```bash
+# Submit review requesting changes
+gh pr review [number] --request-changes --body "$(cat <<'EOF'
+## PR Review: Changes Requested ❌
+
+**Reviewed by**: Claude Code (pattern-enforcer agent)
+
+### Summary
+[agent summary]
+
+### Critical Issues to Address
+[list critical issues]
+
+Please address the issues above before this PR can be merged.
+
+---
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+{{ELSE}}
+
+```bash
+# Submit comment-only review
+gh pr review [number] --comment --body "$(cat <<'EOF'
+## PR Review: Comment 💬
+
+**Reviewed by**: Claude Code (pattern-enforcer agent)
+
+### Summary
+[agent summary]
+
+### Suggestions
+[list suggestions]
+
+This PR can be merged at your discretion.
+
+---
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+{{END IF}}
+
+### Step 2.4: Post Detailed Review Comment (Automatic)
+
+**IMPORTANT**: Always post the detailed review to GitHub unless `--no-post` flag is provided.
+This creates a documented history of all PR reviews for the project.
+
+{{IF NOT no-post}}
+
+```bash
+# Post review as PR comment with markdown formatting
+gh pr comment [number] --body "$(cat <<'EOF'
+## PR Review Complete
+
+**Reviewer**: Claude Code (pattern-enforcer agent)
+**Mode**: [strict|normal]
+
+### Summary
+
+[agent summary]
+
+### Issues Found
+
+| Severity | Count |
+|----------|-------|
+| Critical | [count] |
+| Warnings | [count] |
+| Suggestions | [count] |
+
+#### Critical (Must Fix Before Merge)
+
+[list critical issues with file:line references]
+
+#### Warnings (Should Address)
+
+[list warnings with file:line references]
+
+#### Suggestions (Nice to Have)
+
+[list suggestions]
+
+### Pattern Compliance
+
+| Category | Status | Details |
+|----------|--------|---------|
+| CLAUDE.md | [✅/❌] | [details] |
+| Naming | [✅/❌] | [details] |
+| Structure | [✅/❌] | [details] |
+| Tests | [✅/❌] | [details] |
+
+### Verdict
+
+[verdict with emoji and explanation]
+
+### Recommended Actions
+
+[numbered list of actions]
+
+---
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+**Confirm post success:**
+```
+✅ Detailed review posted to PR #[number]: [GitHub comment URL]
+```
+
+{{ELSE}}
+
+```
+ℹ️  --no-post flag provided. Review not posted to GitHub.
+```
+
+{{END IF}}
 
 ---
 
