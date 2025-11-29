@@ -37,7 +37,7 @@ If no path provided:
 ```
 Please provide the path to a user story file.
 
-Usage: /three-amigos-prep user-stories/drafts/20251124-feature-name.md
+Usage: /three-amigos-prep PRPs/user-stories/drafts/20251124-feature-name.md
 
 Tip: Run after /enrich-story-tech and /enrich-story-qa for best results.
 ```

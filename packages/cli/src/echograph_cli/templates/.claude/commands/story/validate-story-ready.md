@@ -27,7 +27,7 @@ If no path provided:
 ```
 Please provide the path to a user story file.
 
-Usage: /validate-story-ready user-stories/drafts/20251124-feature-name.md
+Usage: /validate-story-ready PRPs/user-stories/drafts/20251124-feature-name.md
 ```
 
 ---
