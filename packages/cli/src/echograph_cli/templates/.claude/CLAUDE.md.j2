@@ -1,0 +1,72 @@
+# {{ project_name }} - Global Conventions
+
+## Project Context (Auto-Loaded)
+
+@.claude/PLANNING.md
+@.claude/TASK.md
+
+## Response Optimization
+
+**Context is precious. Every token matters.**
+
+- **Never repeat content back** - Don't paste code/content after editing
+- **No code unless asked** - Reference `file:line` instead
+- **Concise by default** - "Done. Fixed X." not verbose explanations
+- **Don't narrate** - Don't explain what you're about to do. Just do it.
+
+## Code Structure
+
+**File Organization:**
+- Keep files under 300 lines; split when exceeded
+- Separate concerns: logic, presentation, data access
+
+**Naming Conventions:**
+- Files: `snake_case.py` or `kebab-case.ts`
+- Classes: `PascalCase`
+- Functions/variables: `snake_case` or `camelCase`
+- Constants: `SCREAMING_SNAKE_CASE`
+
+## Tech Stack
+
+{% if 'python' in tech_stack -%}
+**Python:**
+- Formatter: {{ formatter }}
+- Linter: {{ linter }}
+- Test framework: {{ test_framework }}
+{% endif %}
+{% if 'typescript' in tech_stack -%}
+**TypeScript:**
+- Use strict mode
+- Prefer const over let
+{% endif %}
+
+## Testing Requirements
+
+{% if has_tests -%}
+- Minimum 80% coverage for core logic
+- Test files: `test_*.py` or `*.test.ts`
+{% endif %}
+
+## Validation Commands
+
+```bash
+# Add your validation commands here
+# Example:
+# {{ formatter }} check .
+# {{ linter }} .
+# {{ test_framework }}
+```
+
+## What NOT to Do
+
+- Use `any` type without strong justification
+- Skip tests for "simple" features
+- Commit without running validation commands
+- Paste code back after editing
+
+## What to ALWAYS Do
+
+- Run validation commands before committing
+- Write tests for new features
+- Handle errors gracefully with user-friendly messages
+- Keep responses concise - context is precious

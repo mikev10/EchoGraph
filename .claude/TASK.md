@@ -6,17 +6,14 @@ This file tracks **high-level features and milestones** (epics). Each task can r
 
 ## Pending
 
-- [ ] [TASK-002] Context Engineering CLI (0/9) → @.claude/tasks/TASK-002-context-engineering-cli.md
-
 ## Completed
 
-### Completed tasks will be moved here automatically when all subtasks are done
-
+- [x] [TASK-002] Context Engineering CLI (17/17) → @.claude/tasks/TASK-002-context-engineering-cli.md
 - [x] [TASK-001] Example feature implementation (7/7) → @.claude/tasks/TASK-001-example-feature.md
 
 ---
 
-**Last Updated**: 2025-11-27
+**Last Updated**: 2025-11-28
 
 ## Task Format
 

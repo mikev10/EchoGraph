@@ -23,9 +23,26 @@ Teams using this framework achieve:
 
 ---
 
-## Quick Start (5 minutes)
+## Quick Start (2 minutes)
 
-### 1. Copy Template to Your Project
+### Option 1: Using the CLI (Recommended)
+
+```bash
+# Install the CLI
+pip install echograph
+
+# Initialize Context Engineering in your project
+cd your-project
+echograph init
+
+# Verify setup
+echograph doctor
+
+# Validate your context files
+echograph validate
+```
+
+### Option 2: Manual Setup
 
 ```bash
 # Clone this repository
@@ -34,16 +51,12 @@ git clone <this-repo-url>
 # Copy to your project
 cp -r ContextEngineering/.claude /path/to/your-project/
 cp -r ContextEngineering/PRPs /path/to/your-project/
-cp -r ContextEngineering/examples /path/to/your-project/
 ```
 
-### 2. Customize Core Files
+### After Setup
 
-Replace all `[[PLACEHOLDER]]` values in:
-- `.claude/CLAUDE.md` - Your project's conventions
-- `.claude/PLANNING.md` - Your architecture and goals
-
-### 3. Start Using
+1. **Customize** - Edit `.claude/CLAUDE.md` with your project conventions
+2. **Start using** - Run Claude Code commands:
 
 ```bash
 # Load all context into Claude's memory
