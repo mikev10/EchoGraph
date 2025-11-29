@@ -213,7 +213,7 @@ When prompted, paste the improved story content (not the original).
 ```
 
 **Option B**:
-Save improved story to `user-stories/drafts/[ADO-ID]-refined-YYYYMMDD.md` with metadata:
+Save improved story to `PRPs/user-stories/drafts/[ADO-ID]-refined-YYYYMMDD.md` with metadata:
 ```markdown
 ---
 created: {date}
@@ -242,7 +242,7 @@ refinement_date: {date}
 
 Then inform user:
 ```
-✓ Refined story saved: user-stories/drafts/{filename}
+✓ Refined story saved: PRPs/user-stories/drafts/{filename}
 
 Share this with your Product Owner:
 - Show the comparison of original vs improved

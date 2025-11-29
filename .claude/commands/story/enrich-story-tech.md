@@ -25,7 +25,7 @@ If no path provided or file not found:
 ```
 Please provide the path to a user story file.
 
-Usage: /enrich-story-tech user-stories/drafts/20251124-feature-name.md
+Usage: /enrich-story-tech PRPs/user-stories/drafts/20251124-feature-name.md
 
 Or paste the story content directly and I'll help you enrich it.
 ```

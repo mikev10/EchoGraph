@@ -50,8 +50,22 @@
 **Before starting ANY work:**
 - Review `examples/` folder for established patterns (when available)
 - Consult `PRPs/ai_docs/` for library-specific documentation
+- Check `PRPs/user-stories/` for pending stories and requirements
 - Reference `docs/ECHOGRAPH-IMPLEMENTATION-PLAN.md` or  `D:\Obsidian\Knowledge Base\echograph\TECHNOLOGY-INVENTORY.md` for validated tool choices
 - Reference `D:\Obsidian\Knowledge Base\echograph\ECHOGRAPH-IMPLEMENTATION-PLAN.md` for feature details
+
+**PRPs Directory Structure:**
+```
+PRPs/
+├── active/           # PRPs being implemented
+├── completed/        # Archived PRPs
+├── feature-requests/ # INITIAL.md specifications
+├── templates/        # PRP and user story templates
+├── ai_docs/          # Library documentation for AI context
+└── user-stories/     # User story drafts
+    ├── drafts/       # Business stories (→ ADO)
+    └── technical/    # Technical stories
+```
 
 **Note:** Architecture (PLANNING.md) and current priorities (TASK.md) are auto-loaded via imports above.
 

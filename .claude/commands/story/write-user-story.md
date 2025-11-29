@@ -141,8 +141,8 @@ so that I can efficiently navigate and distinguish between different resources w
 ## Phase 3: Create Markdown File
 
 **Determine file location based on Phase 1 answer:**
-- Business/PO story (option A) → `user-stories/drafts/`
-- Technical story (option B) → `user-stories/technical/`
+- Business/PO story (option A) → `PRPs/user-stories/drafts/`
+- Technical story (option B) → `PRPs/user-stories/technical/`
 
 **Filename generation:**
 
@@ -315,7 +315,7 @@ Please provide additional details and run the command again.
 **Process:**
 1. Ask: "Is this business or technical?" → User answers "Business"
 2. Generate story with @story-expert
-3. Create file: `user-stories/drafts/20251124-password-reset-via-email.md`
+3. Create file: `PRPs/user-stories/drafts/20251124-password-reset-via-email.md`
 4. Show next steps for ADO creation
 
 ### Example 2: Technical Story
@@ -328,7 +328,7 @@ Please provide additional details and run the command again.
 **Process:**
 1. Ask: "Is this business or technical?" → User answers "Technical"
 2. Generate technical story with @story-expert
-3. Create file: `user-stories/technical/20251124-refactor-auth-module.md`
+3. Create file: `PRPs/user-stories/technical/20251124-refactor-auth-module.md`
 4. Show next steps for /convert-story
 
 ### Example 3: Vague Requirements
