@@ -67,3 +67,20 @@ class MergeResult:
     def __post_init__(self) -> None:
         """Set has_conflicts based on conflicts list."""
         self.has_conflicts = len(self.conflicts) > 0
+
+
+class ConflictResolution(Enum):
+    """How to resolve file conflicts during init."""
+
+    SKIP = "skip"
+    OVERWRITE = "overwrite"
+    RENAME = "rename"
+
+
+@dataclass
+class FileConflict:
+    """A file that already exists in the target directory."""
+
+    template_path: str  # Relative path from templates
+    target_path: Path  # Absolute path in target directory
+    resolution: ConflictResolution | None = None

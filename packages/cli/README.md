@@ -8,16 +8,13 @@ Context Engineering CLI for Claude Code - scaffold, validate, and maintain your 
 pip install echograph
 ```
 
-Or with [uv](https://docs.astral.sh/uv/):
-```bash
-uv tool install echograph
-```
-
 ## Quick Start
 
 ```bash
-# Initialize Context Engineering in your project
-cd your-project
+# Navigate to your project
+cd /path/to/your-project
+
+# Initialize Context Engineering
 echograph init
 
 # Check your setup

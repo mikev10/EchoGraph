@@ -121,9 +121,7 @@ class TestValidateTaskMd:
 class TestValidateDirectory:
     """Tests for directory validation."""
 
-    def test_validates_complete_structure(
-        self, temp_project_with_claude: Path
-    ) -> None:
+    def test_validates_complete_structure(self, temp_project_with_claude: Path) -> None:
         """Should pass with complete structure."""
         results = validate_directory(temp_project_with_claude)
 

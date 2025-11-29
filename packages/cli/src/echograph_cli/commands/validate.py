@@ -1,9 +1,9 @@
 """Validate command - check context files for completeness."""
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from echograph_cli.core.validation import validate_directory
 from echograph_cli.output import console, print_validation_results

@@ -9,7 +9,7 @@ from typing import Any
 from jinja2 import BaseLoader, Environment, TemplateNotFound
 
 from echograph_cli import __version__
-from echograph_cli.core.models import ProjectConfig
+from echograph_cli.core.models import ConflictResolution, FileConflict, ProjectConfig
 
 # Minimal templates - core files only
 MINIMAL_TEMPLATES = [
@@ -34,7 +34,7 @@ class PackageTemplateLoader(BaseLoader):
         template_path = f"{self.template_dir}/{template}"
         try:
             files = resources.files(self.package)
-            content = (files / template_path).read_text()
+            content = (files / template_path).read_text(encoding="utf-8")
             return content, template_path, lambda: True
         except (FileNotFoundError, TypeError):
             raise TemplateNotFound(template)
@@ -101,7 +101,7 @@ def get_bundled_template(template_path: str) -> str:
     # Try without extension
     try:
         files = resources.files("echograph_cli") / "templates"
-        return (files / template_path).read_text()
+        return (files / template_path).read_text(encoding="utf-8")
     except (FileNotFoundError, TypeError):
         return ""
 
@@ -176,7 +176,8 @@ def _detect_tech_stack(path: Path) -> list[str]:
 def get_template_metadata(metadata_file: Path) -> dict[str, Any]:
     """Load template metadata from file."""
     try:
-        return json.loads(metadata_file.read_text())
+        result: dict[str, Any] = json.loads(metadata_file.read_text())
+        return result
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
@@ -193,12 +194,59 @@ def save_template_metadata(
     metadata_file.write_text(json.dumps(metadata, indent=2))
 
 
+def detect_conflicts(path: Path, mode: str) -> list[FileConflict]:
+    """Detect files that would conflict during init."""
+    conflicts: list[FileConflict] = []
+    template_files = list_template_files(mode)
+
+    for template_rel_path in template_files:
+        target_path = path / template_rel_path
+        if target_path.exists():
+            conflicts.append(
+                FileConflict(
+                    template_path=template_rel_path,
+                    target_path=target_path,
+                    resolution=None,
+                )
+            )
+
+    return conflicts
+
+
+def preview_templates(path: Path, mode: str) -> list[tuple[str, bool]]:
+    """Preview what files would be created.
+
+    Returns list of (relative_path, would_overwrite) tuples.
+    """
+    template_files = list_template_files(mode)
+    preview: list[tuple[str, bool]] = []
+
+    for template_rel_path in template_files:
+        target_path = path / template_rel_path
+        preview.append((template_rel_path, target_path.exists()))
+
+    return preview
+
+
 def copy_templates(
-    path: Path, mode: str, config: ProjectConfig, force: bool = False
+    path: Path,
+    mode: str,
+    config: ProjectConfig,
+    force: bool = False,
+    conflict_resolutions: dict[str, ConflictResolution] | None = None,
 ) -> list[Path]:
-    """Copy templates to target directory."""
+    """Copy templates to target directory.
+
+    Args:
+        path: Target directory
+        mode: "minimal" or "full"
+        config: Project configuration for template rendering
+        force: If True, overwrite all existing files
+        conflict_resolutions: Dict mapping template paths to resolution strategy
+    """
     created_files: list[Path] = []
     template_contents: dict[str, str] = {}
+    conflict_resolutions = conflict_resolutions or {}
 
     # Get list of templates for mode
     template_files = list_template_files(mode)
@@ -216,9 +264,27 @@ def copy_templates(
     for template_rel_path in template_files:
         target_path = path / template_rel_path
 
-        # Skip if exists and not forcing
-        if target_path.exists() and not force:
-            continue
+        # Handle existing files
+        if target_path.exists():
+            if force:
+                pass  # Will overwrite
+            elif template_rel_path in conflict_resolutions:
+                resolution = conflict_resolutions[template_rel_path]
+                if resolution == ConflictResolution.SKIP:
+                    continue
+                elif resolution == ConflictResolution.RENAME:
+                    # Rename existing file with .bak extension
+                    backup_path = target_path.with_suffix(target_path.suffix + ".bak")
+                    counter = 1
+                    while backup_path.exists():
+                        backup_path = target_path.with_suffix(
+                            f"{target_path.suffix}.bak{counter}"
+                        )
+                        counter += 1
+                    target_path.rename(backup_path)
+                # OVERWRITE falls through to write the file
+            else:
+                continue  # Skip by default if no resolution specified
 
         # Get template content
         try:
@@ -234,8 +300,8 @@ def copy_templates(
         # Create parent directories
         target_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write file
-        target_path.write_text(content)
+        # Write file with UTF-8 encoding for cross-platform compatibility
+        target_path.write_text(content, encoding="utf-8")
         created_files.append(target_path)
         template_contents[template_rel_path] = content
 

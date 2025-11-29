@@ -1,9 +1,9 @@
 """Doctor command - verify Claude Code setup."""
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from echograph_cli.core.doctor import run_all_checks
 from echograph_cli.output import console, print_doctor_results

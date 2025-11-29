@@ -39,9 +39,7 @@ def check_directory_structure(path: Path) -> DoctorCheck:
 
     required = ["CLAUDE.md", "PLANNING.md", "TASK.md"]
     missing = [
-        f
-        for f in required
-        if not (claude_dir / f).exists() and not (path / f).exists()
+        f for f in required if not (claude_dir / f).exists() and not (path / f).exists()
     ]
 
     if missing:

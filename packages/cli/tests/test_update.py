@@ -47,9 +47,7 @@ class TestUpdateCommand:
         """Should not modify files in dry run mode."""
         # Create metadata with old version
         metadata_file = temp_project_with_claude / ".claude" / ".echograph-meta.json"
-        metadata_file.write_text(
-            json.dumps({"template_version": "0.0.1", "files": {}})
-        )
+        metadata_file.write_text(json.dumps({"template_version": "0.0.1", "files": {}}))
 
         claude_md = temp_project_with_claude / ".claude" / "CLAUDE.md"
         original_content = claude_md.read_text()

@@ -1,7 +1,8 @@
 """Main CLI entry point for EchoGraph."""
 
+from typing import Annotated
+
 import typer
-from typing_extensions import Annotated
 
 from echograph_cli import __version__
 from echograph_cli.output import console

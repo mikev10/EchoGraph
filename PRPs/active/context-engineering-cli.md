@@ -940,15 +940,11 @@ echograph doctor
 
 **Generated**: 2025-11-27
 **Feature Request**: `PRPs/feature-requests/context-engineering-cli.md`
-**Completed**: 2025-11-27
-**Status**: ✅ COMPLETE - Full CLI implementation with all commands
+**Status**: ✅ COMPLETE - v0.2.0 published to PyPI
 
-## Completion Summary
+## Progress Summary
 
-**Date Completed**: 2025-11-27
-**Implementation Quality**: High - Production-ready structure with comprehensive test coverage
-
-**Deliverables**:
+**Phase 1 Complete** (2025-01-28):
 - ✅ Package structure: `packages/cli/` with pyproject.toml, hatch build config
 - ✅ Main CLI: Typer app with --version, --help, command registration
 - ✅ `echograph init` command: --minimal, --full, --force flags, project detection
@@ -959,21 +955,19 @@ echograph doctor
 - ✅ Bundled templates: CLAUDE.md.j2, PLANNING.md.j2, TASK.md.j2
 - ✅ Core modules: models, templates, merge, validation, doctor
 - ✅ Test suite: 6 test files with 40+ test cases covering all commands
+- ✅ Published to PyPI: `pip install echograph` works
+
+**Phase 2 Complete** (2025-11-28):
+- ✅ Bundle all 24 slash commands from `.claude/commands/` (6 categories)
+- ✅ Bundle 3 skills from `.claude/skills/`
+- ✅ Bundle PRPs folder structure (templates, examples, scripts, ai_docs)
+- ✅ Add conflict detection before file creation
+- ✅ Implement interactive conflict resolution (skip/overwrite/rename)
+- ✅ Add `--dry-run` flag to preview changes
+- ✅ Update tests for bundled content (55 tests, 84% coverage)
+- ✅ Publish v0.2.0 to PyPI (2025-11-28)
 
 **Key Deviations from Original Plan**:
 1. Template structure simplified: Using .j2 extension for Jinja2 templates instead of raw files
 2. Metadata storage: Using .echograph-meta.json for tracking template versions for updates
-
-**Testing Results**:
-- Test files created for all modules
-- Unable to run tests in current environment (uv/Python not available in shell)
-- Recommended: `uv sync && uv run pytest --cov` to validate
-
-**Files Created**:
-- 23 Python source files
-- 4 template files (.j2 and .md)
-- 6 test files
-- pyproject.toml (workspace + package)
-
-**Total Implementation Time**: ~45 minutes
-**Code Quality**: Production-ready - follows CLAUDE.md conventions, type hints, docstrings
+3. Added UTF-8 encoding for Windows compatibility with emoji characters in templates

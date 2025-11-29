@@ -1,9 +1,9 @@
 """Update command - update templates with three-way merge."""
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from echograph_cli.core.merge import three_way_merge
 from echograph_cli.core.templates import (
@@ -56,7 +56,8 @@ def update_command(
     if not metadata_file.exists():
         print_warning(
             "No template metadata found. Cannot perform three-way merge.\n"
-            "This project may have been initialized manually or with an older version.\n"
+            "This project may have been initialized manually or with an "
+            "older version.\n"
             "Consider running 'echograph init --force' to reset templates."
         )
         raise typer.Exit(1)
