@@ -30,11 +30,16 @@ def validate_claude_md(content: str, file_path: Path) -> list[ValidationResult]:
     for i, line in enumerate(content.splitlines(), 1):
         for match in re.finditer(import_pattern, line):
             import_path = match.group(1)
-            # Handle both absolute and relative paths
-            if import_path.startswith(".claude/"):
-                full_path = file_path.parent.parent / import_path
+            # Determine project root based on CLAUDE.md location
+            if file_path.parent.name == ".claude":
+                # CLAUDE.md is in .claude/ folder
+                project_root = file_path.parent.parent
             else:
-                full_path = file_path.parent / import_path
+                # CLAUDE.md is in project root
+                project_root = file_path.parent
+
+            # Resolve import path relative to project root
+            full_path = project_root / import_path
 
             if not full_path.exists():
                 results.append(
