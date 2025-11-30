@@ -187,3 +187,52 @@ My custom security rules that should not be overwritten.
         final_content = claude_md.read_text()
         # Custom security content should be preserved
         assert "My custom security rules" in final_content
+
+    def test_init_migrates_old_claude_md_location(self, temp_project: Path) -> None:
+        """Should offer to migrate CLAUDE.md from old .claude/ location."""
+        # Create old location
+        claude_dir = temp_project / ".claude"
+        claude_dir.mkdir()
+        old_claude_md = claude_dir / "CLAUDE.md"
+        old_content = "# Old Location Content\n\nThis was in .claude/"
+        old_claude_md.write_text(old_content)
+
+        # Run init, confirm migration
+        result = runner.invoke(
+            app,
+            ["init", str(temp_project), "--minimal"],
+            input="y\n1\n",  # Yes to migrate, skip conflicts
+        )
+
+        assert result.exit_code == 0
+        # Old file should be gone
+        assert not old_claude_md.exists()
+        # Content should be at root
+        root_claude_md = temp_project / "CLAUDE.md"
+        assert root_claude_md.exists()
+        assert "Old Location Content" in root_claude_md.read_text()
+
+    def test_init_handles_both_claude_md_locations(self, temp_project: Path) -> None:
+        """Should handle case where CLAUDE.md exists in both locations."""
+        # Create both locations
+        claude_dir = temp_project / ".claude"
+        claude_dir.mkdir()
+
+        old_claude_md = claude_dir / "CLAUDE.md"
+        old_claude_md.write_text("# Old\n\n## Old Section\n\nOld content")
+
+        root_claude_md = temp_project / "CLAUDE.md"
+        root_claude_md.write_text("# Root\n\n## Root Section\n\nRoot content")
+
+        # Run init, choose to delete old (option 1)
+        result = runner.invoke(
+            app,
+            ["init", str(temp_project), "--minimal"],
+            input="1\n1\n",  # Delete old, skip conflicts
+        )
+
+        assert result.exit_code == 0
+        # Old file should be gone
+        assert not old_claude_md.exists()
+        # Root should still have its content
+        assert "Root content" in root_claude_md.read_text()

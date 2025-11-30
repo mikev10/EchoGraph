@@ -26,6 +26,80 @@ from echograph_cli.output import (
 )
 
 
+def _handle_claude_md_migration(path: Path) -> bool:
+    """Handle migration of CLAUDE.md from old to new location.
+
+    Returns True if migration was handled (user made a choice),
+    False if no migration needed.
+    """
+    old_location = path / ".claude" / "CLAUDE.md"
+    new_location = path / "CLAUDE.md"
+
+    old_exists = old_location.exists()
+    new_exists = new_location.exists()
+
+    # Scenario 1: Neither exists - no migration needed
+    if not old_exists and not new_exists:
+        return False
+
+    # Scenario 2: Only new location - no migration needed
+    if not old_exists and new_exists:
+        return False
+
+    # Scenario 3: Only old location - offer to move
+    if old_exists and not new_exists:
+        console.print("\n[yellow]Migration needed:[/yellow]")
+        console.print("  Found CLAUDE.md at old location: [dim].claude/CLAUDE.md[/dim]")
+        console.print("  New location is project root: [dim]./CLAUDE.md[/dim]")
+        console.print()
+
+        if typer.confirm("Move CLAUDE.md to root?", default=True):
+            old_content = old_location.read_text(encoding="utf-8")
+            new_location.write_text(old_content, encoding="utf-8")
+            old_location.unlink()
+            print_success("Moved CLAUDE.md to project root")
+            return True
+        else:
+            print_warning("Skipped migration - CLAUDE.md remains at old location")
+            return True
+
+    # Scenario 4: Both exist - let user decide
+    console.print("\n[yellow]Found CLAUDE.md in both locations:[/yellow]")
+    console.print("  [green]./CLAUDE.md[/green] (root - correct location)")
+    console.print("  [dim].claude/CLAUDE.md[/dim] (old location)")
+    console.print()
+    console.print("What would you like to do?")
+    console.print("  [1] Keep root, delete old (recommended)")
+    console.print("  [2] Merge old content into root, then delete old")
+    console.print("  [3] Keep both (not recommended)")
+
+    choice = typer.prompt("Choose option", default="1")
+
+    if choice == "1":
+        old_location.unlink()
+        print_success("Deleted old .claude/CLAUDE.md")
+    elif choice == "2":
+        # Merge old into new
+        old_content = old_location.read_text(encoding="utf-8")
+        new_content = new_location.read_text(encoding="utf-8")
+
+        from echograph_cli.core.merge import merge_claude_md_sections
+
+        merged, added = merge_claude_md_sections(new_content, old_content)
+        if added:
+            new_location.write_text(merged, encoding="utf-8")
+            print_success(f"Merged {len(added)} sections from old file")
+        else:
+            print_info("No new sections to merge from old file")
+
+        old_location.unlink()
+        print_success("Deleted old .claude/CLAUDE.md")
+    else:
+        print_warning("Keeping both files - remember to clean up .claude/CLAUDE.md")
+
+    return True
+
+
 def _resolve_conflicts_interactive(
     conflicts: list[tuple[str, Path]],
 ) -> dict[str, ConflictResolution]:
@@ -145,6 +219,10 @@ def init_command(
 
         choice = typer.prompt("Choose option", default="1")
         mode = "minimal" if choice == "2" else "full"
+
+    # Handle migration from old CLAUDE.md location
+    if not dry_run:
+        _handle_claude_md_migration(path)
 
     # Handle --dry-run
     if dry_run:
