@@ -1,0 +1,84 @@
+# {{ project_name }} - Architecture & Goals
+
+## Project Goal
+
+<!-- Describe what this project does and why it exists (1-2 sentences) -->
+
+## Target Users
+
+- **Primary**: <!-- Who is the main user? What do they need? -->
+- **Secondary**: <!-- Other users or use cases -->
+
+## Feature Hierarchy (Priority Order)
+
+1. **PRIMARY**: <!-- Core feature (X% of effort) -->
+   - <!-- Subtask -->
+   - <!-- Subtask -->
+
+2. **SECONDARY**: <!-- Supporting feature -->
+   - <!-- Subtask -->
+
+3. **TERTIARY**: <!-- Future/nice-to-have -->
+   - <!-- Subtask -->
+
+## System Architecture
+
+```mermaid
+graph TD
+    subgraph "Layer Name"
+        A[Component A]
+        B[Component B]
+    end
+
+    A --> B
+```
+
+## Data Flow
+
+1. **Input** → <!-- How data enters the system -->
+2. **Processing** → <!-- What happens to the data -->
+3. **Output** → <!-- How results are delivered -->
+{% if tech_stack %}
+
+## Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+{% for tech in tech_stack %}
+| **{{ tech }}** | <!-- Why this choice --> |
+{% endfor %}
+{% else %}
+
+## Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| <!-- Tool --> | <!-- Why this choice --> |
+{% endif %}
+
+## Non-Functional Requirements
+
+**Performance:**
+- <!-- Target latency, throughput, etc. -->
+
+**Security:**
+- <!-- Authentication, authorization, data protection -->
+
+**Developer Experience:**
+- <!-- Setup time, documentation, tooling -->
+
+## Package Structure
+
+```
+{{ project_name }}/
+├── src/           # Source code
+├── tests/         # Test files
+├── docs/          # Documentation
+└── README.md
+```
+
+## Success Criteria
+
+- [ ] <!-- Measurable goal 1 -->
+- [ ] <!-- Measurable goal 2 -->
+- [ ] <!-- Measurable goal 3 -->

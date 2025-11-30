@@ -1,0 +1,127 @@
+# {{ project_name }} - Global Conventions
+
+## Project Context (Auto-Loaded)
+
+@.claude/PLANNING.md
+@.claude/TASK.md
+
+## Code Structure
+
+**File Organization:**
+- Keep files under 300 lines; split when exceeded
+- Separate concerns: business logic, data access, presentation
+
+**Naming Conventions:**
+- Files: `snake_case.py` or `kebab-case.ts`
+- Classes: `PascalCase`
+- Functions/variables: `snake_case` (Python) or `camelCase` (JS/TS)
+- Constants: `SCREAMING_SNAKE_CASE`
+{% if 'python' in tech_stack %}
+
+**Import Order (Python):**
+1. Standard library
+2. Third-party dependencies
+3. Internal absolute imports
+4. Relative imports
+{% endif %}
+{% if 'python' in tech_stack %}
+
+## Style & Formatting
+
+**Code Style:**
+- Formatter: {{ formatter or 'ruff format' }}
+- Linter: {{ linter or 'ruff' }}
+- Type checker: mypy (recommended)
+- Max line length: 88 characters
+
+**Comments:**
+- Comment WHY, not WHAT
+- Use docstrings for public functions (Google style)
+{% endif %}
+{% if 'typescript' in tech_stack or 'nodejs' in tech_stack %}
+
+## Style & Formatting
+
+**Code Style:**
+- Formatter: prettier
+- Linter: eslint
+- Use strict TypeScript settings
+{% endif %}
+{% if has_tests %}
+
+## Testing Requirements
+
+**Test Coverage:**
+- Test files: `test_*.py` or `*.test.ts`
+- Location: `tests/` directory
+
+**Test Structure:**
+```{% if 'python' in tech_stack %}python
+class TestFeatureName:
+    """Tests for FeatureName."""
+
+    def test_expected_behavior(self):
+        """Should do expected thing."""
+        # Arrange
+        # Act
+        # Assert
+{% else %}
+describe('FeatureName', () => {
+  it('should do expected thing', () => {
+    // Arrange
+    // Act
+    // Assert
+  });
+});
+{% endif %}
+```
+{% endif %}
+
+## Security Rules (CRITICAL)
+
+**Secrets:**
+- Store secrets in environment variables or secure storage
+- NEVER commit secrets to git
+- NEVER log secret values
+
+**Input Validation:**
+- Validate all user input at boundaries
+- Sanitize file paths (no path traversal)
+{% if 'python' in tech_stack %}
+
+## Validation Commands
+
+```bash
+# Lint (must pass)
+{{ linter or 'ruff check .' }}
+
+# Format check
+{{ formatter or 'ruff format --check .' }}
+
+# Tests (must pass)
+{{ test_framework or 'pytest' }}
+```
+{% endif %}
+
+## Task Management
+
+**Update TASK.md:**
+- After completing features
+- At session end
+- After major milestones
+
+## What NOT to Do
+
+- Commit without running tests
+- Use `any` type without justification
+- Skip input validation
+- Store secrets in code
+- Delete code without explicit instruction
+
+## What to ALWAYS Do
+
+- Write tests for new features
+- Handle errors gracefully
+- Validate inputs at boundaries
+- Update TASK.md with progress
+- Ask for clarification if requirements unclear

@@ -125,15 +125,17 @@ def init_command(
 
     mode = "minimal" if minimal else "full"
     if not minimal and not full and not dry_run:
-        # Interactive mode - ask user
-        mode = (
-            "minimal"
-            if typer.confirm(
-                "\nCreate minimal setup (CLAUDE.md, PLANNING.md, TASK.md only)?",
-                default=False,
-            )
-            else "full"
-        )
+        # Interactive mode - show clear menu
+        console.print("\n[bold]What would you like to set up?[/bold]\n")
+        console.print("  [1] [green]Full setup[/green] (recommended)")
+        console.print("      Core files + slash commands, skills, tasks")
+        console.print()
+        console.print("  [2] Minimal setup")
+        console.print("      CLAUDE.md, PLANNING.md, TASK.md only")
+        console.print()
+
+        choice = typer.prompt("Choose option", default="1")
+        mode = "minimal" if choice == "2" else "full"
 
     # Handle --dry-run
     if dry_run:
