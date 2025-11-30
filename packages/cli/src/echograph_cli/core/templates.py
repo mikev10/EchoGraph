@@ -12,8 +12,9 @@ from echograph_cli import __version__
 from echograph_cli.core.models import ConflictResolution, FileConflict, ProjectConfig
 
 # Minimal templates - core files only
+# CLAUDE.md goes at project root, others in .claude/
 MINIMAL_TEMPLATES = [
-    ".claude/CLAUDE.md",
+    "CLAUDE.md",
     ".claude/PLANNING.md",
     ".claude/TASK.md",
 ]

@@ -123,7 +123,7 @@ toml = [
 
 [[package]]
 name = "echograph"
-version = "0.3.3"
+version = "0.4.1"
 source = { editable = "packages/cli" }
 dependencies = [
     { name = "jinja2" },

@@ -1,6 +1,7 @@
 """Three-way merge for template updates."""
 
 import difflib
+import re
 
 from echograph_cli.core.models import MergeConflict
 
@@ -110,3 +111,86 @@ def three_way_merge(
             i = max(u_i2, n_i2)
 
     return "".join(merged_lines), conflicts
+
+
+def parse_markdown_sections(content: str) -> dict[str, str]:
+    """Parse markdown into sections by ## headers.
+
+    Args:
+        content: Markdown content
+
+    Returns:
+        Dict mapping section titles to their content (including header)
+    """
+    sections: dict[str, str] = {}
+
+    # Split by ## headers, keeping the delimiter
+    pattern = r"(^## .+$)"
+    parts = re.split(pattern, content, flags=re.MULTILINE)
+
+    # First part before any ## header
+    if parts[0].strip():
+        sections["_preamble"] = parts[0]
+
+    # Process header/content pairs
+    for i in range(1, len(parts), 2):
+        if i + 1 < len(parts):
+            header = parts[i].strip()
+            section_content = parts[i + 1]
+            # Extract section title without ##
+            title = header.replace("## ", "").strip()
+            sections[title] = header + "\n" + section_content
+        elif parts[i].strip():
+            # Header without content
+            header = parts[i].strip()
+            title = header.replace("## ", "").strip()
+            sections[title] = header + "\n"
+
+    return sections
+
+
+def merge_claude_md_sections(
+    existing: str,
+    template: str,
+) -> tuple[str, list[str]]:
+    """Merge template sections into existing CLAUDE.md.
+
+    Only adds sections that don't exist in the user's file.
+    Never overwrites existing sections.
+
+    Args:
+        existing: User's existing CLAUDE.md content
+        template: Template CLAUDE.md content
+
+    Returns:
+        Tuple of (merged_content, list_of_added_section_names)
+    """
+    existing_sections = parse_markdown_sections(existing)
+    template_sections = parse_markdown_sections(template)
+
+    added_sections: list[str] = []
+    result_parts: list[str] = []
+
+    # Start with existing content
+    result_parts.append(existing.rstrip())
+
+    # Find sections in template that don't exist in user's file
+    for title, content in template_sections.items():
+        if title == "_preamble":
+            continue
+
+        # Check if section exists (case-insensitive, ignore emojis)
+        title_normalized = re.sub(r"[^\w\s]", "", title).lower().strip()
+        exists = False
+
+        for existing_title in existing_sections:
+            existing_normalized = re.sub(r"[^\w\s]", "", existing_title).lower().strip()
+            if title_normalized == existing_normalized:
+                exists = True
+                break
+
+        if not exists:
+            added_sections.append(title)
+            result_parts.append("\n\n" + content.rstrip())
+
+    return "\n".join(result_parts) + "\n", added_sections

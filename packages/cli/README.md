@@ -28,7 +28,7 @@ echograph validate
 
 ### `echograph init`
 
-Scaffold a `.claude/` directory with Context Engineering templates.
+Scaffold Context Engineering templates for your project.
 
 ```bash
 # Interactive mode (asks questions)
@@ -40,22 +40,42 @@ echograph init --minimal
 # Full setup (all templates and commands)
 echograph init --full
 
+# Merge missing sections into existing CLAUDE.md
+echograph init --merge
+
 # Overwrite existing files
 echograph init --force
+
+# Preview without creating files
+echograph init --dry-run
 
 # Initialize a specific directory
 echograph init /path/to/project
 ```
 
 **Created files (minimal):**
-- `.claude/CLAUDE.md` - Project conventions
+- `CLAUDE.md` - Project conventions (at project root)
 - `.claude/PLANNING.md` - Architecture and goals
 - `.claude/TASK.md` - Task tracking
 
 **Additional files (full):**
 - `.claude/commands/` - Slash commands
+- `.claude/skills/` - Custom skills
 - `.claude/tasks/` - Feature task templates
 - `PRPs/` - Product Requirement Prompts structure
+
+**Using `--merge` with existing projects:**
+
+If your project already has a `CLAUDE.md`, use `--merge` to add missing sections from the template without overwriting your existing content:
+
+```bash
+echograph init --merge
+```
+
+This will:
+- Keep all your existing sections intact
+- Add any sections from the template that you're missing (e.g., Response Optimization, Security Rules)
+- Match sections case-insensitively (ignoring emojis)
 
 ### `echograph update`
 
@@ -91,7 +111,7 @@ echograph validate --strict
 ```
 
 **Checks performed:**
-- Required files exist (CLAUDE.md, PLANNING.md, TASK.md)
+- Required files exist (CLAUDE.md at root, PLANNING.md and TASK.md in .claude/)
 - `@` imports reference existing files
 - CLAUDE.md has Project Context section
 - TASK.md has required sections (In Progress, Pending, Completed)

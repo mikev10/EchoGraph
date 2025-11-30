@@ -1,0 +1,158 @@
+# {{ project_name }}
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+<!-- Describe what this project does in 1-2 sentences -->
+
+## Project Context (Auto-Loaded)
+
+@.claude/PLANNING.md
+@.claude/TASK.md
+
+## Response Optimization (MANDATORY)
+
+**Context is precious. Every token matters.**
+
+- **Never repeat content back** - Don't paste code/content after editing. Say what changed, not the full result.
+- **No code unless asked** - Reference `file:line` instead. User can read files if needed.
+- **Concise by default** - "Done. Fixed X." not "I have successfully completed the task..."
+- **Don't narrate** - Don't explain what you're about to do. Just do it.
+- **No preamble** - Skip "Great question!" or restating the question.
+- **Verbose only when**: User asks for explanation, complex tradeoffs exist, or debugging needs evidence.
+{% if tech_stack %}
+
+## Tech Stack
+{% for tech in tech_stack %}
+- **{{ tech | capitalize }}**{% endfor %}
+
+<!-- Add details about your tech stack choices and versions -->
+{% endif %}
+
+## Key Commands
+
+```bash
+{% if 'python' in tech_stack %}
+# Development
+{{ package_manager or 'uv run' }} python -m {{ project_name | lower | replace('-', '_') }}
+
+# Testing
+{{ test_command or 'pytest' }}
+
+# Linting
+{{ lint_command or 'ruff check .' }}
+
+# Formatting
+{{ format_command or 'ruff format .' }}
+{% elif 'nodejs' in tech_stack or 'typescript' in tech_stack %}
+# Development
+npm run dev
+
+# Testing
+npm run test
+
+# Linting
+npm run lint
+
+# Building
+npm run build
+{% else %}
+# Add your project commands here
+{% endif %}
+```
+
+## Code Structure
+
+**File Organization:**
+- Keep files under 300 lines; split when exceeded
+- Separate concerns: business logic, data access, presentation
+
+**Naming Conventions:**
+{% if 'python' in tech_stack %}
+- Files: `snake_case.py`
+- Classes: `PascalCase`
+- Functions/variables: `snake_case`
+- Constants: `SCREAMING_SNAKE_CASE`
+
+**Import Order:**
+1. Standard library
+2. Third-party dependencies
+3. Internal absolute imports
+4. Relative imports
+{% elif 'typescript' in tech_stack or 'nodejs' in tech_stack %}
+- Files: `kebab-case.ts` or `PascalCase.tsx` for components
+- Classes/Components: `PascalCase`
+- Functions/variables: `camelCase`
+- Constants: `SCREAMING_SNAKE_CASE`
+{% else %}
+- Files: `snake_case` or `kebab-case`
+- Classes: `PascalCase`
+- Functions/variables: language-appropriate case
+- Constants: `SCREAMING_SNAKE_CASE`
+{% endif %}
+
+## Architecture Overview
+
+<!-- Describe your project structure -->
+
+```
+{{ project_name }}/
+├── src/           # Source code
+├── tests/         # Test files
+└── docs/          # Documentation
+```
+
+<!-- Add key directories and their purposes -->
+{% if 'python' in tech_stack %}
+
+## Style & Formatting
+
+- **Formatter**: {{ formatter or 'ruff format' }}
+- **Linter**: {{ linter or 'ruff' }}
+- **Type checker**: mypy (recommended)
+- **Max line length**: 88 characters
+- **Docstrings**: Google style for public functions
+{% elif 'typescript' in tech_stack or 'nodejs' in tech_stack %}
+
+## Style & Formatting
+
+- **Formatter**: prettier
+- **Linter**: eslint
+- **Type checking**: Strict TypeScript settings
+{% endif %}
+{% if has_tests %}
+
+## Testing
+
+- **Framework**: {{ test_framework or 'pytest' }}
+- **Test files**: `test_*.py` or `*.test.ts`
+- **Location**: `tests/` directory
+- Run tests before committing
+{% endif %}
+
+## Security Rules (CRITICAL)
+
+- **NEVER** commit secrets, API keys, or tokens to git
+- **NEVER** log sensitive information
+- Store secrets in environment variables
+- Validate all user input at boundaries
+- Sanitize file paths (prevent path traversal)
+
+## What NOT to Do
+
+- Commit without running tests
+- Use `any` type without strong justification
+- Skip input validation at boundaries
+- Store secrets in code or config files
+- Delete code without explicit instruction
+- Ignore linting or type errors
+
+## What to ALWAYS Do
+
+- Write tests for new features
+- Handle errors gracefully with user-friendly messages
+- Validate inputs at system boundaries
+- Update TASK.md with progress
+- Reference PLANNING.md for architectural decisions
+- Ask for clarification if requirements unclear

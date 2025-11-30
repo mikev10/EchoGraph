@@ -20,11 +20,13 @@ class TestInitCommand:
         assert (temp_project / ".claude").exists()
 
     def test_init_minimal_creates_core_files(self, temp_project: Path) -> None:
-        """Should create CLAUDE.md, PLANNING.md, TASK.md in minimal mode."""
+        """Should create CLAUDE.md at root, PLANNING.md/TASK.md in .claude/."""
         result = runner.invoke(app, ["init", str(temp_project), "--minimal"])
 
         assert result.exit_code == 0
-        assert (temp_project / ".claude" / "CLAUDE.md").exists()
+        # CLAUDE.md goes at project root
+        assert (temp_project / "CLAUDE.md").exists()
+        # PLANNING.md and TASK.md go in .claude/
         assert (temp_project / ".claude" / "PLANNING.md").exists()
         assert (temp_project / ".claude" / "TASK.md").exists()
 
@@ -114,8 +116,8 @@ class TestInitCommand:
         self, temp_project_with_claude: Path
     ) -> None:
         """Should preserve existing files when skip resolution chosen."""
-        # Write custom content
-        claude_md = temp_project_with_claude / ".claude" / "CLAUDE.md"
+        # Write custom content to CLAUDE.md at root
+        claude_md = temp_project_with_claude / "CLAUDE.md"
         custom_content = "# Custom CLAUDE.md\n\nMy custom content."
         claude_md.write_text(custom_content)
 
@@ -127,3 +129,61 @@ class TestInitCommand:
         assert result.exit_code == 0
         # Custom content should be preserved
         assert claude_md.read_text() == custom_content
+
+    def test_init_merge_adds_missing_sections(
+        self, temp_project_with_claude: Path
+    ) -> None:
+        """Should add missing sections to existing CLAUDE.md with --merge."""
+        # Create CLAUDE.md with only some sections
+        claude_md = temp_project_with_claude / "CLAUDE.md"
+        existing_content = """# My Project
+
+## Project Overview
+
+This is my project.
+
+## Tech Stack
+
+- Python
+- FastAPI
+"""
+        claude_md.write_text(existing_content)
+
+        # Run init with --merge (skip conflicts on PLANNING.md/TASK.md)
+        result = runner.invoke(
+            app,
+            ["init", str(temp_project_with_claude), "--minimal", "--merge"],
+            input="1\n",  # Skip existing files
+        )
+
+        assert result.exit_code == 0
+        # Should have added sections
+        assert "Merged" in result.output or "already has all" in result.output
+
+        # Existing content should be preserved
+        final_content = claude_md.read_text()
+        assert "This is my project" in final_content
+        assert "## Tech Stack" in final_content
+
+    def test_init_merge_preserves_existing_sections(
+        self, temp_project_with_claude: Path
+    ) -> None:
+        """Should not overwrite existing sections when merging."""
+        claude_md = temp_project_with_claude / "CLAUDE.md"
+        custom_security = """## Security Rules (CRITICAL)
+
+My custom security rules that should not be overwritten.
+"""
+        existing_content = f"# My Project\n\n{custom_security}"
+        claude_md.write_text(existing_content)
+
+        result = runner.invoke(
+            app,
+            ["init", str(temp_project_with_claude), "--minimal", "--merge"],
+            input="1\n",  # Skip existing files
+        )
+
+        assert result.exit_code == 0
+        final_content = claude_md.read_text()
+        # Custom security content should be preserved
+        assert "My custom security rules" in final_content
