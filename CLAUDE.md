@@ -301,3 +301,20 @@ uv run pytest
 - Log at appropriate levels (DEBUG, INFO, WARNING, ERROR)
 - Use MCP servers (context7, local-rag) before implementing with libraries
 - Keep responses concise - context is precious
+
+## Releasing to PyPI
+
+**Single source of truth:** Version is in `packages/cli/pyproject.toml` only. The `__version__` in `__init__.py` reads from package metadata automatically.
+
+**Release steps:**
+```bash
+# 1. Bump version in pyproject.toml
+sed -i 's/version = "X.Y.Z"/version = "X.Y.NEW"/' packages/cli/pyproject.toml
+
+# 2. Build
+rm -f packages/cli/dist/*
+uv run --directory packages/cli python -m build
+
+# 3. Publish
+uv run --directory packages/cli twine upload dist/echograph-X.Y.NEW*
+```
