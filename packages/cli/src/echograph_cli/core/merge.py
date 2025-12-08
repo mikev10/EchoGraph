@@ -2,14 +2,46 @@
 
 import difflib
 import re
+from enum import Enum
 
-from echograph_cli.core.models import MergeConflict
+from echograph_cli.core.models import MergeConflict, SectionConflict
+
+
+class ConflictMarkerStyle(Enum):
+    """Style for conflict markers in merged output."""
+
+    GIT = "git"  # <<<<<<< / ======= / >>>>>>>
+    HTML_COMMENT = "html"  # <!-- CONFLICT: ... -->
+
+
+def get_conflict_markers(style: ConflictMarkerStyle) -> tuple[str, str, str]:
+    """Return (start, separator, end) markers for given style.
+
+    Args:
+        style: The conflict marker style to use
+
+    Returns:
+        Tuple of (start_marker, separator, end_marker)
+    """
+    if style == ConflictMarkerStyle.HTML_COMMENT:
+        return (
+            "<!-- CONFLICT: YOUR VERSION -->\n",
+            "<!-- CONFLICT: NEW TEMPLATE -->\n",
+            "<!-- CONFLICT END -->\n",
+        )
+    # Default to GIT style
+    return (
+        "<<<<<<< YOUR CHANGES\n",
+        "=======\n",
+        ">>>>>>> NEW TEMPLATE\n",
+    )
 
 
 def three_way_merge(
     base: str,
     user: str,
     new: str,
+    marker_style: ConflictMarkerStyle = ConflictMarkerStyle.GIT,
 ) -> tuple[str, list[MergeConflict]]:
     """Perform three-way merge preserving user customizations.
 
@@ -17,6 +49,7 @@ def three_way_merge(
         base: Original template content (from previous version)
         user: User's modified version
         new: New template version
+        marker_style: Style for conflict markers (default: GIT)
 
     Returns:
         Tuple of (merged_content, list_of_conflicts)
@@ -102,11 +135,12 @@ def three_way_merge(
                 conflicts.append(conflict)
 
                 # Add conflict markers
-                merged_lines.append("<<<<<<< YOUR CHANGES\n")
+                start, sep, end = get_conflict_markers(marker_style)
+                merged_lines.append(start)
                 merged_lines.extend(user_lines[u_j1:u_j2])
-                merged_lines.append("=======\n")
+                merged_lines.append(sep)
                 merged_lines.extend(new_lines[n_j1:n_j2])
-                merged_lines.append(">>>>>>> NEW TEMPLATE\n")
+                merged_lines.append(end)
 
             i = max(u_i2, n_i2)
 
@@ -147,6 +181,118 @@ def parse_markdown_sections(content: str) -> dict[str, str]:
             sections[title] = header + "\n"
 
     return sections
+
+
+def three_way_merge_sections(
+    base: str,
+    user: str,
+    new: str,
+    marker_style: ConflictMarkerStyle = ConflictMarkerStyle.HTML_COMMENT,
+) -> tuple[str, list[SectionConflict]]:
+    """Three-way merge at section level for markdown files.
+
+    Parses markdown by ## headers and merges sections intelligently:
+    - Sections only in user are preserved
+    - Sections only in new template are added
+    - Identical sections are kept as-is
+    - Modified sections are merged or marked as conflicts
+
+    Args:
+        base: Original template content (from previous version)
+        user: User's current version
+        new: New template version
+        marker_style: Style for conflict markers (default: HTML_COMMENT)
+
+    Returns:
+        Tuple of (merged_content, list_of_section_conflicts)
+    """
+    base_sections = parse_markdown_sections(base) if base else {}
+    user_sections = parse_markdown_sections(user)
+    new_sections = parse_markdown_sections(new)
+
+    conflicts: list[SectionConflict] = []
+    result_parts: list[str] = []
+
+    # Track which sections we've processed
+    processed_sections: set[str] = set()
+
+    # Helper to normalize section titles for comparison
+    def normalize_title(title: str) -> str:
+        return re.sub(r"[^\w\s]", "", title).lower().strip()
+
+    # Build a map of normalized titles to actual titles
+    new_title_map = {normalize_title(t): t for t in new_sections}
+    base_title_map = {normalize_title(t): t for t in base_sections}
+
+    # Process user's sections first (preserve their order)
+    for user_title, user_content in user_sections.items():
+        if user_title == "_preamble":
+            result_parts.append(user_content)
+            processed_sections.add("_preamble")
+            continue
+
+        normalized = normalize_title(user_title)
+        processed_sections.add(normalized)
+
+        # Check if section exists in new template
+        if normalized in new_title_map:
+            new_title = new_title_map[normalized]
+            new_content = new_sections[new_title]
+
+            # Check base for three-way comparison
+            base_content = ""
+            if normalized in base_title_map:
+                base_title = base_title_map[normalized]
+                base_content = base_sections[base_title]
+
+            # Determine how to handle this section
+            if user_content == new_content:
+                # Same content - keep either
+                result_parts.append(user_content)
+            elif user_content == base_content:
+                # User didn't change from base - take new version
+                result_parts.append(new_content)
+            elif new_content == base_content:
+                # New template didn't change from base - keep user version
+                result_parts.append(user_content)
+            else:
+                # Both changed differently - this is a conflict
+                conflict = SectionConflict(
+                    section_title=user_title,
+                    base_content=base_content,
+                    user_content=user_content,
+                    new_content=new_content,
+                )
+                conflicts.append(conflict)
+
+                # Add with conflict markers
+                start, sep, end = get_conflict_markers(marker_style)
+                result_parts.append(
+                    f"{start}{user_content.rstrip()}\n{sep}{new_content.rstrip()}\n{end}"
+                )
+        else:
+            # Section only in user - keep it
+            result_parts.append(user_content)
+
+    # Add new sections that don't exist in user's file
+    for new_title, new_content in new_sections.items():
+        if new_title == "_preamble":
+            continue
+
+        normalized = normalize_title(new_title)
+        if normalized not in processed_sections:
+            # New section - add it
+            result_parts.append(new_content)
+
+    # Join with proper spacing
+    merged = ""
+    for i, part in enumerate(result_parts):
+        if i == 0:
+            merged = part.rstrip()
+        else:
+            merged += "\n\n" + part.rstrip()
+
+    return merged + "\n", conflicts
 
 
 def merge_claude_md_sections(

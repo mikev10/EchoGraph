@@ -84,3 +84,26 @@ class FileConflict:
     template_path: str  # Relative path from templates
     target_path: Path  # Absolute path in target directory
     resolution: ConflictResolution | None = None
+
+
+@dataclass
+class SectionConflict:
+    """A conflict at the markdown section level."""
+
+    section_title: str
+    base_content: str
+    user_content: str
+    new_content: str
+
+
+@dataclass
+class MergeSession:
+    """Tracks state of an interactive merge session.
+
+    Used for session persistence to resume interrupted merges.
+    """
+
+    files: list[str]
+    current_file_index: int
+    conflicts_resolved: dict[str, str]  # file -> resolution
+    started_at: str  # ISO timestamp

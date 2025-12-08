@@ -1,12 +1,17 @@
 """Init command - scaffold .claude/ directory."""
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated
 
 import typer
 from rich.table import Table
 
-from echograph_cli.core.merge import merge_claude_md_sections
+from echograph_cli.core.merge import (
+    ConflictMarkerStyle,
+    merge_claude_md_sections,
+    three_way_merge_sections,
+)
 from echograph_cli.core.models import ConflictResolution
 from echograph_cli.core.templates import (
     copy_templates,
@@ -21,6 +26,7 @@ from echograph_cli.output import (
     print_error,
     print_info,
     print_success,
+    print_unified_diff,
     print_warning,
     print_welcome_banner,
 )
@@ -102,8 +108,17 @@ def _handle_claude_md_migration(path: Path) -> bool:
 
 def _resolve_conflicts_interactive(
     conflicts: list[tuple[str, Path]],
+    get_template_content: Callable[[str], str] | None = None,
 ) -> dict[str, ConflictResolution]:
-    """Prompt user for conflict resolution strategy."""
+    """Prompt user for conflict resolution strategy.
+
+    Args:
+        conflicts: List of (template_path, target_path) tuples
+        get_template_content: Optional callable to get template content for diff display
+
+    Returns:
+        Dict mapping template_path to resolution
+    """
     resolutions: dict[str, ConflictResolution] = {}
 
     console.print(f"\n[yellow]Found {len(conflicts)} existing file(s):[/yellow]")
@@ -124,20 +139,80 @@ def _resolve_conflicts_interactive(
     elif choice == "3":
         return {c[0]: ConflictResolution.RENAME for c in conflicts}
     else:
-        # Individual resolution
+        # Individual resolution with diff support
         for template_path, target_path in conflicts:
-            console.print(f"\n[yellow]{template_path}[/yellow] already exists")
-            console.print("  [s] Skip (keep existing)")
-            console.print("  [o] Overwrite (use template)")
-            console.print("  [r] Rename existing to .bak")
+            is_markdown = target_path.suffix == ".md"
 
-            file_choice = typer.prompt("Choose", default="s").lower()
-            if file_choice == "o":
-                resolutions[template_path] = ConflictResolution.OVERWRITE
-            elif file_choice == "r":
-                resolutions[template_path] = ConflictResolution.RENAME
-            else:
-                resolutions[template_path] = ConflictResolution.SKIP
+            while True:
+                console.print(f"\n[yellow]{template_path}[/yellow] already exists")
+                console.print("  [s] Skip (keep existing)")
+                console.print("  [o] Overwrite (use template)")
+                console.print("  [r] Rename existing to .bak")
+                if get_template_content is not None:
+                    console.print("  [d] Show diff")
+                    if is_markdown:
+                        console.print("  [m] Section merge (markdown)")
+
+                file_choice = typer.prompt("Choose", default="s").lower()
+
+                if file_choice == "d" and get_template_content is not None:
+                    # Show diff and re-prompt
+                    try:
+                        existing_content = target_path.read_text(encoding="utf-8")
+                        template_content = get_template_content(template_path)
+                        print_unified_diff(
+                            existing_content,
+                            template_content,
+                            target_path.name,
+                        )
+                    except Exception as e:
+                        console.print(f"[red]Error reading file: {e}[/red]")
+                    continue  # Re-prompt after showing diff
+
+                if (
+                    file_choice == "m"
+                    and is_markdown
+                    and get_template_content is not None
+                ):
+                    # Section-level merge for markdown files
+                    try:
+                        existing_content = target_path.read_text(encoding="utf-8")
+                        template_content = get_template_content(template_path)
+
+                        # Use empty string as base (no three-way, just merge sections)
+                        merged, section_conflicts = three_way_merge_sections(
+                            "",  # No base version available
+                            existing_content,
+                            template_content,
+                            ConflictMarkerStyle.HTML_COMMENT,
+                        )
+
+                        target_path.write_text(merged, encoding="utf-8")
+
+                        if section_conflicts:
+                            console.print(
+                                f"  [yellow]Merged with {len(section_conflicts)} "
+                                f"conflict(s) - review markers in file[/yellow]"
+                            )
+                        else:
+                            console.print(
+                                "  [green]Sections merged successfully[/green]"
+                            )
+
+                        # Already handled - skip in copy_templates
+                        resolutions[template_path] = ConflictResolution.SKIP
+                    except Exception as e:
+                        console.print(f"[red]Error merging: {e}[/red]")
+                        continue
+                    break
+
+                if file_choice == "o":
+                    resolutions[template_path] = ConflictResolution.OVERWRITE
+                elif file_choice == "r":
+                    resolutions[template_path] = ConflictResolution.RENAME
+                else:
+                    resolutions[template_path] = ConflictResolution.SKIP
+                break  # Exit the while loop
 
     return resolutions
 
@@ -189,6 +264,13 @@ def init_command(
         typer.Option(
             "--merge",
             help="Merge missing sections into existing CLAUDE.md",
+        ),
+    ] = False,
+    auto_merge: Annotated[
+        bool,
+        typer.Option(
+            "--auto-merge",
+            help="Auto-merge non-conflicting sections in markdown files",
         ),
     ] = False,
 ) -> None:
@@ -294,8 +376,22 @@ def init_command(
         if merged_claude_md:
             conflicts = [c for c in conflicts if c.template_path != "CLAUDE.md"]
         if conflicts:
+            # Create a getter function for template content (for diff display)
+            def get_template_content(template_path: str) -> str:
+                """Get rendered template content for a given template path."""
+                context = {
+                    "project_name": config.project_name,
+                    "tech_stack": config.tech_stack,
+                    "has_tests": config.has_tests,
+                    "test_framework": config.test_framework,
+                    "formatter": config.formatter,
+                    "linter": config.linter,
+                }
+                return render_template(template_path + ".j2", context)
+
             conflict_resolutions = _resolve_conflicts_interactive(
-                [(c.template_path, c.target_path) for c in conflicts]
+                [(c.template_path, c.target_path) for c in conflicts],
+                get_template_content=get_template_content,
             )
     # If CLAUDE.md was merged, mark it to skip in copy_templates
     if merged_claude_md:

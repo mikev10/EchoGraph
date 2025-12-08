@@ -6,7 +6,8 @@ from typing import Annotated
 import typer
 
 from echograph_cli import __version__
-from echograph_cli.core.merge import three_way_merge
+from echograph_cli.core.interactive_merge import InteractiveMerger
+from echograph_cli.core.merge import three_way_merge, three_way_merge_sections
 from echograph_cli.core.templates import (
     get_bundled_template,
     get_template_metadata,
@@ -39,6 +40,14 @@ def update_command(
             "--dry-run",
             "-n",
             help="Show what would be updated without making changes",
+        ),
+    ] = False,
+    interactive: Annotated[
+        bool,
+        typer.Option(
+            "--interactive",
+            "-i",
+            help="Interactive merge mode with visual diff and three-panel view",
         ),
     ] = False,
 ) -> None:
@@ -76,6 +85,17 @@ def update_command(
     )
 
     template_files = list_template_files("full")
+
+    # Check for existing interactive merge session
+    if interactive:
+        merger = InteractiveMerger(console, path)
+        if merger.check_for_existing_session():
+            if merger.prompt_resume():
+                # Resume from saved state - session already loaded
+                pass
+            else:
+                merger.clear_session()
+
     updated_count = 0
     conflict_count = 0
 
@@ -114,19 +134,59 @@ def update_command(
                 continue
 
             # Three-way merge needed
-            merged, conflicts = three_way_merge(base_content, user_content, new_content)
+            is_markdown = user_file.suffix == ".md"
 
-            if conflicts:
-                if not dry_run:
-                    user_file.write_text(merged, encoding="utf-8")
-                print_warning(
-                    f"Updated {template_rel_path} with {len(conflicts)} conflict(s)"
+            if interactive and not dry_run:
+                # Use interactive merger
+                merger = InteractiveMerger(console, path)
+                merged, file_conflicts = merger.merge_file_interactive(
+                    user_file, base_content, user_content, new_content
                 )
-                conflict_count += len(conflicts)
+                user_file.write_text(merged, encoding="utf-8")
+
+                if file_conflicts > 0:
+                    print_warning(
+                        f"Updated {template_rel_path} with {file_conflicts} conflict(s)"
+                    )
+                    conflict_count += file_conflicts
+                else:
+                    print_success(f"Merged {template_rel_path}")
+            elif is_markdown:
+                # Use section-level merge for markdown files
+                merged, conflicts = three_way_merge_sections(
+                    base_content, user_content, new_content
+                )
+
+                if conflicts:
+                    if not dry_run:
+                        user_file.write_text(merged, encoding="utf-8")
+                    print_warning(
+                        f"Updated {template_rel_path} "
+                        f"with {len(conflicts)} section conflict(s)"
+                    )
+                    conflict_count += len(conflicts)
+                else:
+                    if not dry_run:
+                        user_file.write_text(merged, encoding="utf-8")
+                    print_success(f"Merged {template_rel_path}")
             else:
-                if not dry_run:
-                    user_file.write_text(merged, encoding="utf-8")
-                print_success(f"Merged {template_rel_path}")
+                # Use line-level merge for other files
+                merged, conflicts = three_way_merge(
+                    base_content, user_content, new_content
+                )
+
+                if conflicts:
+                    if not dry_run:
+                        user_file.write_text(merged, encoding="utf-8")
+                    print_warning(
+                        f"Updated {template_rel_path} with {len(conflicts)} conflict(s)"
+                    )
+                    conflict_count += len(conflicts)
+                else:
+                    if not dry_run:
+                        user_file.write_text(merged, encoding="utf-8")
+                    print_success(f"Merged {template_rel_path}")
+
             updated_count += 1
 
     # Summary
@@ -139,7 +199,12 @@ def update_command(
     else:
         console.print(f"[bold]Updated {updated_count} file(s)[/bold]")
         if conflict_count > 0:
+            marker_hint = (
+                "<!-- CONFLICT:"
+                if any((path / f).suffix == ".md" for f in template_files)
+                else "<<<<<<< YOUR CHANGES"
+            )
             print_warning(
                 f"\n{conflict_count} conflict(s) need manual resolution.\n"
-                "Look for <<<<<<< YOUR CHANGES markers in affected files."
+                f"Look for {marker_hint} markers in affected files."
             )
