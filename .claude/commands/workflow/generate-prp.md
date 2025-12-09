@@ -176,50 +176,78 @@ Rate confidence that AI can implement this with current context:
 ✓ Clear implementation path with pseudocode
 ✓ Error handling documented
 
-### Task Linkage (Mandatory)
+### Task Creation (Mandatory)
 
-**Before saving PRP, link it to the task hierarchy:**
+**When generating a PRP, AUTOMATICALLY create a corresponding task:**
 
-1. **Identify or Create Parent Task:**
-   - Read `.claude/TASK.md` to find relevant parent task
-   - If doesn't exist, create new entry in "Pending" section:
+1. **Determine Next Task ID:**
+   - Read `.claude/TASK.md` to find highest existing TASK-XXX number
+   - Increment by 1 for new task (e.g., if TASK-007 exists, use TASK-008)
+
+2. **Create Task Entry in TASK.md:**
+   - Add new entry to "Pending" section:
      ```markdown
-     - [ ] [TASK-XXX] Parent feature name (0/Y) → @.claude/tasks/TASK-XXX-feature-name.md
+     - [ ] [TASK-XXX] Brief description from PRP goal → @.claude/tasks/TASK-XXX-feature-name.md
      ```
-   - Find next available TASK-XXX number (check existing IDs)
-   - Use descriptive feature name matching the PRP's goal
+   - Use feature name from PRP filename (e.g., `project-setup.md` → `TASK-008-project-setup.md`)
 
-2. **Create or Update Feature Task File:**
-   - Check if `.claude/tasks/TASK-XXX-feature-name.md` exists
-   - If doesn't exist, create it using template from `.claude/tasks/TASK-001-example-feature.md`
-   - Update the template with:
-     - Feature description from PRP Goal section
-     - Subtasks broken down from Implementation Blueprint (typically 3-10 subtasks)
-     - Each subtask gets ID: `[TASK-XXX.1]`, `[TASK-XXX.2]`, etc.
-   - Add subtask for this specific PRP:
+3. **Create Task File:**
+   - Create `.claude/tasks/TASK-XXX-feature-name.md` with this structure:
      ```markdown
-     - [ ] [TASK-XXX.Y] Brief description of what this PRP implements
+     # [TASK-XXX] Feature Name
+
+     **Status**: Pending
+     **Parent Task**: References `.claude/TASK.md` entry for TASK-XXX
+     **Started**: Not yet
+     **Completed**: Not yet
+
+     ## Context
+
+     [Copy from PRP Goal and Why sections]
+
+     ## Feature Request
+
+     **Location**: `[Path to original feature request file]`
+
+     ## Implementation
+
+     **PRP Location**: `PRPs/active/[prp-filename].md` (move to `PRPs/completed/` when done)
+
+     ## Subtasks
+
+     [Break down from Implementation Blueprint - 3-10 items]
+     - [ ] [TASK-XXX.1] First implementation step
+     - [ ] [TASK-XXX.2] Second implementation step
+     - [ ] [TASK-XXX.3] Third implementation step
+     ...
+
+     ## Dependencies
+
+     [List any prerequisite tasks or related features]
+
+     ## Notes
+
+     [Any important context from feature request]
+
+     ---
+
+     **Last Updated**: [Today's date]
      ```
 
-3. **Add Task IDs to PRP Header:**
+4. **Add Task Reference to PRP Header:**
    - At the very top of the PRP (above Goal section), add:
      ```markdown
-     **Parent Task**: [TASK-XXX] Parent feature name (from `.claude/TASK.md`)
-     **Child Task**: [TASK-XXX.Y] Specific subtask this PRP addresses
-     ```
-   - Example:
-     ```markdown
-     **Parent Task**: [TASK-005] Implement user management CRUD operations
-     **Child Task**: [TASK-005.4] Add user update API endpoint
+     **Task**: [TASK-XXX] Feature name (from `.claude/TASK.md`)
+     **Task File**: @.claude/tasks/TASK-XXX-feature-name.md
      ```
 
-4. **Verify Linkage:**
-   - Confirm parent task exists in `.claude/TASK.md`
-   - Confirm feature task file exists with subtask
-   - Confirm PRP header contains both task IDs
-   - If any missing, STOP and complete linkage before saving
+5. **Verify Task Creation:**
+   - Confirm task entry exists in `.claude/TASK.md` under "Pending"
+   - Confirm task file `.claude/tasks/TASK-XXX-feature-name.md` was created
+   - Confirm PRP header contains task reference
+   - If any missing, STOP and complete task creation before saving PRP
 
-**Result**: PRP is now linked to persistent task hierarchy before execution begins.
+**Result**: Each PRP has exactly ONE corresponding task. Simple 1:1 mapping.
 
 **Output**: Save PRP to `PRPs/active/{feature-name}.md`
 
