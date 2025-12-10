@@ -115,51 +115,91 @@ def is_placeholder_only_diff(user_content: str, template_content: str) -> bool:
     return False
 
 
-MERGE_SYSTEM_PROMPT = """\
-You are an expert at merging configuration and documentation files.
+def is_high_similarity(
+    user_content: str, template_content: str, threshold: float = 0.95
+) -> bool:
+    """Check if files are very similar (>95% by default).
 
-Your task is to intelligently merge a user's customized file with a new template version.
+    When files are nearly identical, the user's version should be kept as-is
+    since they haven't made significant customizations and the template
+    hasn't changed significantly.
+    """
+    import difflib
 
-CRITICAL RULE: The user's version is ALWAYS more important than the template.
-- If the user has MORE content than the template, KEEP all the user's content
-- If the user has DIFFERENT content than the template, KEEP the user's version
-- The template only provides NEW sections or features the user doesn't have yet
-- NEVER remove or shorten user content to match a simpler template
+    # Use SequenceMatcher to compute similarity ratio
+    user_normalized = _normalize_whitespace(user_content)
+    template_normalized = _normalize_whitespace(template_content)
 
-Key principles:
-1. PRESERVE all user content - their version represents intentional customizations
-2. ADD new sections from template that don't exist in user's version
-3. KEEP user's specific values, examples, project names, expanded explanations
-4. Only UPDATE generic boilerplate IF the template has genuinely NEW functionality
-5. MAINTAIN the user's structure and formatting preferences
+    # Replace placeholders in template with user's likely values for better matching
+    import re
+    # Find placeholders and their approximate positions
+    for match in re.finditer(r"\[\[([A-Z_]+)\]\]", template_normalized):
+        # Replace with a generic marker for comparison
+        template_normalized = template_normalized.replace(
+            match.group(0), "PLACEHOLDER_VALUE"
+        )
 
-What to KEEP from user's version:
-- All custom project names, paths, URLs, examples
-- All expanded or reworded explanations (even if template is shorter)
-- All custom sections not in template
-- User's task lists, code examples, specific instructions
-- ANY content that is more detailed than the template
+    ratio = difflib.SequenceMatcher(
+        None, user_normalized, template_normalized
+    ).ratio()
 
-What to ADD from template:
-- Genuinely NEW sections that don't exist in user's version
-- NEW features or capabilities not present in user's file
-- Critical fixes or corrections (rare)
+    return ratio >= threshold
 
-What to NEVER do:
-- Remove user content because template doesn't have it
-- Replace detailed user examples with generic template placeholders
-- Shorten user's expanded explanations
-- Treat template examples as "correct" when user has real content
 
-Response format - output EXACTLY this structure:
-```merged
-[the complete merged file content]
+# New prompt strategy: Instead of asking AI to merge (which fails),
+# we ask it to ONLY identify new sections to append.
+# This is much safer - user content is never touched.
+
+EXTRACT_NEW_SECTIONS_SYSTEM = """\
+You analyze template files to find NEW sections that don't exist in a user's file.
+
+Your ONLY job is to identify genuinely NEW content from the template that should
+be APPENDED to the user's file. You must NEVER modify, summarize, or replace
+any existing user content.
+
+Rules:
+1. Compare section headers between user's file and template
+2. A section is "new" ONLY if no similar header exists in the user's file
+3. Ignore sections that exist in user's file even if content differs
+4. Ignore cosmetic differences (formatting, wording, examples)
+5. Output ONLY the new sections to append, or "NONE" if nothing new
+
+Response format:
+```sections
+[new sections to append, preserving their exact template formatting]
 ```
 ```summary
-- [1-2 concise bullet points: what was preserved, what was added]
+- [what new sections were found, or "No new sections"]
 ```
 
-Do not include any other text outside these code blocks."""
+If there are no genuinely new sections, output:
+```sections
+NONE
+```
+```summary
+- No new sections found in template
+```"""
+
+EXTRACT_NEW_SECTIONS_USER = """Find NEW sections in the template that don't exist
+in the user's file.
+
+## User's Current File (DO NOT MODIFY - only check what sections exist):
+```
+{user_content}
+```
+
+## Template (find NEW sections from this):
+```
+{template_content}
+```
+
+## File: {filename}
+
+List the section headers in each file, then output any genuinely NEW sections
+from the template that should be appended to the user's file."""
+
+# Keep old prompt for backwards compatibility but mark as deprecated
+MERGE_SYSTEM_PROMPT = EXTRACT_NEW_SECTIONS_SYSTEM
 
 
 MERGE_USER_PROMPT = """Please merge these two versions of a file.
@@ -177,7 +217,8 @@ MERGE_USER_PROMPT = """Please merge these two versions of a file.
 ## File Context:
 - Filename: {filename}
 
-Analyze what the user has customized vs what is boilerplate, then output the merged content and brief summary in the specified format."""
+Analyze what the user has customized vs what is boilerplate, then output the merged
+content and brief summary in the specified format."""
 
 
 def get_anthropic_client(interactive: bool = True):
@@ -241,39 +282,92 @@ def detect_file_type(filename: str) -> str:
     return type_map.get(ext, f"Configuration file ({ext})")
 
 
-def _parse_merge_response(response_text: str) -> tuple[str, str]:
-    """Parse the merged content and summary from AI response.
+def _parse_sections_response(response_text: str) -> tuple[str | None, str]:
+    """Parse the new sections and summary from AI response.
 
     Expected format:
-    ```merged
-    [content]
+    ```sections
+    [new sections or NONE]
     ```
     ```summary
     [summary]
     ```
+
+    Returns:
+        Tuple of (new_sections or None if NONE, explanation)
     """
     import re
 
-    # Extract merged content
-    merged_match = re.search(r"```merged\n(.*?)```", response_text, re.DOTALL)
-    if merged_match:
-        merged_content = merged_match.group(1).strip()
+    # Extract sections content
+    sections_match = re.search(r"```sections\n(.*?)```", response_text, re.DOTALL)
+    if sections_match:
+        sections_content = sections_match.group(1).strip()
+        # Check if AI said there are no new sections
+        if sections_content.upper() == "NONE" or not sections_content:
+            sections_content = None
     else:
-        # Fallback: try to find any code block or use full response
+        # Fallback: try to find any code block
         code_match = re.search(r"```(?:\w+)?\n(.*?)```", response_text, re.DOTALL)
         if code_match:
-            merged_content = code_match.group(1).strip()
+            content = code_match.group(1).strip()
+            sections_content = None if content.upper() == "NONE" else content
         else:
-            merged_content = response_text.strip()
+            sections_content = None
 
     # Extract summary
     summary_match = re.search(r"```summary\n(.*?)```", response_text, re.DOTALL)
     if summary_match:
         explanation = summary_match.group(1).strip()
     else:
-        explanation = "Merged user customizations with template updates"
+        if sections_content:
+            explanation = "Found new sections to append"
+        else:
+            explanation = "No new sections found in template"
 
-    return merged_content, explanation
+    return sections_content, explanation
+
+
+# Keep old parser for backwards compatibility
+def _parse_merge_response(response_text: str) -> tuple[str, str]:
+    """Parse merged content - now delegates to sections parser."""
+    sections, explanation = _parse_sections_response(response_text)
+    return sections or "", explanation
+
+
+def ai_extract_new_sections(
+    user_content: str,
+    template_content: str,
+    filename: str,
+) -> tuple[str | None, str]:
+    """Use Claude to identify NEW sections in template not in user's file.
+
+    This is safer than asking AI to merge - it only extracts new content
+    to append, never modifying user's existing content.
+
+    Args:
+        user_content: User's current file content
+        template_content: New template content
+        filename: Name of the file being merged
+
+    Returns:
+        Tuple of (new_sections_to_append or None, explanation)
+    """
+    client = get_anthropic_client()
+
+    user_prompt = EXTRACT_NEW_SECTIONS_USER.format(
+        user_content=user_content,
+        template_content=template_content,
+        filename=filename,
+    )
+
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=8192,
+        system=EXTRACT_NEW_SECTIONS_SYSTEM,
+        messages=[{"role": "user", "content": user_prompt}],
+    )
+
+    return _parse_sections_response(response.content[0].text)
 
 
 def ai_merge_content(
@@ -281,7 +375,10 @@ def ai_merge_content(
     template_content: str,
     filename: str,
 ) -> tuple[str, str]:
-    """Use Claude to intelligently merge user content with template.
+    """Extract new sections and append to user content.
+
+    Uses the safer 'extract new sections' approach instead of full merge.
+    User content is NEVER modified - only new sections are appended.
 
     Args:
         user_content: User's current file content
@@ -291,23 +388,20 @@ def ai_merge_content(
     Returns:
         Tuple of (merged_content, explanation)
     """
-    client = get_anthropic_client()
-
-    user_prompt = MERGE_USER_PROMPT.format(
-        user_content=user_content,
-        template_content=template_content,
-        filename=filename,
+    new_sections, explanation = ai_extract_new_sections(
+        user_content, template_content, filename
     )
 
-    # Single API call - Haiku is faster for simple merge tasks
-    response = client.messages.create(
-        model="claude-3-5-haiku-20241022",
-        max_tokens=8192,
-        system=MERGE_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_prompt}],
-    )
+    if new_sections is None:
+        # No new sections - return user content unchanged
+        return user_content, explanation
 
-    return _parse_merge_response(response.content[0].text)
+    # Append new sections to user content
+    # Ensure proper spacing between existing content and new sections
+    user_stripped = user_content.rstrip()
+    merged = f"{user_stripped}\n\n{new_sections}\n"
+
+    return merged, explanation
 
 
 def smart_merge_file(
@@ -331,48 +425,122 @@ def smart_merge_file(
 
     Returns:
         AIMergeResult with merged content and metadata
-    """
-    # Skip if only whitespace differences
-    if is_whitespace_only_diff(user_content, template_content):
-        console.print(f"[dim]Skipping {filename} - only whitespace differences[/dim]")
-        return AIMergeResult(
-            merged_content=user_content,
-            explanation="Skipped - only whitespace differences",
-            had_conflicts=False,
-            user_approved=True,
-            was_skipped_whitespace=True,
-        )
 
-    # Skip if user's file is just the template with placeholders filled in
-    if is_placeholder_only_diff(user_content, template_content):
-        console.print(f"[dim]Skipping {filename} - only placeholder substitutions[/dim]")
-        return AIMergeResult(
-            merged_content=user_content,
-            explanation="Skipped - user file matches template with placeholders filled",
-            had_conflicts=False,
-            user_approved=True,
-            was_skipped_whitespace=True,
-        )
+    Raises:
+        typer.Exit: If user presses Ctrl+C to abort
+    """
+    import typer
+
+    # Check for interrupt before any processing
+    try:
+        # Skip if only whitespace differences
+        if is_whitespace_only_diff(user_content, template_content):
+            console.print(
+                f"[dim]Skipping {filename} - whitespace differences only[/dim]"
+            )
+            return AIMergeResult(
+                merged_content=user_content,
+                explanation="Skipped - only whitespace differences",
+                had_conflicts=False,
+                user_approved=True,
+                was_skipped_whitespace=True,
+            )
+
+        # Skip if user's file is just the template with placeholders filled in
+        if is_placeholder_only_diff(user_content, template_content):
+            console.print(
+                f"[dim]Skipping {filename} - placeholder substitutions only[/dim]"
+            )
+            return AIMergeResult(
+                merged_content=user_content,
+                explanation="Skipped - template with placeholders filled",
+                had_conflicts=False,
+                user_approved=True,
+                was_skipped_whitespace=True,
+            )
+
+        # Skip if files are >95% similar
+        if is_high_similarity(user_content, template_content):
+            console.print(
+                f"[dim]Skipping {filename} - files nearly identical[/dim]"
+            )
+            return AIMergeResult(
+                merged_content=user_content,
+                explanation="Skipped - files are >95% similar, keeping user version",
+                had_conflicts=False,
+                user_approved=True,
+                was_skipped_whitespace=True,
+            )
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Aborted by user[/yellow]")
+        raise typer.Exit(1)
 
     is_markdown = filename.endswith(".md")
 
     # For markdown, try section-level merge first
     if is_markdown:
-        merged, conflicts = three_way_merge_sections(
-            "",  # No base version
-            user_content,
-            template_content,
-            ConflictMarkerStyle.HTML_COMMENT,
-        )
+        try:
+            merged, conflicts = three_way_merge_sections(
+                "",  # No base version
+                user_content,
+                template_content,
+                ConflictMarkerStyle.HTML_COMMENT,
+            )
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Aborted by user[/yellow]")
+            raise typer.Exit(1)
 
         if not conflicts:
             # Clean merge - no AI needed
-            return AIMergeResult(
-                merged_content=merged,
-                explanation="Section-level merge: No conflicts detected",
-                had_conflicts=False,
-                user_approved=True,
-            )
+            # But still check if merged content is different from user's content
+            if is_whitespace_only_diff(user_content, merged):
+                console.print(f"[dim]Skipping {filename} - no changes needed[/dim]")
+                return AIMergeResult(
+                    merged_content=user_content,
+                    explanation="No changes needed",
+                    had_conflicts=False,
+                    user_approved=True,
+                    was_skipped_whitespace=True,
+                )
+
+            # Show diff and ask for approval
+            console.print(f"\n[bold cyan]Section Merge Preview: {filename}[/bold cyan]")
+            print_unified_diff(user_content, merged, filename)
+            console.print("\n[dim]Section-level merge: No conflicts detected[/dim]")
+
+            if auto_approve:
+                return AIMergeResult(
+                    merged_content=merged,
+                    explanation="Section-level merge: No conflicts detected",
+                    had_conflicts=False,
+                    user_approved=True,
+                )
+
+            # Ask for approval
+            console.print("\n[bold]Accept this merge?[/bold]")
+            console.print("  \\[y] Yes, apply merge")
+            console.print("  \\[n] No, keep original")
+
+            try:
+                choice = typer.prompt("Choose", default="y").lower()
+            except (KeyboardInterrupt, EOFError):
+                console.print("\n[yellow]Aborted by user[/yellow]")
+                raise typer.Exit(1)
+
+            if choice == "y":
+                return AIMergeResult(
+                    merged_content=merged,
+                    explanation="Section-level merge: No conflicts detected",
+                    had_conflicts=False,
+                    user_approved=True,
+                )
+            else:
+                return AIMergeResult(
+                    merged_content=user_content,
+                    explanation="User declined - kept original",
+                    had_conflicts=False,
+                    user_approved=False,
+                )
 
         # Has conflicts - use AI to resolve
         console.print(
@@ -398,7 +566,6 @@ def smart_merge_file(
         except KeyboardInterrupt:
             status.stop()
             console.print("\n[yellow]Aborted by user[/yellow]")
-            import typer
             raise typer.Exit(1)
         except ImportError as e:
             status.stop()
@@ -431,7 +598,7 @@ def smart_merge_file(
     # Check if AI merge result only differs in whitespace
     if is_whitespace_only_diff(user_content, merged_content):
         console.print(
-            f"[dim]Skipping {filename} - AI merge found only whitespace differences[/dim]"
+            f"[dim]Skipping {filename} - AI found whitespace only[/dim]"
         )
         return AIMergeResult(
             merged_content=user_content,
@@ -439,6 +606,33 @@ def smart_merge_file(
             had_conflicts=False,
             user_approved=True,
             was_skipped_whitespace=True,
+        )
+
+    # Validate AI didn't remove significant content (common failure mode)
+    user_lines = len(user_content.splitlines())
+    merged_lines = len(merged_content.splitlines())
+    reduction_ratio = merged_lines / user_lines if user_lines > 0 else 1.0
+
+    if reduction_ratio < 0.8:  # More than 20% reduction
+        console.print(
+            f"\n[bold red]Warning: AI merge validation failed for {filename}[/bold red]"
+        )
+        reduction_pct = (1 - reduction_ratio) * 100
+        console.print(
+            f"[red]AI removed significant content: "
+            f"{user_lines} -> {merged_lines} lines "
+            f"({reduction_pct:.0f}% reduction)[/red]"
+        )
+        console.print(
+            "[yellow]This usually means the AI ignored "
+            "the preservation instructions.[/yellow]"
+        )
+        console.print("[dim]Keeping your original file unchanged.[/dim]")
+        return AIMergeResult(
+            merged_content=user_content,
+            explanation=f"Rejected - AI removed {reduction_pct:.0f}% of content",
+            had_conflicts=True,
+            user_approved=False,
         )
 
     # Show diff preview
@@ -460,8 +654,6 @@ def smart_merge_file(
     console.print("  \\[y] Yes, apply merge")
     console.print("  \\[n] No, keep original")
     console.print("  \\[e] Edit (save with conflict markers)")
-
-    import typer
 
     try:
         choice = typer.prompt("Choose", default="y").lower()

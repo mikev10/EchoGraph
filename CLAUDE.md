@@ -306,15 +306,17 @@ uv run pytest
 
 **Single source of truth:** Version is in `packages/cli/pyproject.toml` only. The `__version__` in `__init__.py` reads from package metadata automatically.
 
+**PyPI credentials:** Stored in `packages/cli/.pypirc` - must use `--config-file` flag.
+
 **Release steps:**
 ```bash
 # 1. Bump version in pyproject.toml
 sed -i 's/version = "X.Y.Z"/version = "X.Y.NEW"/' packages/cli/pyproject.toml
 
-# 2. Build
+# 2. Build (from repo root)
 rm -f packages/cli/dist/*
-uv run --directory packages/cli python -m build
+cd packages/cli && C:/Python313/python.exe -m build
 
-# 3. Publish
-uv run --directory packages/cli twine upload dist/echograph-X.Y.NEW*
+# 3. Publish (IMPORTANT: use --config-file flag for .pypirc)
+cd packages/cli && C:/Python313/python.exe -m twine upload --config-file .pypirc dist/echograph-X.Y.NEW*
 ```
