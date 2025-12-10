@@ -16,20 +16,21 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Then install echograph
 uv tool install echograph
+
+# With AI-assisted merge support (optional)
+uv tool install echograph[ai]
 ```
 
 ### Alternative: Using pip
 
-**macOS/Linux:**
 ```bash
 pip install echograph
+
+# With AI-assisted merge support (optional)
+pip install echograph[ai]
 ```
 
-**Windows:**
-```bash
-pip install echograph
-```
-Note: You may need to add the Scripts folder to your PATH. The installer will show the path (typically `C:\Users\<username>\AppData\Roaming\Python\Python3XX\Scripts`).
+Note: On Windows, you may need to add the Scripts folder to your PATH. The installer will show the path (typically `C:\Users\<username>\AppData\Roaming\Python\Python3XX\Scripts`).
 
 ### One-time usage (no install)
 
@@ -78,6 +79,9 @@ echograph init --force
 # Preview without creating files
 echograph init --dry-run
 
+# AI-assisted smart merge (requires echograph[ai])
+echograph init --smart-merge
+
 # Initialize a specific directory
 echograph init /path/to/project
 ```
@@ -105,6 +109,24 @@ This will:
 - Keep all your existing sections intact
 - Add any sections from the template that you're missing (e.g., Response Optimization, Security Rules)
 - Match sections case-insensitively (ignoring emojis)
+
+**Using `--smart-merge` for AI-assisted merging:**
+
+When you have existing files with customizations, use `--smart-merge` to let Claude intelligently merge your changes with new template features:
+
+```bash
+echograph init --smart-merge
+```
+
+This requires the `[ai]` extra (`uv tool install echograph[ai]`) and an Anthropic API key. On first use, you'll be prompted to enter your API key, which can be saved for future use.
+
+The smart merge:
+- Preserves your custom project names, paths, and sections
+- Adds new template features you don't have
+- Updates generic boilerplate with improved versions
+- Shows a diff preview before applying changes
+
+You can also choose smart merge interactively when handling conflicts (option 5).
 
 ### `echograph update`
 
