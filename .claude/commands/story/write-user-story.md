@@ -73,7 +73,7 @@ Use @story-expert agent to create a properly structured user story:
 4. Aligned in Three Amigos session (/three-amigos-prep)
 5. Validated for readiness (/validate-story-ready)
 6. Used to create an Azure DevOps work item (manual)
-7. Converted to technical specification (INITIAL.md) using /convert-story
+7. Converted to technical specification (SPEC.md) using /convert-story
 8. Used to generate a comprehensive implementation plan (PRP)
 
 Focus on clear business requirements and testable acceptance criteria. Be explicit about error scenarios since AI will implement this code. Technical research happens during the Three Amigos enrichment phase."

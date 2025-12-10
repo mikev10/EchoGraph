@@ -186,7 +186,7 @@ After showing the comparison, ask:
 How would you like to proceed?
 
 A) Use improved version for /convert-story
-   I'll proceed with the refined story to generate INITIAL.md
+   I'll proceed with the refined story to generate SPEC.md
 
 B) Save improved version and send suggestions to Product Owner
    I'll save the improved story for you to share with the PO
@@ -206,7 +206,7 @@ Please respond with A, B, C, or D.
 ```
 Great! Proceeding with improved story for /convert-story.
 
-The improved story is ready to be converted to INITIAL.md. Run:
+The improved story is ready to be converted to SPEC.md. Run:
 /convert-story
 
 When prompted, paste the improved story content (not the original).
@@ -414,10 +414,10 @@ This command fits into the workflow when story quality is questionable:
 ```
 ADO Story → /refine-story → Review comparison → Choose action → /convert-story
                                                                        ↓
-                                                                  INITIAL.md
+                                                                   SPEC.md
 ```
 
-**Value:** Catching story quality issues BEFORE /convert-story leads to better INITIAL.md and ultimately better PRPs.
+**Value:** Catching story quality issues BEFORE /convert-story leads to better SPEC.md and ultimately better PRPs.
 
 ---
 

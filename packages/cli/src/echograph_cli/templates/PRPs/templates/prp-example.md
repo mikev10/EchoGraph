@@ -299,7 +299,7 @@ npm install react-hook-form zod @hookform/resolvers
 
 ## References
 
-- **Feature Request**: `.claude/INITIAL.md`
+- **Feature Request**: `.claude/SPEC.md`
 - **Related PRPs**: None
 - **External Docs**:
   - [React Query Mutations](https://tanstack.com/query/latest/docs/react/guides/mutations)

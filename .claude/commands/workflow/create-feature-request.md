@@ -1,5 +1,5 @@
 ---
-description: Create feature request following INITIAL.md format
+description: Create feature request following SPEC.md format
 ---
 
 # Create Feature Request
@@ -39,7 +39,7 @@ mcp__local-rag__query_documents({
 
 ### 3. Generate Feature Request File
 
-**Structure (INITIAL.md format):**
+**Structure (SPEC.md format):**
 
 ```markdown
 # Feature Request - [Feature Name]
@@ -105,20 +105,20 @@ mcp__local-rag__query_documents({
 
 ### 4. Save the File
 
-**Location**: `PRPs/feature-requests/[feature-name].md`
-- Use kebab-case for filename (e.g., `user-authentication.md`, `dashboard-analytics.md`)
+**Location**: `PRPs/feature-requests/[feature-name]-SPEC.md`
+- Use kebab-case for filename with `-SPEC` suffix (e.g., `user-authentication-SPEC.md`, `dashboard-analytics-SPEC.md`)
 
 ### 5. Provide Next Steps
 
 Tell the user:
 ```
-Feature request created: PRPs/feature-requests/[feature-name].md
+Feature request created: PRPs/feature-requests/[feature-name]-SPEC.md
 
 Next steps:
 1. Review the feature request and make any adjustments
-2. Run: /workflow:generate-prp PRPs/feature-requests/[feature-name].md
+2. Run: /workflow:generate-prp PRPs/feature-requests/[feature-name]-SPEC.md
 3. Review the generated PRP
-4. Run: /workflow:execute-prp PRPs/active/[feature-name].md
+4. Run: /workflow:execute-prp PRPs/active/[feature-name]-PRP.md
 ```
 
 ## Important Guidelines

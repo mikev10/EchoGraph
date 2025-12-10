@@ -32,8 +32,8 @@ This workflow separates **what** you want built (feature request) from **how** i
 
 ```
 ┌─────────────────────┐
-│ 1. Feature Request  │  You create INITIAL.md
-│    (INITIAL.md)     │  describing what to build
+│ 1. Feature Request  │  You create SPEC.md
+│    (SPEC.md)        │  describing what to build
 └──────────┬──────────┘
            │
            │ /generate-prp
@@ -59,13 +59,13 @@ This workflow separates **what** you want built (feature request) from **how** i
 Save feature requests in: `PRPs/feature-requests/`
 
 ### Naming Convention
-`feature-name-INITIAL.md`
+`feature-name-SPEC.md`
 
-Example: `user-authentication-INITIAL.md`
+Example: `user-authentication-SPEC.md`
 
 ### Required Structure
 
-Your INITIAL.md file MUST contain these 4 sections:
+Your SPEC.md file MUST contain these 4 sections:
 
 #### 1. FEATURE
 **What to include:**
@@ -159,7 +159,7 @@ try {
 ```
 
 ### Template
-Use the template at: `PRPs/feature-requests/user-authentication-INITIAL.md`
+Use the template at: `.claude/SPEC.md` or see `PRPs/feature-requests/user-authentication-SPEC.md` for an example.
 
 Copy and customize it for new feature requests.
 
@@ -169,7 +169,7 @@ Copy and customize it for new feature requests.
 
 ### Command
 ```bash
-/generate-prp PRPs/feature-requests/your-feature-INITIAL.md
+/generate-prp PRPs/feature-requests/your-feature-SPEC.md
 ```
 
 ### What Happens
@@ -244,13 +244,16 @@ These ensure code quality before proceeding.
 ```
 PRPs/
 ├── feature-requests/          # Your feature request files
-│   ├── user-authentication-INITIAL.md
-│   ├── payment-integration-INITIAL.md
-│   └── dashboard-widget-INITIAL.md
+│   ├── user-authentication-SPEC.md
+│   ├── payment-integration-SPEC.md
+│   └── dashboard-widget-SPEC.md
 │
-├── user-authentication.md     # Generated PRPs
-├── payment-integration.md
-├── dashboard-widget.md
+├── active/                    # PRPs being implemented
+│   ├── user-authentication-PRP.md
+│   └── payment-integration-PRP.md
+│
+├── completed/                 # Archived PRPs
+│   └── dashboard-widget-PRP.md
 │
 └── ai_docs/                   # AI-friendly documentation summaries
     ├── stripe-api-summary.md
@@ -319,16 +322,16 @@ examples/                      # Reference implementations
 
 ## Troubleshooting
 
-### "Cannot read INITIAL.md file"
+### "Cannot read SPEC.md file"
 **Cause**: File path is incorrect or file doesn't exist
 
 **Solution**:
 - Check file exists at the path specified
-- Use full path: `PRPs/feature-requests/your-feature-INITIAL.md`
+- Use full path: `PRPs/feature-requests/your-feature-SPEC.md`
 - Verify you're in project root directory
 
 ### "Missing required section: FEATURE"
-**Cause**: INITIAL.md file is incomplete
+**Cause**: SPEC.md file is incomplete
 
 **Solution**:
 - Ensure all 4 sections exist: FEATURE, EXAMPLES, DOCUMENTATION, OTHER CONSIDERATIONS
@@ -368,7 +371,7 @@ examples/                      # Reference implementations
 - Add reference implementations to `examples/` folder
 - Update `CLAUDE.md` with project-specific conventions
 - Update `PLANNING.md` with architectural decisions
-- Reference these in your INITIAL.md file
+- Reference these in your SPEC.md file
 
 ---
 
@@ -377,7 +380,7 @@ examples/                      # Reference implementations
 ### Commands
 ```bash
 # Generate PRP from feature request
-/generate-prp PRPs/feature-requests/your-feature-INITIAL.md
+/generate-prp PRPs/feature-requests/your-feature-SPEC.md
 
 # Execute the PRP
 /execute-prp PRPs/your-feature.md
@@ -387,11 +390,11 @@ examples/                      # Reference implementations
 ```
 
 ### File Naming
-- Feature requests: `feature-name-INITIAL.md`
-- Generated PRPs: `feature-name.md`
+- Feature requests: `feature-name-SPEC.md`
+- Generated PRPs: `feature-name-PRP.md`
 - Task files: `TASK-XXX-feature-name.md`
 
-### Required Sections (INITIAL.md)
+### Required Sections (SPEC.md)
 1. `## FEATURE` - What to build
 2. `## EXAMPLES` - Code examples
 3. `## DOCUMENTATION` - Links and references

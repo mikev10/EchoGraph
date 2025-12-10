@@ -75,7 +75,7 @@ qa_context_added: false
 1. **draft** - Initial creation via `/write-user-story`
 2. **enriched** - After Dev Lead and QA Lead add context
 3. **ready** - Passed `/validate-story-ready` checks
-4. **converted** - ADO item created, converted to INITIAL.md
+4. **converted** - ADO item created, converted to SPEC.md
 
 ## Commands
 

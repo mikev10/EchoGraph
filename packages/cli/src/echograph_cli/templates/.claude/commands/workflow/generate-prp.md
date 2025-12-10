@@ -1,10 +1,10 @@
 ---
-description: Generate comprehensive PRP from feature request (INITIAL.md format)
+description: Generate comprehensive PRP from feature request (SPEC.md format)
 ---
 
 You are about to generate a Product Requirements Prompt (PRP) from a feature request.
 
-**Input**: Path to feature request file in INITIAL.md format (must contain FEATURE, EXAMPLES, DOCUMENTATION, OTHER CONSIDERATIONS sections)
+**Input**: Path to feature request file in SPEC.md format (must contain FEATURE, EXAMPLES, DOCUMENTATION, OTHER CONSIDERATIONS sections)
 
 **Mandatory Research Phase (CRITICAL)**:
 Before writing the PRP, you MUST use MCP servers to gather accurate context:
@@ -221,6 +221,6 @@ Rate confidence that AI can implement this with current context:
 
 **Result**: PRP is now linked to persistent task hierarchy before execution begins.
 
-**Output**: Save PRP to `PRPs/active/{feature-name}.md`
+**Output**: Save PRP to `PRPs/active/{feature-name}-PRP.md`
 
 **Goal**: Enable one-pass implementation success through comprehensive context

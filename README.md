@@ -62,11 +62,11 @@ cp -r ContextEngineering/PRPs /path/to/your-project/
 # Load all context into Claude's memory
 /prime-core
 
-# Generate a PRP from a feature request
-/generate-prp .claude/INITIAL.md
+# Generate a PRP from a feature request (SPEC.md)
+/generate-prp PRPs/feature-requests/your-feature-SPEC.md
 
 # Execute the PRP
-/execute-prp PRPs/active/your-feature.md
+/execute-prp PRPs/active/your-feature-PRP.md
 ```
 
 See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for complete setup instructions.
@@ -80,7 +80,7 @@ See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for complete setup instructions.
 ├── CLAUDE.md             # Global conventions (CUSTOMIZE)
 ├── PLANNING.md           # Architecture & goals (CUSTOMIZE)
 ├── TASK.md               # Task tracking
-├── INITIAL.md            # Feature request template
+├── SPEC.md               # Feature request template
 ├── commands/             # 25 slash commands
 └── tasks/                # Feature-level task files
 
@@ -116,7 +116,7 @@ docs/                      # Documentation
 | Command | Description |
 |---------|-------------|
 | `/write-user-story` | AI-assisted user story drafting |
-| `/convert-story` | Convert user story to INITIAL.md |
+| `/convert-story` | Convert user story to SPEC.md |
 | `/refine-story` | Improve story against INVEST criteria |
 | `/enrich-story-tech` | Dev Lead adds technical context |
 | `/enrich-story-qa` | QA Lead adds test scenarios |
@@ -190,11 +190,11 @@ This framework is optimized for **Claude Code** (Anthropic's CLI). Commands in `
 
 ```bash
 # Typical workflow
-/prime-core                              # Load context
-# Fill out .claude/INITIAL.md
-/generate-prp .claude/INITIAL.md         # Generate plan
-/execute-prp PRPs/active/your-feature.md # Implement
-/create-pr                               # Create PR
+/prime-core                                          # Load context
+# Create feature-SPEC.md in PRPs/feature-requests/
+/generate-prp PRPs/feature-requests/feature-SPEC.md  # Generate plan
+/execute-prp PRPs/active/feature-PRP.md              # Implement
+/create-pr                                           # Create PR
 ```
 
 ---

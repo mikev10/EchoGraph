@@ -59,7 +59,7 @@
 PRPs/
 ├── active/           # PRPs being implemented
 ├── completed/        # Archived PRPs
-├── feature-requests/ # INITIAL.md specifications
+├── feature-requests/ # SPEC.md specifications
 ├── templates/        # PRP and user story templates
 ├── ai_docs/          # Library documentation for AI context
 └── user-stories/     # User story drafts

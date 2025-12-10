@@ -28,7 +28,7 @@ Developer-written stories for technical work (refactoring, bugs, tech debt).
 1. Developer identifies technical need (refactoring, bug fix, tech debt)
 2. Developer runs `/write-user-story` to structure it properly
 3. Story saved here for documentation
-4. Developer runs `/convert-story` to generate INITIAL.md
+4. Developer runs `/convert-story` to generate SPEC.md
 5. Proceeds with standard PRP workflow (`/generate-prp`, `/execute-prp`)
 
 **When to use:**
@@ -67,7 +67,7 @@ Requirements → /write-user-story → Review → Create ADO → /convert-story 
 4. AI generates structured story in `/drafts/`
 5. PO reviews and refines
 6. PO creates ADO work item (manual)
-7. Developer runs `/convert-story [ADO-ID]` to generate INITIAL.md
+7. Developer runs `/convert-story [ADO-ID]` to generate SPEC.md
 
 ### Workflow 2: Story Refinement
 ```
@@ -96,7 +96,7 @@ Technical Need → /write-user-story → /convert-story → PRP
 ## Important Notes
 
 - ✅ Stories in this directory are **NOT** automatically synced to Azure DevOps
-- ✅ Use `/convert-story` to convert ADO stories to INITIAL.md (technical specifications)
+- ✅ Use `/convert-story` to convert ADO stories to SPEC.md (technical specifications)
 - ✅ Use `/write-user-story` to draft stories before ADO (optional but recommended)
 - ✅ Use `/refine-story` to improve poorly-written stories
 - ❌ Do NOT skip ADO work item creation (this is drafting, not replacement)
@@ -147,7 +147,7 @@ So that [benefit]
 |---------|---------|-------|--------|
 | `/write-user-story` | Draft new story from requirements | Requirements text | Story in `/drafts/` or `/technical/` |
 | `/refine-story` | Improve existing story | ADO-ID or story text | Comparison + improved version |
-| `/convert-story` | Convert ADO story to INITIAL.md | ADO-ID | INITIAL.md in `PRPs/feature-requests/` |
+| `/convert-story` | Convert ADO story to SPEC.md | ADO-ID | SPEC.md in `PRPs/feature-requests/` |
 
 ## Quality Standards
 

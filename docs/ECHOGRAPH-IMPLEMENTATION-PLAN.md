@@ -157,9 +157,9 @@ echograph/
 │   └── phase1/
 │       ├── BACKLOG.md                # Master tracking file
 │       ├── 001-monorepo-setup/
-│       │   └── INITIAL.md
+│       │   └── SPEC.md
 │       ├── 002-cli-scaffold/
-│       │   └── INITIAL.md
+│       │   └── SPEC.md
 │       └── ... (all 24 features)
 │
 ├── .gitignore
@@ -180,13 +180,13 @@ echograph/
 
 Track all features, their status, and dependencies.
 
-### Feature List with INITIAL.md Content
+### Feature List with SPEC.md Content
 
 ---
 
 #### Feature 000: Context Engineering CLI
 
-**Path:** `PRPs/phase0/000-context-engineering-cli/INITIAL.md`
+**Path:** `PRPs/phase0/000-context-engineering-cli/SPEC.md`
 
 ```markdown
 # Feature Request: Context Engineering CLI
@@ -225,7 +225,7 @@ As a developer, I want to run `echograph init` to set up Context Engineering in 
 - Single Python package (no monorepo needed yet)
 
 ## Templates to Bundle (from ContextEngineering)
-- CLAUDE.md, PLANNING.md, TASK.md, INITIAL.md
+- CLAUDE.md, PLANNING.md, TASK.md, SPEC.md
 - commands/workflow/ (generate-prp, execute-prp, archive-prp, create-feature-request)
 - commands/review/ (review-staged, review-general, create-pr)
 - commands/dev/ (debug, planning-create, onboarding, refactor-simple)
@@ -233,7 +233,7 @@ As a developer, I want to run `echograph init` to set up Context Engineering in 
 - commands/validation/ (validate-context, validate-tasks)
 - commands/maintenance/ (update-rag, research, prime-core)
 - tasks/README.md
-- templates/prp-template.md, story-to-initial.md
+- templates/prp-template.md, story-to-spec.md
 
 ## Dependencies
 None - this is the first feature. Ships standalone before monorepo setup.
@@ -246,7 +246,7 @@ None - this is the first feature. Ships standalone before monorepo setup.
 
 #### Feature 001: Monorepo Setup
 
-**Path:** `PRPs/phase1/001-monorepo-setup/INITIAL.md`
+**Path:** `PRPs/phase1/001-monorepo-setup/SPEC.md`
 
 ```markdown
 # Feature Request: Monorepo Setup
@@ -316,7 +316,7 @@ None - this is the first feature.
 
 #### Feature 002: CLI Scaffold
 
-**Path:** `PRPs/phase1/002-cli-scaffold/INITIAL.md`
+**Path:** `PRPs/phase1/002-cli-scaffold/SPEC.md`
 
 ```markdown
 # Feature Request: CLI Scaffold
@@ -359,7 +359,7 @@ As a user, I want to run `echograph` commands so that I can interact with the Ec
 
 #### Feature 003: Configuration System
 
-**Path:** `PRPs/phase1/003-configuration-system/INITIAL.md`
+**Path:** `PRPs/phase1/003-configuration-system/SPEC.md`
 
 ```markdown
 # Feature Request: Configuration System
@@ -405,7 +405,7 @@ As a user, I want to configure EchoGraph via a YAML file so that I can customize
 
 #### Feature 004: Embedded Storage Setup
 
-**Path:** `PRPs/phase1/004-embedded-storage/INITIAL.md`
+**Path:** `PRPs/phase1/004-embedded-storage/SPEC.md`
 
 ```markdown
 # Feature Request: Embedded Storage Setup
@@ -483,7 +483,7 @@ results = table.search(query_embedding).limit(10).to_pandas()
 
 #### Feature 005: Local File Ingestion
 
-**Path:** `PRPs/phase1/005-local-file-ingestion/INITIAL.md`
+**Path:** `PRPs/phase1/005-local-file-ingestion/SPEC.md`
 
 ```markdown
 # Feature Request: Local File Ingestion
@@ -527,7 +527,7 @@ As a user, I want to index my local codebase so that I can search across my file
 
 #### Feature 006: Code Parsing with Tree-sitter
 
-**Path:** `PRPs/phase1/006-code-parsing/INITIAL.md`
+**Path:** `PRPs/phase1/006-code-parsing/SPEC.md`
 
 ```markdown
 # Feature Request: Code Parsing with Tree-sitter
@@ -572,7 +572,7 @@ As a user, I want code to be parsed intelligently so that searches understand co
 
 #### Feature 007: Semantic Chunking
 
-**Path:** `PRPs/phase1/007-semantic-chunking/INITIAL.md`
+**Path:** `PRPs/phase1/007-semantic-chunking/SPEC.md`
 
 ```markdown
 # Feature Request: Semantic Chunking
@@ -615,7 +615,7 @@ As a user, I want code to be chunked at natural boundaries so that search result
 
 #### Feature 008: Embedding Generation
 
-**Path:** `PRPs/phase1/008-embedding-generation/INITIAL.md`
+**Path:** `PRPs/phase1/008-embedding-generation/SPEC.md`
 
 ```markdown
 # Feature Request: Embedding Generation
@@ -657,7 +657,7 @@ As a user, I want my code indexed with semantic embeddings so that I can search 
 
 #### Feature 009: GitHub Ingestion
 
-**Path:** `PRPs/phase1/009-github-ingestion/INITIAL.md`
+**Path:** `PRPs/phase1/009-github-ingestion/SPEC.md`
 
 ```markdown
 # Feature Request: GitHub Ingestion
@@ -703,7 +703,7 @@ As a user, I want to index my GitHub repos so that I can search across code and 
 
 #### Feature 010: Azure DevOps Ingestion
 
-**Path:** `PRPs/phase1/010-azure-devops-ingestion/INITIAL.md`
+**Path:** `PRPs/phase1/010-azure-devops-ingestion/SPEC.md`
 
 ```markdown
 # Feature Request: Azure DevOps Ingestion
@@ -746,7 +746,7 @@ As a user, I want to index my Azure DevOps project so that I can search across a
 
 #### Feature 011: Background Sync Scheduler
 
-**Path:** `PRPs/phase1/011-background-sync/INITIAL.md`
+**Path:** `PRPs/phase1/011-background-sync/SPEC.md`
 
 ```markdown
 # Feature Request: Background Sync Scheduler
@@ -789,7 +789,7 @@ As a user, I want EchoGraph to automatically sync periodically so my index stays
 
 #### Feature 012: Vector Similarity Search
 
-**Path:** `PRPs/phase1/012-vector-search/INITIAL.md`
+**Path:** `PRPs/phase1/012-vector-search/SPEC.md`
 
 ```markdown
 # Feature Request: Vector Similarity Search
@@ -852,7 +852,7 @@ results = (
 
 #### Feature 013: BM25 Keyword Search
 
-**Path:** `PRPs/phase1/013-keyword-search/INITIAL.md`
+**Path:** `PRPs/phase1/013-keyword-search/SPEC.md`
 
 ```markdown
 # Feature Request: BM25 Keyword Search
@@ -894,7 +894,7 @@ As a user, I want exact keyword matches to surface in search results.
 
 #### Feature 014: Hybrid Retrieval
 
-**Path:** `PRPs/phase1/014-hybrid-retrieval/INITIAL.md`
+**Path:** `PRPs/phase1/014-hybrid-retrieval/SPEC.md`
 
 ```markdown
 # Feature Request: Hybrid Retrieval (RRF)
@@ -936,7 +936,7 @@ As a user, I want search to combine semantic and keyword matching for best resul
 
 #### Feature 015: Search CLI Commands
 
-**Path:** `PRPs/phase1/015-search-cli/INITIAL.md`
+**Path:** `PRPs/phase1/015-search-cli/SPEC.md`
 
 ```markdown
 # Feature Request: Search CLI Commands
@@ -979,7 +979,7 @@ As a user, I want to search from the command line and see well-formatted results
 
 #### Feature 016: Decision Record Model
 
-**Path:** `PRPs/phase1/016-decision-model/INITIAL.md`
+**Path:** `PRPs/phase1/016-decision-model/SPEC.md`
 
 ```markdown
 # Feature Request: Decision Record Model
@@ -1022,7 +1022,7 @@ As a user, I want to track architectural decisions with full context.
 
 #### Feature 017: Decision CLI Commands
 
-**Path:** `PRPs/phase1/017-decision-cli/INITIAL.md`
+**Path:** `PRPs/phase1/017-decision-cli/SPEC.md`
 
 ```markdown
 # Feature Request: Decision CLI Commands
@@ -1065,7 +1065,7 @@ As a user, I want to create and manage decisions from the command line.
 
 #### Feature 018: Decision Linking
 
-**Path:** `PRPs/phase1/018-decision-linking/INITIAL.md`
+**Path:** `PRPs/phase1/018-decision-linking/SPEC.md`
 
 ```markdown
 # Feature Request: Decision Linking
@@ -1107,7 +1107,7 @@ As a user, I want to link decisions to the code they affect.
 
 #### Feature 019: FastAPI Service
 
-**Path:** `PRPs/phase1/019-fastapi-service/INITIAL.md`
+**Path:** `PRPs/phase1/019-fastapi-service/SPEC.md`
 
 ```markdown
 # Feature Request: FastAPI Service
@@ -1156,7 +1156,7 @@ As a team, we want a server mode so multiple developers can share one index.
 
 #### Feature 020: Docker Compose Setup
 
-**Path:** `PRPs/phase1/020-docker-compose/INITIAL.md`
+**Path:** `PRPs/phase1/020-docker-compose/SPEC.md`
 
 ```markdown
 # Feature Request: Docker Compose Setup
@@ -1247,7 +1247,7 @@ volumes:
 
 #### Feature 021: CLI Server Mode
 
-**Path:** `PRPs/phase1/021-cli-server-mode/INITIAL.md`
+**Path:** `PRPs/phase1/021-cli-server-mode/SPEC.md`
 
 ```markdown
 # Feature Request: CLI Server Mode
@@ -1290,7 +1290,7 @@ As a user, I want the CLI to work with a remote server.
 
 #### Feature 022: Claude Code Slash Commands
 
-**Path:** `PRPs/phase1/022-slash-commands/INITIAL.md`
+**Path:** `PRPs/phase1/022-slash-commands/SPEC.md`
 
 ```markdown
 # Feature Request: Claude Code Slash Commands
@@ -1332,7 +1332,7 @@ As a Claude Code user, I want to search EchoGraph using slash commands.
 
 #### Feature 023: CLAUDE.md Template
 
-**Path:** `PRPs/phase1/023-claude-template/INITIAL.md`
+**Path:** `PRPs/phase1/023-claude-template/SPEC.md`
 
 ```markdown
 # Feature Request: CLAUDE.md Template
@@ -1377,7 +1377,7 @@ As a user, I want EchoGraph to set up Claude Code integration automatically.
 
 #### Feature 024: VS Code Extension (Basic)
 
-**Path:** `PRPs/phase1/024-vscode-extension/INITIAL.md`
+**Path:** `PRPs/phase1/024-vscode-extension/SPEC.md`
 
 ```markdown
 # Feature Request: VS Code Extension (Basic)
@@ -1529,7 +1529,7 @@ WAVE 1+: Full EchoGraph Infrastructure
 ### Wave 1+: Full EchoGraph Infrastructure (Week 4+)
 
 7. **Create full directory structure** as outlined in Part 1
-8. **Create each INITIAL.md file** from the content in this document
+8. **Create each SPEC.md file** from the content in this document
 9. **Create BACKLOG.md** to track progress
 10. **Copy UNIFIED-VISION.md** from ContextEngineering
 11. **Begin Feature 001** - Monorepo Setup (for search infrastructure)

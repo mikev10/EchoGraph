@@ -1,18 +1,18 @@
 ---
-description: Convert Azure DevOps user story to Context Engineering feature request (INITIAL.md)
+description: Convert Azure DevOps user story to Context Engineering feature request (SPEC.md)
 ---
 
 # Convert User Story to Feature Request
 
-You are helping a developer convert a user story from Azure DevOps into a Context Engineering feature request (INITIAL.md) for PRP generation.
+You are helping a developer convert a user story from Azure DevOps into a Context Engineering feature request (SPEC.md) for PRP generation.
 
 ## Context
 
 **Key Principle:** 1 User Story (1-3 days) = 1 Feature Request = 1 PRP
 
-The Product Owner has written a user story in Azure DevOps. The developer now needs to convert this into the INITIAL.md format, enriched with technical context from codebase research.
+The Product Owner has written a user story in Azure DevOps. The developer now needs to convert this into the SPEC.md format, enriched with technical context from codebase research.
 
-**Reference:** See `.claude/templates/story-to-initial.md` for conversion guidelines and examples.
+**Reference:** See `.claude/templates/story-to-spec.md` for conversion guidelines and examples.
 
 ---
 
@@ -115,9 +115,9 @@ Based on the user story and research, ask the developer:
    - "This depends on [other work]. Is that already complete?"
    - "Do we need to wait for [backend API/design/etc.]?"
 
-### Step 5: Generate INITIAL.md
+### Step 5: Generate SPEC.md
 
-Create the INITIAL.md file with the following structure:
+Create the SPEC.md file with the following structure:
 
 ```markdown
 <!-- SOURCE: ADO [WORK-ITEM-ID] -->
@@ -217,19 +217,19 @@ Create the INITIAL.md file with the following structure:
 ### Step 6: Save and Confirm
 
 **File Naming:**
-- Format: `[ado-id]-[short-description]-INITIAL.md`
-- Example: `US-4523-user-login-INITIAL.md`
+- Format: `[ado-id]-[short-description]-SPEC.md`
+- Example: `US-4523-user-login-SPEC.md`
 - Location: `PRPs/feature-requests/`
 
 **After saving:**
-1. Show the developer the generated INITIAL.md path
+1. Show the developer the generated SPEC.md path
 2. Ask if they want to review/edit before proceeding to `/generate-prp`
 3. Suggest next steps:
    ```
    ✅ Feature request created: PRPs/feature-requests/[filename]
 
    Next steps:
-   1. Review the INITIAL.md file for accuracy
+   1. Review the SPEC.md file for accuracy
    2. Make any necessary adjustments
    3. Run: /generate-prp PRPs/feature-requests/[filename]
 
@@ -266,7 +266,7 @@ Sprint: Sprint 12
    - "I found POST /api/v1/auth/login endpoint. Is this correct?"
    - "Should we use the existing FormInput component or create a new one?"
    - "For token storage, I see expo-secure-store is already used. Continue with that?"
-4. Generate `PRPs/feature-requests/US-4523-user-login-INITIAL.md`
+4. Generate `PRPs/feature-requests/US-4523-user-login-SPEC.md`
 5. Prompt developer to review
 
 ### Example 2: Story with Missing Details
@@ -318,7 +318,7 @@ Acceptance Criteria: User can reset password
 ### If ADO Work Item ID is Missing
 - Warn developer but proceed
 - Use a generated ID: `STORY-[timestamp]`
-- Note in INITIAL.md: `<!-- SOURCE: Manual entry - no ADO ID provided -->`
+- Note in SPEC.md: `<!-- SOURCE: Manual entry - no ADO ID provided -->`
 
 ### If Research Finds No Relevant Code
 - Note this in EXAMPLES section: "No similar implementations found in codebase - this is a new pattern"
@@ -333,13 +333,13 @@ Acceptance Criteria: User can reset password
 ### If User Story is Too Large
 - Warn developer: "This story seems large (estimated > 3 days). Consider breaking it down into smaller stories."
 - Ask if they want to proceed or split it first
-- If proceeding, note the size concern in INITIAL.md
+- If proceeding, note the size concern in SPEC.md
 
 ---
 
 ## Quality Checklist
 
-Before finalizing INITIAL.md, verify:
+Before finalizing SPEC.md, verify:
 
 - [ ] User story is captured verbatim
 - [ ] All acceptance criteria are listed as checkboxes
@@ -363,12 +363,12 @@ Before finalizing INITIAL.md, verify:
 - Mentioning if this relates to other recent work
 
 **After conversion:**
-- Always review the generated INITIAL.md
+- Always review the generated SPEC.md
 - Verify API endpoints match current specification
 - Check that libraries/versions are correct
 - Add any project-specific gotchas you know about
 
 **When to skip this command:**
-- Very technical work (refactoring, bug fixes) - write INITIAL.md directly
+- Very technical work (refactoring, bug fixes) - write SPEC.md directly
 - User story is too vague - get clarification first
-- You're very familiar with the requirement - writing INITIAL.md manually might be faster
+- You're very familiar with the requirement - writing SPEC.md manually might be faster

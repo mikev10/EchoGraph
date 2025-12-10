@@ -231,7 +231,7 @@ interface [[EntityName]] {
 
 ## References
 
-- **Feature Request**: `.claude/INITIAL.md` or [[LINK_TO_REQUEST]]
+- **Feature Request**: `.claude/SPEC.md` or [[LINK_TO_REQUEST]]
 - **Related PRPs**: [[LINK_TO_RELATED_PRPS]]
 - **External Docs**: [[LINKS_TO_LIBRARY_DOCS]]
 - **Examples**: `examples/[[CATEGORY]]/[[FILES]]`

@@ -9,7 +9,7 @@ PRPs/
 ├── active/              # PRPs currently being implemented
 ├── completed/           # Archived PRPs (finished implementations)
 ├── examples/            # Example PRPs for reference
-├── feature-requests/    # INITIAL.md files (feature specifications)
+├── feature-requests/    # SPEC.md files (feature specifications)
 ├── templates/           # Templates for PRPs and user stories
 ├── ai_docs/             # Library-specific documentation for AI context
 ├── user-stories/        # User story drafts and technical stories
@@ -29,7 +29,7 @@ User Story → Feature Request → PRP → Implementation → Archive
 
 1. /write-user-story     → user-stories/{drafts,technical}/
 2. Three Amigos Process  → Enrichment & Validation
-3. /convert-story        → feature-requests/INITIAL.md
+3. /convert-story        → feature-requests/SPEC.md
 4. /generate-prp         → active/*.md
 5. /execute-prp          → Implementation
 6. /archive-prp          → completed/*.md
@@ -44,7 +44,7 @@ Business or technical requirements written in user story format. These are draft
 - **technical/**: Developer-initiated stories (refactoring, tech debt, bugs)
 
 ### Feature Requests (`feature-requests/`)
-Technical specifications derived from user stories. Contains `INITIAL.md` files with:
+Technical specifications derived from user stories. Contains `SPEC.md` files with:
 - Acceptance criteria
 - API endpoints
 - Code patterns to follow
@@ -68,7 +68,7 @@ Library-specific documentation ingested for AI context. Used by Claude to unders
 | `/story:enrich-story-tech` | Add technical context (Dev Lead) |
 | `/story:enrich-story-qa` | Add QA context (QA Lead) |
 | `/story:validate-story-ready` | Check Definition of Ready |
-| `/story:convert-story` | Convert story to INITIAL.md |
+| `/story:convert-story` | Convert story to SPEC.md |
 | `/workflow:generate-prp` | Generate PRP from feature request |
 | `/workflow:execute-prp` | Implement PRP step-by-step |
 | `/workflow:archive-prp` | Archive completed PRP |

@@ -1,8 +1,8 @@
-# Converting User Stories to Feature Requests (INITIAL.md)
+# Converting User Stories to Feature Requests (SPEC.md)
 
 ## Overview
 
-This template shows how to convert a user story from Azure DevOps into a Context Engineering feature request (INITIAL.md format) for PRP generation.
+This template shows how to convert a user story from Azure DevOps into a Context Engineering feature request (SPEC.md format) for PRP generation.
 
 **Key Principle:** 1 User Story (1-3 days) = 1 Feature Request = 1 PRP
 
@@ -32,7 +32,7 @@ ADO ID: US-4523
 
 ---
 
-## Converted INITIAL.md
+## Converted SPEC.md
 
 ```markdown
 <!-- SOURCE: ADO US-4523 -->
@@ -280,7 +280,7 @@ Need email service
 
 ## Quick Checklist
 
-Before running `/generate-prp`, verify INITIAL.md has:
+Before running `/generate-prp`, verify SPEC.md has:
 
 - [ ] User story included verbatim
 - [ ] All acceptance criteria listed as checkboxes
@@ -297,12 +297,12 @@ Before running `/generate-prp`, verify INITIAL.md has:
 
 ## When to Skip Conversion
 
-**Skip the conversion and write INITIAL.md directly if:**
+**Skip the conversion and write SPEC.md directly if:**
 - User story is very technical (refactoring, bug fix, technical debt)
 - No Product Owner involved (developer-initiated work)
 - Story is too vague and needs significant research first
 
 **In these cases:**
-- Write INITIAL.md from scratch
-- Use the standard INITIAL.md template
+- Write SPEC.md from scratch
+- Use the standard SPEC.md template
 - Proceed directly to `/generate-prp`

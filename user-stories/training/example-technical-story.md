@@ -196,7 +196,7 @@ Other good technical user types:
 
 ### 4. Integration with Context Engineering
 - Can use `/write-user-story` for technical work
-- Can convert to INITIAL.md with `/convert-story`
+- Can convert to SPEC.md with `/convert-story`
 - Can generate PRP and execute systematically
 - Same workflow as business features
 

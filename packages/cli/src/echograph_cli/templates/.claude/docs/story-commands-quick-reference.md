@@ -12,7 +12,7 @@
 |---------|-----|------|-------|--------|
 | `/write-user-story` | PO, Dev | Draft new story | Requirements | Markdown file |
 | `/refine-story` | Dev | Improve poor story | ADO-ID or text | Before/after comparison |
-| `/convert-story` | Dev | Create tech spec | ADO-ID | INITIAL.md |
+| `/convert-story` | Dev | Create tech spec | ADO-ID | SPEC.md |
 
 ### Three Amigos Commands (Recommended)
 
@@ -109,7 +109,7 @@ Next steps:
 
 ## `/convert-story` - Create Technical Spec
 
-**Purpose:** Convert user story to technical feature request (INITIAL.md)
+**Purpose:** Convert user story to technical feature request (SPEC.md)
 
 **Usage:**
 ```
@@ -121,14 +121,14 @@ Next steps:
 1. AI researches codebase for patterns
 2. Finds relevant APIs, libraries, files
 3. Asks technical questions
-4. Generates INITIAL.md with examples and documentation
+4. Generates SPEC.md with examples and documentation
 
 **When to use:**
 - ✅ After story is written/refined
 - ✅ Ready to start implementation
 - ✅ Story quality is good
 
-**Output:** `PRPs/feature-requests/US-4523-feature-name-INITIAL.md`
+**Output:** `PRPs/feature-requests/US-4523-feature-name-SPEC.md`
 
 **Next steps:** `/generate-prp` → `/execute-prp`
 
@@ -309,7 +309,7 @@ Tech need → /write-user-story (technical) → /convert-story → PRP
 | **Technical** | `user-stories/technical/` | Dev technical stories |
 | **Training** | `user-stories/training/` | Examples and learning |
 | **Templates** | `.claude/templates/` | Blank templates |
-| **INITIAL.md** | `PRPs/feature-requests/` | Technical specs |
+| **SPEC.md** | `PRPs/feature-requests/` | Technical specs |
 
 ---
 

@@ -1,6 +1,6 @@
 # User Story Conversion Example
 
-This document demonstrates the complete flow from Product Owner user story (in Azure DevOps) to Context Engineering feature request (INITIAL.md).
+This document demonstrates the complete flow from Product Owner user story (in Azure DevOps) to Context Engineering feature request (SPEC.md).
 
 **Key Principle:** 1 User Story (1-3 days) = 1 Feature Request = 1 PRP
 
@@ -130,9 +130,9 @@ Developer:
 
 ---
 
-## Step 5: AI Generates INITIAL.md
+## Step 5: AI Generates SPEC.md
 
-**File Created:** `PRPs/feature-requests/US-4523-user-login-INITIAL.md`
+**File Created:** `PRPs/feature-requests/US-4523-user-login-SPEC.md`
 
 ```markdown
 <!-- SOURCE: ADO US-4523 -->
@@ -293,7 +293,7 @@ As a mobile app user, I want to login with my email and password, so that I can 
 
 ---
 
-## Step 6: Developer Reviews Generated INITIAL.md
+## Step 6: Developer Reviews Generated SPEC.md
 
 **Developer checks:**
 - ✅ All acceptance criteria captured
@@ -314,7 +314,7 @@ As a mobile app user, I want to login with my email and password, so that I can 
 
 **Command:**
 ```bash
-/generate-prp PRPs/feature-requests/US-4523-user-login-INITIAL.md
+/generate-prp PRPs/feature-requests/US-4523-user-login-SPEC.md
 ```
 
 **Result:**
@@ -385,13 +385,13 @@ Product Owner (ADO)                     Developer                    Context Eng
                                                                        - Verify components to use
                                                                        - Check navigation flow
 
-                                                                    5. Generate INITIAL.md
+                                                                    5. Generate SPEC.md
                                                                        - FEATURE section
                                                                        - EXAMPLES section
                                                                        - DOCUMENTATION section
                                                                        - OTHER CONSIDERATIONS
 
-                                    6. Review INITIAL.md
+                                    6. Review SPEC.md
                                        Make adjustments if needed
 
                                     7. Run: /generate-prp
@@ -435,7 +435,7 @@ Product Owner (ADO)                     Developer                    Context Eng
 
 ✅ **Use `/convert-story` for consistency** - AI does the codebase research and technical enrichment
 
-✅ **Always review generated INITIAL.md** - verify API endpoints, libraries, and security considerations
+✅ **Always review generated SPEC.md** - verify API endpoints, libraries, and security considerations
 
 ✅ **Ask clarifying questions early** - during conversion, not during implementation
 
@@ -459,6 +459,6 @@ Product Owner (ADO)                     Developer                    Context Eng
 - Implementation is faster with AI step-by-step guidance
 
 **Traceability:**
-- Clear link from ADO story → INITIAL.md → PRP → implementation
+- Clear link from ADO story → SPEC.md → PRP → implementation
 - Source metadata preserved
 - Easy to trace decisions back to business requirements

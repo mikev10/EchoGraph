@@ -261,7 +261,7 @@ Stories must specify:
 | `/enrich-story-qa` | QA Lead | Add test scenarios |
 | `/three-amigos-prep` | Facilitator | Generate meeting agenda |
 | `/validate-story-ready` | All | Check DoR criteria |
-| `/convert-story` | Developer | Convert to INITIAL.md for implementation |
+| `/convert-story` | Developer | Convert to SPEC.md for implementation |
 
 ## Common Pitfalls
 
@@ -319,7 +319,7 @@ THREE AMIGOS                    DEVELOPMENT
 [Sprint Planning] ─────────────▶ Story Committed
         │                       
         ▼                       
-/convert-story ────────────────▶ INITIAL.md Created
+/convert-story ────────────────▶ SPEC.md Created
         │                       
         ▼                       
 /generate-prp ─────────────────▶ PRP Created

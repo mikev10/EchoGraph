@@ -47,7 +47,7 @@ your-project/
 │   ├── CLAUDE.md          # Global conventions (customize this)
 │   ├── PLANNING.md        # Architecture (customize this)
 │   ├── TASK.md            # Task tracking
-│   ├── INITIAL.md         # Feature request template
+│   ├── SPEC.md            # Feature request template
 │   └── commands/          # Slash commands (25 files)
 ├── PRPs/
 │   ├── templates/         # PRP templates
@@ -258,7 +258,7 @@ Verify Claude loads without errors.
 
 ### Step 2: Create Test Feature Request
 
-Create `PRPs/feature-requests/test-feature-INITIAL.md`:
+Create `PRPs/feature-requests/test-feature-SPEC.md`:
 
 ```markdown
 ## FEATURE
@@ -278,7 +278,7 @@ Standard login form with validation errors shown inline.
 ### Step 3: Generate PRP
 
 ```bash
-/generate-prp PRPs/feature-requests/test-feature-INITIAL.md
+/generate-prp PRPs/feature-requests/test-feature-SPEC.md
 ```
 
 **Check:**
