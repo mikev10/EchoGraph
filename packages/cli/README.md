@@ -19,6 +19,9 @@ uv tool install echograph
 
 # With AI-assisted merge support (optional)
 uv tool install echograph[ai]
+
+# Upgrade to latest version
+uv tool upgrade echograph
 ```
 
 ### Alternative: Using pip
