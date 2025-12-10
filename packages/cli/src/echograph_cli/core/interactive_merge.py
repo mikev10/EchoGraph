@@ -125,10 +125,10 @@ class InteractiveMerger:
         )
 
         self.console.print("\n[bold]Choose resolution:[/bold]")
-        self.console.print("  [y] Keep yours")
-        self.console.print("  [t] Take theirs (new template)")
-        self.console.print("  [b] Keep both (yours then theirs)")
-        self.console.print("  [e] Edit manually (add markers)")
+        self.console.print("  \\[y] Keep yours")
+        self.console.print("  \\[t] Take theirs (new template)")
+        self.console.print("  \\[b] Keep both (yours then theirs)")
+        self.console.print("  \\[e] Edit manually (add markers)")
 
         choice = Prompt.ask("Choice", choices=["y", "t", "b", "e"], default="y")
 

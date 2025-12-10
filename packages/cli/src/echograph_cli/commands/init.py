@@ -569,8 +569,11 @@ def init_command(
                 )
 
                 if result.user_approved:
-                    target_path.write_text(result.merged_content, encoding="utf-8")
-                    print_success(f"Smart merged: {template_path}")
+                    if not result.was_skipped_whitespace:
+                        # Only write if there were actual changes
+                        target_path.write_text(result.merged_content, encoding="utf-8")
+                        print_success(f"Smart merged: {template_path}")
+                    # else: whitespace skip already printed message, no action needed
                 else:
                     print_warning(f"Skipped: {template_path}")
 

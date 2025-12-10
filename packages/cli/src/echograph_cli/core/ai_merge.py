@@ -20,6 +20,7 @@ class AIMergeResult:
     explanation: str
     had_conflicts: bool
     user_approved: bool
+    was_skipped_whitespace: bool = False  # True if skipped due to whitespace-only diff
 
 
 def _normalize_whitespace(content: str) -> str:
@@ -243,6 +244,7 @@ def smart_merge_file(
             explanation="Skipped - only whitespace differences",
             had_conflicts=False,
             user_approved=True,
+            was_skipped_whitespace=True,
         )
 
     is_markdown = filename.endswith(".md")
@@ -276,7 +278,7 @@ def smart_merge_file(
     explanation = ""
 
     with Status(
-        f"[cyan]Merging {filename}...[/cyan]",
+        f"[cyan]Analyzing {filename}... (you'll review before any changes)[/cyan]",
         console=console,
         spinner="dots",
     ) as status:
@@ -286,6 +288,10 @@ def smart_merge_file(
                 template_content,
                 filename,
             )
+        except KeyboardInterrupt:
+            status.stop()
+            console.print("\n[yellow]Aborted by user[/yellow]")
+            raise
         except ImportError as e:
             status.stop()
             console.print(f"[red]{e}[/red]")
@@ -324,6 +330,7 @@ def smart_merge_file(
             explanation="Skipped - only whitespace differences after AI analysis",
             had_conflicts=False,
             user_approved=True,
+            was_skipped_whitespace=True,
         )
 
     # Show diff preview
@@ -342,13 +349,17 @@ def smart_merge_file(
 
     # Ask for approval
     console.print("\n[bold]Accept this merge?[/bold]")
-    console.print("  [y] Yes, apply merge")
-    console.print("  [n] No, keep original")
-    console.print("  [e] Edit (save with conflict markers)")
+    console.print("  \\[y] Yes, apply merge")
+    console.print("  \\[n] No, keep original")
+    console.print("  \\[e] Edit (save with conflict markers)")
 
     import typer
 
-    choice = typer.prompt("Choose", default="y").lower()
+    try:
+        choice = typer.prompt("Choose", default="y").lower()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Aborted by user[/yellow]")
+        raise
 
     if choice == "y":
         return AIMergeResult(
