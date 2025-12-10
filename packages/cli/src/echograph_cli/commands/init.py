@@ -579,6 +579,9 @@ def init_command(
 
                 # Mark as handled
                 conflict_resolutions[template_path] = ConflictResolution.SKIP
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Aborted by user[/yellow]")
+                raise typer.Exit(1)
             except Exception as e:
                 print_error(f"Smart merge failed for {template_path}: {e}")
                 conflict_resolutions[template_path] = ConflictResolution.SKIP

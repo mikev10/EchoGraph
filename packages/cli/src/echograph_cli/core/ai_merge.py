@@ -27,7 +27,8 @@ def _normalize_whitespace(content: str) -> str:
     """Normalize whitespace for comparison.
 
     Strips trailing whitespace from lines, normalizes line endings,
-    and collapses multiple blank lines into one.
+    collapses multiple blank lines into one, and removes blank lines
+    at the start/end of sections.
     """
     lines = content.replace("\r\n", "\n").split("\n")
     # Strip trailing whitespace from each line
@@ -36,6 +37,11 @@ def _normalize_whitespace(content: str) -> str:
     text = "\n".join(lines)
     while "\n\n\n" in text:
         text = text.replace("\n\n\n", "\n\n")
+    # Remove blank lines after headers (## Header\n\n -> ## Header\n)
+    import re
+    text = re.sub(r"(^#+\s+.+)\n\n+", r"\1\n", text, flags=re.MULTILINE)
+    # Remove blank lines before headers
+    text = re.sub(r"\n\n+(#+\s+)", r"\n\n\1", text)
     return text.strip()
 
 
@@ -47,29 +53,113 @@ def is_whitespace_only_diff(content1: str, content2: str) -> bool:
     - Number of blank lines between sections
     - Line ending differences (CRLF vs LF)
     """
-    return _normalize_whitespace(content1) == _normalize_whitespace(content2)
+    # First try exact normalized comparison
+    if _normalize_whitespace(content1) == _normalize_whitespace(content2):
+        return True
+
+    # If that fails, check if diff only contains blank line changes
+    import difflib
+
+    lines1 = content1.replace("\r\n", "\n").split("\n")
+    lines2 = content2.replace("\r\n", "\n").split("\n")
+
+    diff = list(difflib.unified_diff(lines1, lines2, lineterm=""))
+
+    # Check each changed line - if all changes are blank/whitespace-only, skip
+    for line in diff:
+        if line.startswith("---") or line.startswith("+++") or line.startswith("@@"):
+            continue
+        if line.startswith("-") or line.startswith("+"):
+            # Get the actual content (skip the +/- prefix)
+            content = line[1:]
+            # If this changed line has non-whitespace content, it's a real change
+            if content.strip():
+                return False
+
+    return True
+
+
+def is_placeholder_only_diff(user_content: str, template_content: str) -> bool:
+    """Check if the only differences are placeholder substitutions.
+
+    Detects when user's file is the template with [[PLACEHOLDER]] values replaced.
+    In this case, the user's content is "correct" and no merge is needed.
+    """
+    import re
+
+    # Find all placeholders in template like [[PROJECT_NAME]], [[AUTHOR]], etc.
+    placeholders = re.findall(r"\[\[([A-Z_]+)\]\]", template_content)
+
+    if not placeholders:
+        return False
+
+    # Create a regex pattern from the template where placeholders become wildcards
+    # Escape regex special chars first, then replace placeholders with capture groups
+    pattern = re.escape(template_content)
+    for placeholder in placeholders:
+        # Replace escaped placeholder with a non-greedy wildcard
+        escaped_placeholder = re.escape(f"[[{placeholder}]]")
+        pattern = pattern.replace(escaped_placeholder, r".+?")
+
+    # Normalize whitespace for comparison
+    user_normalized = _normalize_whitespace(user_content)
+    pattern_normalized = _normalize_whitespace(pattern)
+
+    # Check if user content matches the pattern
+    try:
+        if re.fullmatch(pattern_normalized, user_normalized, re.DOTALL):
+            return True
+    except re.error:
+        pass
+
+    return False
 
 
 MERGE_SYSTEM_PROMPT = """\
 You are an expert at merging configuration and documentation files.
 
-Your task is to intelligently merge a user's customized file with a new \
-template version.
+Your task is to intelligently merge a user's customized file with a new template version.
+
+CRITICAL RULE: The user's version is ALWAYS more important than the template.
+- If the user has MORE content than the template, KEEP all the user's content
+- If the user has DIFFERENT content than the template, KEEP the user's version
+- The template only provides NEW sections or features the user doesn't have yet
+- NEVER remove or shorten user content to match a simpler template
 
 Key principles:
-1. PRESERVE user customizations - these represent intentional changes
-2. ADD new features from the template that don't exist in the user's version
-3. KEEP user's specific values (project names, paths, custom sections)
-4. UPDATE boilerplate/generic text with improved template versions
-5. MAINTAIN the overall structure and formatting
+1. PRESERVE all user content - their version represents intentional customizations
+2. ADD new sections from template that don't exist in user's version
+3. KEEP user's specific values, examples, project names, expanded explanations
+4. Only UPDATE generic boilerplate IF the template has genuinely NEW functionality
+5. MAINTAIN the user's structure and formatting preferences
 
-When identifying what to keep vs update:
-- Custom project names, paths, URLs = KEEP user's version
-- Custom sections not in template = KEEP entirely
-- Generic instructions that were improved = USE template version
-- User's reworded/expanded explanations = KEEP user's version
-- New sections in template = ADD to result
-- Deprecated sections removed from template = KEEP if user has content"""
+What to KEEP from user's version:
+- All custom project names, paths, URLs, examples
+- All expanded or reworded explanations (even if template is shorter)
+- All custom sections not in template
+- User's task lists, code examples, specific instructions
+- ANY content that is more detailed than the template
+
+What to ADD from template:
+- Genuinely NEW sections that don't exist in user's version
+- NEW features or capabilities not present in user's file
+- Critical fixes or corrections (rare)
+
+What to NEVER do:
+- Remove user content because template doesn't have it
+- Replace detailed user examples with generic template placeholders
+- Shorten user's expanded explanations
+- Treat template examples as "correct" when user has real content
+
+Response format - output EXACTLY this structure:
+```merged
+[the complete merged file content]
+```
+```summary
+- [1-2 concise bullet points: what was preserved, what was added]
+```
+
+Do not include any other text outside these code blocks."""
 
 
 MERGE_USER_PROMPT = """Please merge these two versions of a file.
@@ -86,14 +176,8 @@ MERGE_USER_PROMPT = """Please merge these two versions of a file.
 
 ## File Context:
 - Filename: {filename}
-- File type: {file_type}
 
-## Instructions:
-1. Analyze what the user has customized vs what is boilerplate
-2. Merge intelligently, preserving user intent while adding new template features
-3. Output ONLY the merged file content, nothing else
-4. Do not add any explanatory comments or markers
-5. Maintain proper formatting and structure"""
+Analyze what the user has customized vs what is boilerplate, then output the merged content and brief summary in the specified format."""
 
 
 def get_anthropic_client(interactive: bool = True):
@@ -157,6 +241,41 @@ def detect_file_type(filename: str) -> str:
     return type_map.get(ext, f"Configuration file ({ext})")
 
 
+def _parse_merge_response(response_text: str) -> tuple[str, str]:
+    """Parse the merged content and summary from AI response.
+
+    Expected format:
+    ```merged
+    [content]
+    ```
+    ```summary
+    [summary]
+    ```
+    """
+    import re
+
+    # Extract merged content
+    merged_match = re.search(r"```merged\n(.*?)```", response_text, re.DOTALL)
+    if merged_match:
+        merged_content = merged_match.group(1).strip()
+    else:
+        # Fallback: try to find any code block or use full response
+        code_match = re.search(r"```(?:\w+)?\n(.*?)```", response_text, re.DOTALL)
+        if code_match:
+            merged_content = code_match.group(1).strip()
+        else:
+            merged_content = response_text.strip()
+
+    # Extract summary
+    summary_match = re.search(r"```summary\n(.*?)```", response_text, re.DOTALL)
+    if summary_match:
+        explanation = summary_match.group(1).strip()
+    else:
+        explanation = "Merged user customizations with template updates"
+
+    return merged_content, explanation
+
+
 def ai_merge_content(
     user_content: str,
     template_content: str,
@@ -173,45 +292,22 @@ def ai_merge_content(
         Tuple of (merged_content, explanation)
     """
     client = get_anthropic_client()
-    file_type = detect_file_type(filename)
 
     user_prompt = MERGE_USER_PROMPT.format(
         user_content=user_content,
         template_content=template_content,
         filename=filename,
-        file_type=file_type,
     )
 
+    # Single API call - Haiku is faster for simple merge tasks
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-3-5-haiku-20241022",
         max_tokens=8192,
         system=MERGE_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_prompt}],
     )
 
-    merged_content = response.content[0].text
-
-    # Generate brief explanation
-    explain_prompt = """In 2-3 bullet points, summarize what was merged:
-- What user customizations were preserved?
-- What new template features were added?
-- Any sections that were updated?
-
-Be very brief, max 3 lines total."""
-
-    explain_response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=256,
-        messages=[
-            {"role": "user", "content": user_prompt},
-            {"role": "assistant", "content": merged_content},
-            {"role": "user", "content": explain_prompt},
-        ],
-    )
-
-    explanation = explain_response.content[0].text
-
-    return merged_content, explanation
+    return _parse_merge_response(response.content[0].text)
 
 
 def smart_merge_file(
@@ -242,6 +338,17 @@ def smart_merge_file(
         return AIMergeResult(
             merged_content=user_content,
             explanation="Skipped - only whitespace differences",
+            had_conflicts=False,
+            user_approved=True,
+            was_skipped_whitespace=True,
+        )
+
+    # Skip if user's file is just the template with placeholders filled in
+    if is_placeholder_only_diff(user_content, template_content):
+        console.print(f"[dim]Skipping {filename} - only placeholder substitutions[/dim]")
+        return AIMergeResult(
+            merged_content=user_content,
+            explanation="Skipped - user file matches template with placeholders filled",
             had_conflicts=False,
             user_approved=True,
             was_skipped_whitespace=True,
@@ -291,7 +398,8 @@ def smart_merge_file(
         except KeyboardInterrupt:
             status.stop()
             console.print("\n[yellow]Aborted by user[/yellow]")
-            raise
+            import typer
+            raise typer.Exit(1)
         except ImportError as e:
             status.stop()
             console.print(f"[red]{e}[/red]")
@@ -357,9 +465,9 @@ def smart_merge_file(
 
     try:
         choice = typer.prompt("Choose", default="y").lower()
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         console.print("\n[yellow]Aborted by user[/yellow]")
-        raise
+        raise typer.Exit(1)
 
     if choice == "y":
         return AIMergeResult(
