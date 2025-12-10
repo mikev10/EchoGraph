@@ -1,6 +1,6 @@
 [project]
 name = "echograph"
-version = "0.5.8"
+version = "0.5.10"
 description = "Context Engineering CLI for Claude Code"
 readme = "README.md"
 license = {text = "MIT"}

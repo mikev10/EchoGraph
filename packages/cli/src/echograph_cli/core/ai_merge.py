@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from rich.console import Console
+from rich.status import Status
 
 from echograph_cli.core.merge import (
     ConflictMarkerStyle,
@@ -19,6 +20,33 @@ class AIMergeResult:
     explanation: str
     had_conflicts: bool
     user_approved: bool
+
+
+def _normalize_whitespace(content: str) -> str:
+    """Normalize whitespace for comparison.
+
+    Strips trailing whitespace from lines, normalizes line endings,
+    and collapses multiple blank lines into one.
+    """
+    lines = content.replace("\r\n", "\n").split("\n")
+    # Strip trailing whitespace from each line
+    lines = [line.rstrip() for line in lines]
+    # Join and collapse multiple blank lines
+    text = "\n".join(lines)
+    while "\n\n\n" in text:
+        text = text.replace("\n\n\n", "\n\n")
+    return text.strip()
+
+
+def is_whitespace_only_diff(content1: str, content2: str) -> bool:
+    """Check if two contents differ only in whitespace.
+
+    Returns True if the only differences are:
+    - Trailing whitespace on lines
+    - Number of blank lines between sections
+    - Line ending differences (CRLF vs LF)
+    """
+    return _normalize_whitespace(content1) == _normalize_whitespace(content2)
 
 
 MERGE_SYSTEM_PROMPT = """\
@@ -207,6 +235,16 @@ def smart_merge_file(
     Returns:
         AIMergeResult with merged content and metadata
     """
+    # Skip if only whitespace differences
+    if is_whitespace_only_diff(user_content, template_content):
+        console.print(f"[dim]Skipping {filename} - only whitespace differences[/dim]")
+        return AIMergeResult(
+            merged_content=user_content,
+            explanation="Skipped - only whitespace differences",
+            had_conflicts=False,
+            user_approved=True,
+        )
+
     is_markdown = filename.endswith(".md")
 
     # For markdown, try section-level merge first
@@ -233,38 +271,59 @@ def smart_merge_file(
             f"using AI to resolve[/yellow]"
         )
 
-    # Use AI merge
-    console.print("[dim]Calling Claude API for intelligent merge...[/dim]")
+    # Use AI merge with spinner
+    merged_content = ""
+    explanation = ""
 
-    try:
-        merged_content, explanation = ai_merge_content(
-            user_content,
-            template_content,
-            filename,
+    with Status(
+        f"[cyan]Merging {filename}...[/cyan]",
+        console=console,
+        spinner="dots",
+    ) as status:
+        try:
+            merged_content, explanation = ai_merge_content(
+                user_content,
+                template_content,
+                filename,
+            )
+        except ImportError as e:
+            status.stop()
+            console.print(f"[red]{e}[/red]")
+            return AIMergeResult(
+                merged_content=user_content,
+                explanation="AI merge unavailable - kept original",
+                had_conflicts=True,
+                user_approved=False,
+            )
+        except ValueError as e:
+            status.stop()
+            console.print(f"[red]{e}[/red]")
+            return AIMergeResult(
+                merged_content=user_content,
+                explanation="AI merge unavailable - kept original",
+                had_conflicts=True,
+                user_approved=False,
+            )
+        except Exception as e:
+            status.stop()
+            console.print(f"[red]AI merge failed: {e}[/red]")
+            return AIMergeResult(
+                merged_content=user_content,
+                explanation=f"AI merge failed: {e}",
+                had_conflicts=True,
+                user_approved=False,
+            )
+
+    # Check if AI merge result only differs in whitespace
+    if is_whitespace_only_diff(user_content, merged_content):
+        console.print(
+            f"[dim]Skipping {filename} - AI merge found only whitespace differences[/dim]"
         )
-    except ImportError as e:
-        console.print(f"[red]{e}[/red]")
         return AIMergeResult(
             merged_content=user_content,
-            explanation="AI merge unavailable - kept original",
-            had_conflicts=True,
-            user_approved=False,
-        )
-    except ValueError as e:
-        console.print(f"[red]{e}[/red]")
-        return AIMergeResult(
-            merged_content=user_content,
-            explanation="AI merge unavailable - kept original",
-            had_conflicts=True,
-            user_approved=False,
-        )
-    except Exception as e:
-        console.print(f"[red]AI merge failed: {e}[/red]")
-        return AIMergeResult(
-            merged_content=user_content,
-            explanation=f"AI merge failed: {e}",
-            had_conflicts=True,
-            user_approved=False,
+            explanation="Skipped - only whitespace differences after AI analysis",
+            had_conflicts=False,
+            user_approved=True,
         )
 
     # Show diff preview
