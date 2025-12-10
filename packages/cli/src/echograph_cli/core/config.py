@@ -15,7 +15,9 @@ else:
 
 CONFIG_FILE = CONFIG_DIR.expanduser() / "config.yaml"
 
-console = Console()
+# force_terminal=True ensures colors work on Windows PowerShell
+# where Rich's auto-detection may fail
+console = Console(force_terminal=True)
 
 
 def load_config() -> dict:
@@ -103,14 +105,22 @@ def prompt_for_api_key(
     if existing_key:
         return existing_key
 
-    console.print(f"\n[yellow]{service_name} API key not found.[/yellow]")
-    console.print(f"Get your API key from: [cyan]{console_url}[/cyan]")
+    console.print()
+    console.print("[yellow]" + "=" * 50 + "[/yellow]")
+    console.print("[bold yellow]  ⚠ API KEY REQUIRED[/bold yellow]")
+    console.print("[yellow]" + "=" * 50 + "[/yellow]")
+    console.print()
+    console.print(f"  {service_name} API key not found.")
+    console.print()
+    console.print("  [bold]Get your key from:[/bold]")
+    console.print(f"    [cyan]{console_url}[/cyan]")
+    console.print()
+    console.print("[yellow]" + "=" * 50 + "[/yellow]")
     console.print()
 
     console.print("[bold]Options:[/bold]")
     console.print("  [1] Enter API key now (will be saved for future use)")
     console.print("  [2] Skip (smart merge will be unavailable)")
-    console.print()
 
     choice = typer.prompt("Choose option", default="1")
 

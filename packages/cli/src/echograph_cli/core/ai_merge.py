@@ -85,7 +85,7 @@ def get_anthropic_client(interactive: bool = True):
     except ImportError:
         raise ImportError(
             "anthropic package required for AI merge.\n"
-            "Install with: pip install echograph[ai]"
+            "Install with: uv tool install echograph[ai]"
         )
 
     from echograph_cli.core.config import get_api_key, prompt_for_api_key

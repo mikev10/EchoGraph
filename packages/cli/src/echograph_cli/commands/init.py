@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from jinja2.exceptions import TemplateNotFound
 from rich.table import Table
 
 from echograph_cli.core.ai_merge import smart_merge_file
@@ -17,6 +18,7 @@ from echograph_cli.core.models import ConflictResolution
 from echograph_cli.core.templates import (
     copy_templates,
     detect_conflicts,
+    get_bundled_template,
     get_project_config,
     preview_templates,
     render_template,
@@ -137,8 +139,14 @@ def _resolve_conflicts_interactive(
     console.print("  [4] Decide for each file individually")
     console.print("  [5] [cyan]Smart merge (AI-assisted)[/cyan]")
     console.print("      [dim]AI merges your customizations with new templates[/dim]")
+    console.print()
 
-    choice = typer.prompt("Choose option", default="1")
+    # Loop until valid choice
+    while True:
+        choice = typer.prompt("Choose option (1-5)")
+        if choice in ("1", "2", "3", "4", "5"):
+            break
+        console.print("[red]Please enter 1, 2, 3, 4, or 5[/red]")
 
     if choice == "1":
         return {c[0]: ConflictResolution.SKIP for c in conflicts}
@@ -149,7 +157,7 @@ def _resolve_conflicts_interactive(
     elif choice == "5":
         # Smart merge - mark all files for AI-assisted merge
         return {c[0]: SMART_MERGE_SENTINEL for c in conflicts}
-    else:
+    else:  # choice == "4"
         # Individual resolution with diff support
         for template_path, target_path in conflicts:
             is_markdown = target_path.suffix == ".md"
@@ -440,7 +448,11 @@ def init_command(
                     "formatter": config.formatter,
                     "linter": config.linter,
                 }
-                return render_template(template_path + ".j2", context)
+                # Try .j2 template first, fall back to raw file
+                try:
+                    return render_template(f"{template_path}.j2", context)
+                except TemplateNotFound:
+                    return get_bundled_template(template_path)
 
             if smart_merge:
                 # --smart-merge flag: mark all conflicts for AI merge
@@ -464,6 +476,64 @@ def init_command(
 
     # Handle smart merge files before copy_templates
     if smart_merge_files:
+        # Check for anthropic package and API key upfront
+        from echograph_cli.core.config import prompt_for_api_key
+
+        try:
+            import anthropic  # noqa: F401
+        except ImportError:
+            console.print()
+            console.print("[red]" + "=" * 50 + "[/red]")
+            console.print("[bold red]  ⚠ MISSING DEPENDENCY[/bold red]")
+            console.print("[red]" + "=" * 50 + "[/red]")
+            console.print()
+            console.print("  Smart merge requires the [bold]anthropic[/bold] package.")
+            console.print()
+            console.print("  [bold]To install:[/bold]")
+            console.print("    [green]uv tool install echograph\\[ai][/green]")
+            console.print()
+            console.print("  Then run [cyan]echograph init[/cyan] again.")
+            console.print()
+            console.print("[red]" + "=" * 50 + "[/red]")
+            console.print()
+
+            # Ask user what to do
+            console.print("[bold]What would you like to do?[/bold]")
+            console.print("  [1] Skip all conflicts (keep existing files)")
+            console.print("  [2] Abort and install package first (recommended)")
+            fallback_choice = typer.prompt("Choose option", default="2")
+
+            if fallback_choice == "1":
+                for template_path, _ in smart_merge_files:
+                    conflict_resolutions[template_path] = ConflictResolution.SKIP
+                smart_merge_files = []
+            else:
+                raise typer.Exit(0)
+
+        if smart_merge_files:
+            # Prompt for API key if not set
+            api_key = prompt_for_api_key(
+                key_name="anthropic_api_key",
+                service_name="Anthropic",
+                console_url="https://console.anthropic.com/",
+            )
+            if not api_key:
+                console.print("\n[yellow]No API key provided.[/yellow]")
+
+                # Ask user what to do
+                console.print("\n[bold]What would you like to do?[/bold]")
+                console.print("  [1] Skip all conflicts (keep existing files)")
+                console.print("  [2] Abort and set up API key first")
+                fallback_choice = typer.prompt("Choose option", default="2")
+
+                if fallback_choice == "1":
+                    for template_path, _ in smart_merge_files:
+                        conflict_resolutions[template_path] = ConflictResolution.SKIP
+                    smart_merge_files = []
+                else:
+                    raise typer.Exit(0)
+
+    if smart_merge_files:
         console.print(
             f"\n[cyan]Processing {len(smart_merge_files)} file(s) "
             f"with AI-assisted merge...[/cyan]"
@@ -479,7 +549,11 @@ def init_command(
                 "formatter": config.formatter,
                 "linter": config.linter,
             }
-            return render_template(template_path + ".j2", context)
+            # Try .j2 template first, fall back to raw file
+            try:
+                return render_template(f"{template_path}.j2", context)
+            except TemplateNotFound:
+                return get_bundled_template(template_path)
 
         for template_path, target_path in smart_merge_files:
             try:
