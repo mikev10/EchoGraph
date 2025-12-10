@@ -25,6 +25,9 @@ build/
 *.egg-info/
 .eggs/
 
+# PyPI
+.pypirc
+
 # IDE
 .idea/
 .vscode/

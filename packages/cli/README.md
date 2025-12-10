@@ -4,8 +4,37 @@ Context Engineering CLI for Claude Code - scaffold, validate, and maintain your 
 
 ## Installation
 
+### Recommended: Using uv (all platforms)
+
+```bash
+# Install uv first (if you don't have it)
+# Windows (PowerShell):
+irm https://astral.sh/uv/install.ps1 | iex
+
+# macOS/Linux:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Then install echograph
+uv tool install echograph
+```
+
+### Alternative: Using pip
+
+**macOS/Linux:**
 ```bash
 pip install echograph
+```
+
+**Windows:**
+```bash
+pip install echograph
+```
+Note: You may need to add the Scripts folder to your PATH. The installer will show the path (typically `C:\Users\<username>\AppData\Roaming\Python\Python3XX\Scripts`).
+
+### One-time usage (no install)
+
+```bash
+uvx echograph init
 ```
 
 ## Quick Start

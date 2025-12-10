@@ -7,6 +7,7 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
+from echograph_cli.core.ai_merge import smart_merge_file
 from echograph_cli.core.merge import (
     ConflictMarkerStyle,
     merge_claude_md_sections,
@@ -30,6 +31,9 @@ from echograph_cli.output import (
     print_warning,
     print_welcome_banner,
 )
+
+# Sentinel value for smart merge resolution
+SMART_MERGE_SENTINEL = "SMART_MERGE"
 
 
 def _handle_claude_md_migration(path: Path) -> bool:
@@ -109,17 +113,19 @@ def _handle_claude_md_migration(path: Path) -> bool:
 def _resolve_conflicts_interactive(
     conflicts: list[tuple[str, Path]],
     get_template_content: Callable[[str], str] | None = None,
-) -> dict[str, ConflictResolution]:
+    smart_merge_available: bool = False,
+) -> dict[str, ConflictResolution | str]:
     """Prompt user for conflict resolution strategy.
 
     Args:
         conflicts: List of (template_path, target_path) tuples
         get_template_content: Optional callable to get template content for diff display
+        smart_merge_available: Whether AI merge is available (anthropic installed)
 
     Returns:
-        Dict mapping template_path to resolution
+        Dict mapping template_path to resolution (or SMART_MERGE_SENTINEL for AI merge)
     """
-    resolutions: dict[str, ConflictResolution] = {}
+    resolutions: dict[str, ConflictResolution | str] = {}
 
     console.print(f"\n[yellow]Found {len(conflicts)} existing file(s):[/yellow]")
 
@@ -129,6 +135,8 @@ def _resolve_conflicts_interactive(
     console.print("  [2] Overwrite all existing files (use new templates)")
     console.print("  [3] Rename existing files (backup as .bak)")
     console.print("  [4] Decide for each file individually")
+    console.print("  [5] [cyan]Smart merge (AI-assisted)[/cyan]")
+    console.print("      [dim]AI merges your customizations with new templates[/dim]")
 
     choice = typer.prompt("Choose option", default="1")
 
@@ -138,6 +146,9 @@ def _resolve_conflicts_interactive(
         return {c[0]: ConflictResolution.OVERWRITE for c in conflicts}
     elif choice == "3":
         return {c[0]: ConflictResolution.RENAME for c in conflicts}
+    elif choice == "5":
+        # Smart merge - mark all files for AI-assisted merge
+        return {c[0]: SMART_MERGE_SENTINEL for c in conflicts}
     else:
         # Individual resolution with diff support
         for template_path, target_path in conflicts:
@@ -145,13 +156,14 @@ def _resolve_conflicts_interactive(
 
             while True:
                 console.print(f"\n[yellow]{template_path}[/yellow] already exists")
-                console.print("  [s] Skip (keep existing)")
-                console.print("  [o] Overwrite (use template)")
-                console.print("  [r] Rename existing to .bak")
+                console.print("  (s) Skip (keep existing)")
+                console.print("  (o) Overwrite (use template)")
+                console.print("  (r) Rename existing to .bak")
                 if get_template_content is not None:
-                    console.print("  [d] Show diff")
+                    console.print("  (d) Show diff")
                     if is_markdown:
-                        console.print("  [m] Section merge (markdown)")
+                        console.print("  (m) Section merge (markdown)")
+                    console.print("  (a) [cyan]AI smart merge[/cyan]")
 
                 file_choice = typer.prompt("Choose", default="s").lower()
 
@@ -203,6 +215,38 @@ def _resolve_conflicts_interactive(
                         resolutions[template_path] = ConflictResolution.SKIP
                     except Exception as e:
                         console.print(f"[red]Error merging: {e}[/red]")
+                        continue
+                    break
+
+                if (
+                    file_choice == "a"
+                    and get_template_content is not None
+                ):
+                    # AI-assisted smart merge
+                    try:
+                        existing_content = target_path.read_text(encoding="utf-8")
+                        template_content = get_template_content(template_path)
+
+                        result = smart_merge_file(
+                            user_content=existing_content,
+                            template_content=template_content,
+                            filename=target_path.name,
+                            console=console,
+                            auto_approve=False,
+                        )
+
+                        if result.user_approved:
+                            target_path.write_text(
+                                result.merged_content, encoding="utf-8"
+                            )
+                            console.print("  [green]Smart merge applied[/green]")
+                        else:
+                            console.print("  [yellow]Kept original file[/yellow]")
+
+                        # Already handled - skip in copy_templates
+                        resolutions[template_path] = ConflictResolution.SKIP
+                    except Exception as e:
+                        console.print(f"[red]Error in AI merge: {e}[/red]")
                         continue
                     break
 
@@ -271,6 +315,13 @@ def init_command(
         typer.Option(
             "--auto-merge",
             help="Auto-merge non-conflicting sections in markdown files",
+        ),
+    ] = False,
+    smart_merge: Annotated[
+        bool,
+        typer.Option(
+            "--smart-merge",
+            help="Use AI-assisted merge for all conflicting files",
         ),
     ] = False,
 ) -> None:
@@ -369,7 +420,9 @@ def init_command(
             print_info("CLAUDE.md already has all template sections")
 
     # Detect conflicts
-    conflict_resolutions: dict[str, ConflictResolution] = {}
+    conflict_resolutions: dict[str, ConflictResolution | str] = {}
+    smart_merge_files: list[tuple[str, Path]] = []  # Files marked for smart merge
+
     if not force:
         conflicts = detect_conflicts(path, mode)
         # If we merged CLAUDE.md, skip it in conflict detection
@@ -389,18 +442,82 @@ def init_command(
                 }
                 return render_template(template_path + ".j2", context)
 
-            conflict_resolutions = _resolve_conflicts_interactive(
-                [(c.template_path, c.target_path) for c in conflicts],
-                get_template_content=get_template_content,
-            )
+            if smart_merge:
+                # --smart-merge flag: mark all conflicts for AI merge
+                conflict_resolutions = {
+                    c.template_path: SMART_MERGE_SENTINEL for c in conflicts
+                }
+            else:
+                conflict_resolutions = _resolve_conflicts_interactive(
+                    [(c.template_path, c.target_path) for c in conflicts],
+                    get_template_content=get_template_content,
+                )
+
+            # Process smart merge files
+            for c in conflicts:
+                if conflict_resolutions.get(c.template_path) == SMART_MERGE_SENTINEL:
+                    smart_merge_files.append((c.template_path, c.target_path))
+
     # If CLAUDE.md was merged, mark it to skip in copy_templates
     if merged_claude_md:
         conflict_resolutions["CLAUDE.md"] = ConflictResolution.SKIP
 
+    # Handle smart merge files before copy_templates
+    if smart_merge_files:
+        console.print(
+            f"\n[cyan]Processing {len(smart_merge_files)} file(s) "
+            f"with AI-assisted merge...[/cyan]"
+        )
+
+        def get_template_content_for_merge(template_path: str) -> str:
+            """Get rendered template content for smart merge."""
+            context = {
+                "project_name": config.project_name,
+                "tech_stack": config.tech_stack,
+                "has_tests": config.has_tests,
+                "test_framework": config.test_framework,
+                "formatter": config.formatter,
+                "linter": config.linter,
+            }
+            return render_template(template_path + ".j2", context)
+
+        for template_path, target_path in smart_merge_files:
+            try:
+                existing_content = target_path.read_text(encoding="utf-8")
+                template_content = get_template_content_for_merge(template_path)
+
+                result = smart_merge_file(
+                    user_content=existing_content,
+                    template_content=template_content,
+                    filename=target_path.name,
+                    console=console,
+                    auto_approve=smart_merge,  # Auto-approve with --smart-merge flag
+                )
+
+                if result.user_approved:
+                    target_path.write_text(result.merged_content, encoding="utf-8")
+                    print_success(f"Smart merged: {template_path}")
+                else:
+                    print_warning(f"Skipped: {template_path}")
+
+                # Mark as handled
+                conflict_resolutions[template_path] = ConflictResolution.SKIP
+            except Exception as e:
+                print_error(f"Smart merge failed for {template_path}: {e}")
+                conflict_resolutions[template_path] = ConflictResolution.SKIP
+
+    # Convert any remaining SMART_MERGE_SENTINEL to SKIP
+    final_resolutions: dict[str, ConflictResolution] = {}
+    for k, v in conflict_resolutions.items():
+        if isinstance(v, ConflictResolution):
+            final_resolutions[k] = v
+        else:
+            final_resolutions[k] = ConflictResolution.SKIP
+
     # Copy templates
     with create_progress() as progress:
         task = progress.add_task("Creating files...", total=None)
-        files_created = copy_templates(path, mode, config, force, conflict_resolutions)
+        files_created = copy_templates(path, mode, config, force, final_resolutions)
         progress.update(task, completed=True)
 
     # Report results

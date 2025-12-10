@@ -26,14 +26,36 @@ Complete guide to setting up and customizing Context Engineering for your projec
 
 ## Quick Setup
 
-### Step 1: Copy Template Files
+### Step 1: Install and Initialize
+
+**Option A: Using the CLI (Recommended)**
 
 ```bash
-# Option A: Clone this template
+# Install uv (if you don't have it)
+# Windows (PowerShell): irm https://astral.sh/uv/install.ps1 | iex
+# macOS/Linux: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install echograph CLI
+uv tool install echograph
+
+# Initialize in your project
+cd your-project
+echograph init
+
+# Verify setup
+echograph doctor
+```
+
+**Alternative:** `pip install echograph` (may require PATH configuration on Windows)
+
+**Option B: Manual Setup**
+
+```bash
+# Clone this template
 git clone <template-repo-url> my-project-context
 cd my-project-context
 
-# Option B: Copy into existing project
+# Copy into existing project
 cp -r ContextEngineering/.claude /path/to/your-project/
 cp -r ContextEngineering/PRPs /path/to/your-project/
 cp -r ContextEngineering/examples /path/to/your-project/

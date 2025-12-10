@@ -28,8 +28,12 @@ Teams using this framework achieve:
 ### Option 1: Using the CLI (Recommended)
 
 ```bash
+# Install uv (if you don't have it)
+# Windows (PowerShell): irm https://astral.sh/uv/install.ps1 | iex
+# macOS/Linux: curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # Install the CLI
-pip install echograph
+uv tool install echograph
 
 # Initialize Context Engineering in your project
 cd your-project
@@ -41,6 +45,8 @@ echograph doctor
 # Validate your context files
 echograph validate
 ```
+
+**Alternative:** Use `pip install echograph` (may require PATH configuration on Windows).
 
 ### Option 2: Manual Setup
 
